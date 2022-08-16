@@ -1,7 +1,8 @@
+__pycache__
+dataset/
+out/
 *.jpg
 *.jpeg
 *.png
 *.npy
 *.npz
-dataset/
-out/
