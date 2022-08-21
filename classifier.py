@@ -1,77 +1,71 @@
 import dataclasses
+import os
+import pathlib
+import time
+
 import sklearn.ensemble
-import sklearn.exceptions
-import sklearn.model_selection
-import sklearn.neighbors
-import sklearn.neural_network
-import sklearn.svm
-import sklearn.tree
 import warnings
+
+from output import save_fold
+from result import calculate_test
+from samples import get_samples_with_patch
 
 warnings.simplefilter("ignore", category=sklearn.exceptions.ConvergenceWarning)
 
 
-def get_hp_dt():
-    return {
-        'criterion': ['gini', 'entropy'],
-        'splitter': ['best', 'random'],
-        'max_depth': [10, 100, 1000]
-    }
+def classifier_patch(cfg, best_classifier, classifier_name, dataset, fold, index_test,
+                     index_train, list_result_fold, list_time, n_patch, path_classifier, pca, x, y):
+    x_train, y_train = get_samples_with_patch(x, y, index_train, n_patch)
+    x_test, y_test = get_samples_with_patch(x, y, index_test, n_patch)
+
+    print(fold, classifier_name, x_train.shape, x_test.shape)
+
+    start_time = time.time()
+    best_classifier.fit(x_train, y_train)
+    y_pred = best_classifier.predict_proba(x_test)
+    end_time = time.time()
+
+    path_fold = os.path.join(path_classifier, str(n_patch), str(pca), str(fold))
+    pathlib.Path(path_fold).mkdir(parents=True, exist_ok=True)
+
+    result_max_rule, result_prod_rule, result_sum_rule = calculate_test(cfg, fold, y_pred, y_test, n_patch=n_patch)
+
+    final_time = end_time - start_time
+
+    list_result_fold.append(result_max_rule)
+    list_result_fold.append(result_prod_rule)
+    list_result_fold.append(result_sum_rule)
+    list_time.append(final_time)
+
+    save_fold(classifier_name, dataset, final_time, (result_max_rule, result_prod_rule, result_sum_rule),
+              path_fold)
 
 
-def get_hp_svm():
-    return {
-        'kernel': ['linear', 'poly', 'rbf', 'sigmoid'],
-    }
+def classifier_no_patch(cfg, best_classifier, classifier_name, dataset, fold, index_test,
+                        index_train, list_result_fold, list_time, path_classifier, pca, x, y):
+    x_train, y_train = x[index_train], y[index_train]
+    x_test, y_test = x[index_test], y[index_test]
 
+    print(fold, classifier_name, x_train.shape, x_test.shape)
 
-def get_hp_mlp():
-    return {
-        'activation': ['identity', 'logistic', 'tanh', 'relu'],
-        'solver': ['adam', 'sgd'],
-        'learning_rate_init': [0.01, 0.001, 0.0001],
-        'momentum': [0.9, 0.4, 0.1]
-    }
+    start_time = time.time()
+    best_classifier.fit(x_train, y_train)
+    y_pred = best_classifier.predict_proba(x_test)
+    end_time = time.time()
 
+    path_fold = os.path.join(path_classifier, str(pca), str(fold))
+    pathlib.Path(path_fold).mkdir(parents=True, exist_ok=True)
 
-def get_hp_knn():
-    return {
-        'n_neighbors': [2, 4, 6, 8, 10],
-        'weights': ['uniform', 'distance'],
-        'metric': ['euclidean', 'manhattan']
-    }
+    result_max_rule, result_prod_rule, result_sum_rule = calculate_test(cfg, fold, y_pred, y_test)
 
+    final_time = end_time - start_time
 
-def get_hp_rf():
-    return {
-        'n_estimators': [200, 400, 600, 800, 1000],
-        'max_features': ['sqrt', 'log2'],
-        'criterion': ['gini', 'entropy'],
-        'max_depth': [10, 100, 1000]
-    }
+    list_result_fold.append(result_max_rule)
+    list_result_fold.append(result_prod_rule)
+    list_result_fold.append(result_sum_rule)
+    list_time.append(final_time)
 
-
-def get_list_classifiers():
-    return list([
-        Classifier("dt", sklearn.tree.DecisionTreeClassifier(random_state=1), get_hp_dt(), None, None),
-        Classifier("knn", sklearn.neighbors.KNeighborsClassifier(n_jobs=-1), get_hp_knn(), None, None),
-        Classifier("mlp", sklearn.neural_network.MLPClassifier(random_state=1), get_hp_mlp(), None, None),
-        Classifier("rf", sklearn.ensemble.RandomForestClassifier(random_state=1, n_jobs=-1), get_hp_rf(), None, None),
-        Classifier("svm", sklearn.svm.SVC(random_state=1, probability=True), get_hp_svm(), None, None),
-    ])
-
-
-def train_and_test(model, x_test, x_train, y_train):
-    model.fit(x_train, y_train)
-    return model.predict_proba(x_test)
-
-
-def get_best_classifier(cfg, classifier, x, y):
-    model = sklearn.model_selection.GridSearchCV(getattr(classifier, "classifier"), getattr(classifier, "params"),
-                                                 scoring='accuracy', cv=cfg["fold"])
-    model.fit(x, y)
-    setattr(classifier, "best_classifier", model.best_estimator_)
-    setattr(classifier, "best_params", model.best_params_)
+    save_fold(classifier_name, dataset, final_time, (result_max_rule, result_prod_rule, result_sum_rule), path_fold)
 
 
 @dataclasses.dataclass

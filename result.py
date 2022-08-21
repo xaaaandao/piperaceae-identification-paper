@@ -2,8 +2,6 @@ import dataclasses
 import numpy
 import sklearn.metrics
 
-from classifier import Classifier
-
 
 def get_index_max_value(y):
     index = numpy.unravel_index(numpy.argmax(y, axis=None), y.shape)  # index return a tuple
@@ -47,15 +45,15 @@ def sum_all_prob(cfg, n_patch, y_pred):
     return new_y_pred_prob_sum, new_y_pred
 
 
-def calculate_test(cfg, classifier, fold, y_pred, y_test, n_patch=1):
+def calculate_test(cfg, fold, y_pred, y_test, n_patch=1):
     if n_patch > 1:
         y_test = y_test_with_patch(n_patch, y_test)
     y_pred_max = max_rule(n_patch, y_pred)
     y_pred_prob_prod, y_pred_prod = prod_all_prob(cfg, n_patch, y_pred)
     y_pred_prob_sum, y_pred_sum = sum_all_prob(cfg, n_patch, y_pred)
-    return Result(classifier, fold, "max", y_pred, y_pred_max, y_test),\
-           Result(classifier, fold, "prod", y_pred_prob_prod, y_pred_prod, y_test),\
-           Result(classifier, fold, "sum", y_pred_prob_sum, y_pred_sum, y_test)
+    return Result(fold, "max", y_pred, y_pred_max, y_test),\
+           Result(fold, "prod", y_pred_prob_prod, y_pred_prod, y_test),\
+           Result(fold, "sum", y_pred_prob_sum, y_pred_sum, y_test)
 
 
 def convert_prob_to_label(y_pred):
@@ -101,7 +99,7 @@ def get_result_per_attribute_and_value(attribute, list_result_fold, value):
 @dataclasses.dataclass
 class Result:
     accuracy: float = dataclasses.field(init=False)
-    classifier: Classifier
+    # classifier: c.Classifier
     confusion_matrix: None = dataclasses.field(init=False)
     fold: int
     rule: str

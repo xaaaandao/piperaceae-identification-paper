@@ -10,7 +10,7 @@ import time
 from result import Result
 
 
-def save_mean_std(cfg, list_result_fold, list_time, path):
+def save_mean_std(best_params, cfg, list_result_fold, list_time, path):
     cfg_used = {
         "fold": str(cfg["fold"]),
         "n_labels": str(cfg["n_labels"]),
@@ -19,13 +19,16 @@ def save_mean_std(cfg, list_result_fold, list_time, path):
         "test_size": str(cfg["test_size"]),
         "train_size": str(cfg["train_size"])
     }
+    b_params = {
+        "best_params": best_params
+    }
     try:
         with open(os.path.join(path, "mean.md"), "w") as file:
+            file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([cfg_used])).getMarkdown()))
+            file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([b_params])).getMarkdown()))
             list_result_between_rule = list()
             for rule in ("max", "prod", "sum"):
                 file.write(f"### {rule}\n")
-                file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([cfg_used])).getMarkdown()))
-
                 list_result_per_rule = list(filter(lambda l: getattr(l, "rule") == rule, list_result_fold))
                 mean_time = numpy.mean(list_time)
                 mean_accuracy = numpy.mean(list(getattr(l, "accuracy") for l in list_result_per_rule))
@@ -48,8 +51,7 @@ def save_mean_std(cfg, list_result_fold, list_time, path):
                 file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([mean])).getMarkdown()))
                 file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([best])).getMarkdown()))
 
-                result = Result(None, None, rule, numpy.zeros(shape=(1,)), numpy.zeros(shape=(1,)),
-                                numpy.zeros(shape=(1,)))
+                result = Result(None, rule, numpy.zeros(shape=(1,)), numpy.zeros(shape=(1,)), numpy.zeros(shape=(1,)))
                 setattr(result, "accuracy", mean_accuracy)
                 list_result_between_rule.append(result)
             best_rule = max(list_result_between_rule, key=operator.attrgetter("accuracy"))
