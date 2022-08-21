@@ -9,6 +9,7 @@ import time
 
 from result import Result
 
+
 def save_mean_std(best_params, cfg, list_result_fold, list_time, n_features, n_samples, path):
     cfg_used = {
         "fold": str(cfg["fold"]),
@@ -30,7 +31,6 @@ def save_mean_std(best_params, cfg, list_result_fold, list_time, n_features, n_s
             file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([cfg_used])).getMarkdown()))
             file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([info_dataset])).getMarkdown()))
             file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([b_params])).getMarkdown()))
-
 
             list_result_per_rule = list(r for r in list_result_fold if not getattr(r, "rule"))
             if len(list_result_per_rule) == 5:
@@ -78,7 +78,8 @@ def save_mean_std(best_params, cfg, list_result_fold, list_time, n_features, n_s
                     file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([mean])).getMarkdown()))
                     file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([best])).getMarkdown()))
 
-                    result = Result(None, rule, numpy.zeros(shape=(1,)), numpy.zeros(shape=(1,)), numpy.zeros(shape=(1,)))
+                    result = Result(None, rule, numpy.zeros(shape=(1,)), numpy.zeros(shape=(1,)),
+                                    numpy.zeros(shape=(1,)))
                     setattr(result, "accuracy", mean_accuracy)
                     list_result_between_rule.append(result)
                 best_rule = max(list_result_between_rule, key=operator.attrgetter("accuracy"))

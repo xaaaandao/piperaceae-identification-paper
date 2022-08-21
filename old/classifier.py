@@ -45,9 +45,10 @@ hyperparams = {
 }
 
 
-def data_has_patch(cfg, best_classifier, classifier_name, dataset, index, list_result_fold, list_time, n_patch,
-                   path_classifier, x, x_surf, y, y_surf):
-    for fold, (index_train, index_test) in enumerate(index.split(x_surf, y_surf)):
+def data_has_patch(cfg, best_classifier, classifier_name, dataset, index, list_time, n_patch,
+                   path_classifier, x, y):
+    list_result_fold = list()
+    for fold, (index_train, index_test) in enumerate(index):
         x_train, y_train = get_samples_with_patch(x, y, index_train, n_patch)
         x_test, y_test = get_samples_with_patch(x, y, index_test, n_patch)
 
@@ -72,11 +73,13 @@ def data_has_patch(cfg, best_classifier, classifier_name, dataset, index, list_r
 
         save_fold(classifier_name, dataset, final_time, (result_max_rule, result_prod_rule, result_sum_rule),
                   path_fold)
+    return list_result_fold
 
 
-def data_no_patch(cfg, best_classifier, classifier_name, dataset, index, list_result_fold, list_time, path_classifier,
-                  x, x_surf, y, y_surf):
-    for fold, (index_train, index_test) in enumerate(index.split(x_surf, y_surf)):
+def data_no_patch(cfg, best_classifier, classifier_name, dataset, index, list_time, path_classifier,
+                  x, y):
+    list_result_fold = list()
+    for fold, (index_train, index_test) in enumerate(index):
         x_train, y_train = x[index_train], y[index_train]
         x_test, y_test = x[index_test], y[index_test]
 
@@ -100,6 +103,7 @@ def data_no_patch(cfg, best_classifier, classifier_name, dataset, index, list_re
         list_time.append(final_time)
 
         save_fold(classifier_name, dataset, final_time, (result_max_rule, result_prod_rule, result_sum_rule), path_fold)
+    return list_result_fold
 
 
 def my_ensemble_classifier(cfg, dataset, list_result_classifier, n_features, n_samples, n_patch=None, orientation=None):
@@ -146,7 +150,7 @@ def my_ensemble_classifier(cfg, dataset, list_result_classifier, n_features, n_s
 
 
 def ensemble_classifier(cfg, dataset, index, list_best_classifiers, n_features, n_samples, path, x, y, n_patch=None,
-                        orientation=None, x_surf=None, y_surf=None):
+                        orientation=None):
     classifier = sklearn.ensemble.VotingClassifier(estimators=list_best_classifiers, voting="hard")
     classifier_name = classifier.__class__.__name__
 
@@ -160,7 +164,7 @@ def ensemble_classifier(cfg, dataset, index, list_best_classifiers, n_features, 
         path_classifier = os.path.join(cfg["path_out"], dataset, classifier_name, str(n_features))
     pathlib.Path(path_classifier).mkdir(parents=True, exist_ok=True)
 
-    for fold, (index_train, index_test) in enumerate(index.split(x_surf, y_surf)):
+    for fold, (index_train, index_test) in enumerate(index):
         if n_patch and orientation:
             x_train, y_train = get_samples_with_patch(x, y, index_train, n_patch)
             x_test, y_test = get_samples_with_patch(x, y, index_test, n_patch)
@@ -189,25 +193,19 @@ def ensemble_classifier(cfg, dataset, index, list_best_classifiers, n_features, 
         path_fold = os.path.join(path_classifier, str(fold))
         pathlib.Path(path_fold).mkdir(parents=True, exist_ok=True)
         save_fold(classifier_name, dataset, final_time, list([r]), path_fold)
-    # else:
-    #     data_no_patch(cfg, classifier, classifier_name, dataset, index, list_result_fold, list_time, path, x,
-    #                   y)
     save_mean_std(None, cfg, list_result_fold, list_time, n_features, n_samples, path)
 
 
-def classification_data(cfg, dataset, index, n_features, n_samples, x, y, n_patch=None, orientation=None, x_surf=None,
-                        y_surf=None):
+def classification_data(cfg, dataset, index, n_features, n_samples, x, y, n_patch=None, orientation=None):
     list_best_classifiers = list()
     list_result_classifier = list()
 
-    # for classifier in (
-    #                           sklearn.tree.DecisionTreeClassifier(random_state=1),
-    #                           sklearn.neighbors.KNeighborsClassifier(n_jobs=-1),
-    #                           sklearn.neural_network.MLPClassifier(random_state=1),
-    #                           sklearn.ensemble.RandomForestClassifier(random_state=1),
-    #                           sklearn.svm.SVC(random_state=1, probability=True))[3:]:
     for classifier in (
-            sklearn.tree.DecisionTreeClassifier(random_state=1), sklearn.neighbors.KNeighborsClassifier(n_jobs=-1)):
+                              sklearn.tree.DecisionTreeClassifier(random_state=1),
+                              sklearn.neighbors.KNeighborsClassifier(n_jobs=-1),
+                              sklearn.neural_network.MLPClassifier(random_state=1),
+                              sklearn.ensemble.RandomForestClassifier(random_state=1),
+                              sklearn.svm.SVC(random_state=1, probability=True)):
         classifier_name = classifier.__class__.__name__
 
         model = sklearn.model_selection.GridSearchCV(classifier, hyperparams[classifier_name], scoring="accuracy",
@@ -218,7 +216,6 @@ def classification_data(cfg, dataset, index, n_features, n_samples, x, y, n_patc
         best_params = model.best_params_
 
         list_best_classifiers.append((classifier_name, best_classifier))
-        list_result_fold = list()
         list_time = list()
 
         if n_patch and orientation:
@@ -227,16 +224,16 @@ def classification_data(cfg, dataset, index, n_features, n_samples, x, y, n_patc
             path = os.path.join(cfg["path_out"], dataset, classifier_name, str(n_features))
         pathlib.Path(path).mkdir(parents=True, exist_ok=True)
 
+
         if n_patch and orientation:
-            data_has_patch(cfg, best_classifier, classifier_name, dataset, index, list_result_fold, list_time, n_patch,
-                           path, x, x_surf, y, y_surf)
+            list_result_fold = data_has_patch(cfg, best_classifier, classifier_name, dataset, index, list_time, n_patch,
+                                              path, x, y)
         else:
-            data_no_patch(cfg, best_classifier, classifier_name, dataset, index, list_result_fold, list_time, path, x,
-                          x_surf, y, y_surf)
+            list_result_fold = data_no_patch(cfg, best_classifier, classifier_name, dataset, index, list_time, path, x, y)
 
         save_mean_std(best_params, cfg, list_result_fold, list_time, n_features, n_samples, path)
         list_result_classifier = list_result_classifier + list_result_fold
 
     my_ensemble_classifier(cfg, dataset, list_result_classifier, n_features, n_samples, n_patch=n_patch, orientation=orientation)
     ensemble_classifier(cfg, dataset, index, list_best_classifiers, n_features, n_samples, path, x, y, n_patch=n_patch,
-                        orientation=orientation, x_surf=x_surf, y_surf=y_surf)
+                        orientation=orientation)

@@ -18,7 +18,7 @@ def max_rule(n_patch, y_pred):
 
 def next_sequence(start, end, step):
     for i in range(start, end, step):
-        yield i, i+step
+        yield i, i + step
 
 
 def y_test_with_patch(n_patch, y_test):
@@ -26,6 +26,7 @@ def y_test_with_patch(n_patch, y_test):
     for i, j in next_sequence(0, y_test.shape[0], n_patch):
         new_y_test = numpy.append(new_y_test, y_test[i])
     return new_y_test
+
 
 def y_pred_with_patch(n_patch, y_test):
     new_y_test = numpy.empty(shape=(0,))
@@ -38,7 +39,7 @@ def prod_all_prob(cfg, n_patch, y_pred):
     new_y_pred = numpy.empty(shape=(0,))
     new_y_pred_prob_prod = numpy.empty(shape=(0, cfg["n_labels"]))
     for i, j in next_sequence(0, y_pred.shape[0], n_patch):
-        new_y_pred = numpy.append(new_y_pred, numpy.argmax(y_pred[i:j].prod(axis=0))+1)
+        new_y_pred = numpy.append(new_y_pred, numpy.argmax(y_pred[i:j].prod(axis=0)) + 1)
         new_y_pred_prob_prod = numpy.vstack((new_y_pred_prob_prod, y_pred[i:j].prod(axis=0)))
     return new_y_pred_prob_prod, new_y_pred
 
@@ -47,7 +48,7 @@ def sum_all_prob(cfg, n_patch, y_pred):
     new_y_pred = numpy.empty(shape=(0,))
     new_y_pred_prob_sum = numpy.empty(shape=(0, cfg["n_labels"]))
     for i, j in next_sequence(0, y_pred.shape[0], n_patch):
-        new_y_pred = numpy.append(new_y_pred, numpy.argmax(y_pred[i:j].sum(axis=0))+1)
+        new_y_pred = numpy.append(new_y_pred, numpy.argmax(y_pred[i:j].sum(axis=0)) + 1)
         new_y_pred_prob_sum = numpy.vstack((new_y_pred_prob_sum, y_pred[i:j].sum(axis=0)))
     return new_y_pred_prob_sum, new_y_pred
 
@@ -58,8 +59,8 @@ def calculate_test(cfg, fold, y_pred, y_test, n_patch=1):
     y_pred_max = max_rule(n_patch, y_pred)
     y_pred_prob_prod, y_pred_prod = prod_all_prob(cfg, n_patch, y_pred)
     y_pred_prob_sum, y_pred_sum = sum_all_prob(cfg, n_patch, y_pred)
-    return Result(fold, "max", y_pred, y_pred_max, y_test),\
-           Result(fold, "prod", y_pred_prob_prod, y_pred_prod, y_test),\
+    return Result(fold, "max", y_pred, y_pred_max, y_test), \
+           Result(fold, "prod", y_pred_prob_prod, y_pred_prod, y_test), \
            Result(fold, "sum", y_pred_prob_sum, y_pred_sum, y_test)
 
 
