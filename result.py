@@ -1,3 +1,4 @@
+import collections
 import dataclasses
 import numpy
 import sklearn.metrics
@@ -24,6 +25,12 @@ def y_test_with_patch(n_patch, y_test):
     new_y_test = numpy.empty(shape=(0,))
     for i, j in next_sequence(0, y_test.shape[0], n_patch):
         new_y_test = numpy.append(new_y_test, y_test[i])
+    return new_y_test
+
+def y_pred_with_patch(n_patch, y_test):
+    new_y_test = numpy.empty(shape=(0,))
+    for i, j in next_sequence(0, y_test.shape[0], n_patch):
+        new_y_test = numpy.append(new_y_test, collections.Counter(y_test[i:j].tolist()).most_common(1)[0][0])
     return new_y_test
 
 

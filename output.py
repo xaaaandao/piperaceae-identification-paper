@@ -30,42 +30,65 @@ def save_mean_std(best_params, cfg, list_result_fold, list_time, n_features, n_s
             file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([cfg_used])).getMarkdown()))
             file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([info_dataset])).getMarkdown()))
             file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([b_params])).getMarkdown()))
-            list_result_between_rule = list()
-            for rule in ("max", "prod", "sum"):
-                file.write(f"### {rule}\n")
-                list_result_per_rule = list(filter(lambda l: getattr(l, "rule") == rule, list_result_fold))
+
+
+            list_result_per_rule = list(r for r in list_result_fold if not getattr(r, "rule"))
+            if len(list_result_per_rule) == 5:
                 mean_time = numpy.mean(list_time)
                 mean_accuracy = numpy.mean(list(getattr(l, "accuracy") for l in list_result_per_rule))
                 std_deviation = numpy.std(list(getattr(l, "accuracy") for l in list_result_per_rule))
-                best_fold = max(list_result_per_rule, key=operator.attrgetter("accuracy"))
-
                 mean = {
                     "mean_time": str(time.strftime("%H:%M:%S", time.gmtime(mean_time))),
                     "mean_accuracy": str(mean_accuracy),
                     "mean_accuracy_per": str(round(mean_accuracy * 100, 4)),
                     "std_deviation": str(std_deviation),
                 }
-
-                best = {
-                    "best_fold": str(getattr(best_fold, "fold")),
-                    "best_accuracy": str(getattr(best_fold, "accuracy")),
-                    "best_accuracy_per": str(round(getattr(best_fold, "accuracy") * 100, 4)),
-                }
-
                 file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([mean])).getMarkdown()))
+                best_accuracy = max(list_result_per_rule, key=operator.attrgetter("accuracy"))
+                best = {
+                    "best_fold": str(getattr(best_accuracy, "fold")),
+                    "best_accuracy": str(getattr(best_accuracy, "accuracy")),
+                    "best_accuracy_per": str(round(getattr(best_accuracy, "accuracy") * 100, 4)),
+                }
+                print(f"best_accuracy: {best['best_accuracy_per']}\n")
                 file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([best])).getMarkdown()))
+            else:
+                list_result_between_rule = list()
+                for rule in ("max", "prod", "sum"):
+                    file.write(f"### {rule}\n")
+                    list_result_per_rule = list(filter(lambda l: getattr(l, "rule") == rule, list_result_fold))
+                    mean_time = numpy.mean(list_time)
+                    mean_accuracy = numpy.mean(list(getattr(l, "accuracy") for l in list_result_per_rule))
+                    std_deviation = numpy.std(list(getattr(l, "accuracy") for l in list_result_per_rule))
+                    best_fold = max(list_result_per_rule, key=operator.attrgetter("accuracy"))
 
-                result = Result(None, rule, numpy.zeros(shape=(1,)), numpy.zeros(shape=(1,)), numpy.zeros(shape=(1,)))
-                setattr(result, "accuracy", mean_accuracy)
-                list_result_between_rule.append(result)
-            best_rule = max(list_result_between_rule, key=operator.attrgetter("accuracy"))
-            b = {
-                "best_accuracy": str(round(getattr(best_rule, "accuracy") * 100, 4)),
-                "best_rule": str(getattr(best_rule, "rule"))
-            }
-            print(f"best_accuracy: {b['best_accuracy']}, best_rule: {b['best_rule']}\n")
-            file.write("### final\n")
-            file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([b])).getMarkdown()))
+                    mean = {
+                        "mean_time": str(time.strftime("%H:%M:%S", time.gmtime(mean_time))),
+                        "mean_accuracy": str(mean_accuracy),
+                        "mean_accuracy_per": str(round(mean_accuracy * 100, 4)),
+                        "std_deviation": str(std_deviation),
+                    }
+
+                    best = {
+                        "best_fold": str(getattr(best_fold, "fold")),
+                        "best_accuracy": str(getattr(best_fold, "accuracy")),
+                        "best_accuracy_per": str(round(getattr(best_fold, "accuracy") * 100, 4)),
+                    }
+
+                    file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([mean])).getMarkdown()))
+                    file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([best])).getMarkdown()))
+
+                    result = Result(None, rule, numpy.zeros(shape=(1,)), numpy.zeros(shape=(1,)), numpy.zeros(shape=(1,)))
+                    setattr(result, "accuracy", mean_accuracy)
+                    list_result_between_rule.append(result)
+                best_rule = max(list_result_between_rule, key=operator.attrgetter("accuracy"))
+                b = {
+                    "best_accuracy": str(round(getattr(best_rule, "accuracy") * 100, 4)),
+                    "best_rule": str(getattr(best_rule, "rule"))
+                }
+                print(f"best_accuracy: {b['best_accuracy']}, best_rule: {b['best_rule']}\n")
+                file.write("### final\n")
+                file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([b])).getMarkdown()))
             file.close()
     except Exception as e:
         print(f"exception in {e}")

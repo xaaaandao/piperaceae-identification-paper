@@ -11,7 +11,7 @@ import warnings
 
 from output import save_fold, save_mean_std
 from result import calculate_test, get_result_per_attribute_and_value, Result, convert_prob_to_label, max_all_results, \
-    sum_all_results, prod_all_results
+    sum_all_results, prod_all_results, y_test_with_patch, y_pred_with_patch
 from samples import get_samples_with_patch
 
 warnings.simplefilter("ignore", category=sklearn.exceptions.ConvergenceWarning)
@@ -75,8 +75,8 @@ def data_has_patch(cfg, best_classifier, classifier_name, dataset, index, list_r
 
 
 def data_no_patch(cfg, best_classifier, classifier_name, dataset, index, list_result_fold, list_time, path_classifier,
-                  x, y):
-    for fold, (index_train, index_test) in enumerate(index.split(x, y)):
+                  x, x_surf, y, y_surf):
+    for fold, (index_train, index_test) in enumerate(index.split(x_surf, y_surf)):
         x_train, y_train = x[index_train], y[index_train]
         x_test, y_test = x[index_test], y[index_test]
 
@@ -105,6 +105,8 @@ def data_no_patch(cfg, best_classifier, classifier_name, dataset, index, list_re
 def my_ensemble_classifier(cfg, dataset, list_result_classifier, n_features, n_samples, n_patch=None, orientation=None):
     classifier_name = "MyEnsembleClassifier"
     list_result_mean = list()
+    list_time = list()
+
     if n_patch and orientation:
         path_classifier = os.path.join(cfg["path_out"], dataset, classifier_name, orientation, str(n_patch),
                                        str(n_features))
@@ -112,7 +114,6 @@ def my_ensemble_classifier(cfg, dataset, list_result_classifier, n_features, n_s
         path_classifier = os.path.join(cfg["path_out"], dataset, classifier_name, str(n_features))
     pathlib.Path(path_classifier).mkdir(parents=True, exist_ok=True)
 
-    list_time = list()
     for fold in range(0, cfg["fold"]):
         list_result_fold = get_result_per_attribute_and_value("fold", list_result_classifier, fold)
 
@@ -125,9 +126,9 @@ def my_ensemble_classifier(cfg, dataset, list_result_classifier, n_features, n_s
         start_time = time.time()
         result_max_rule = Result(fold, "max", None, max_all_results(list_result_fold), y_true)
         result_sum_rule = Result(fold, "sum", None,
-                            convert_prob_to_label(sum_all_results(list_result_fold)), y_true)
+                                 convert_prob_to_label(sum_all_results(list_result_fold)), y_true)
         result_prod_rule = Result(fold, "prod", None,
-                            convert_prob_to_label(prod_all_results(list_result_fold)), y_true)
+                                  convert_prob_to_label(prod_all_results(list_result_fold)), y_true)
         end_time = time.time()
 
         final_time = end_time - start_time
@@ -153,11 +154,44 @@ def ensemble_classifier(cfg, dataset, index, list_best_classifiers, n_features, 
     list_time = list()
 
     if n_patch and orientation:
-        data_has_patch(cfg, classifier, classifier_name, dataset, index, list_result_fold, list_time, n_patch,
-                       path, x, x_surf, y, y_surf)
+        path_classifier = os.path.join(cfg["path_out"], dataset, classifier_name, orientation, str(n_patch),
+                                       str(n_features))
     else:
-        data_no_patch(cfg, classifier, classifier_name, dataset, index, list_result_fold, list_time, path, x,
-                      y)
+        path_classifier = os.path.join(cfg["path_out"], dataset, classifier_name, str(n_features))
+    pathlib.Path(path_classifier).mkdir(parents=True, exist_ok=True)
+
+    for fold, (index_train, index_test) in enumerate(index.split(x_surf, y_surf)):
+        if n_patch and orientation:
+            x_train, y_train = get_samples_with_patch(x, y, index_train, n_patch)
+            x_test, y_test = get_samples_with_patch(x, y, index_test, n_patch)
+        else:
+            x_train, y_train = x[index_train], y[index_train]
+            x_test, y_test = x[index_test], y[index_test]
+
+        print(fold, classifier_name, x_train.shape, x_test.shape)
+
+        start_time = time.time()
+        classifier.fit(x_train, y_train)
+        y_pred = classifier.predict(x_test)
+        end_time = time.time()
+        final_time = end_time - start_time
+
+        if n_patch and orientation:
+            y_true = y_test_with_patch(n_patch, y_test)
+            y_pred = y_pred_with_patch(n_patch, y_pred)
+        else:
+            y_true = y_test
+
+        r = Result(fold, None, None, y_pred, y_true)
+        list_time.append(final_time)
+        list_result_fold.append(r)
+
+        path_fold = os.path.join(path_classifier, str(fold))
+        pathlib.Path(path_fold).mkdir(parents=True, exist_ok=True)
+        save_fold(classifier_name, dataset, final_time, list([r]), path_fold)
+    # else:
+    #     data_no_patch(cfg, classifier, classifier_name, dataset, index, list_result_fold, list_time, path, x,
+    #                   y)
     save_mean_std(None, cfg, list_result_fold, list_time, n_features, n_samples, path)
 
 
@@ -198,10 +232,11 @@ def classification_data(cfg, dataset, index, n_features, n_samples, x, y, n_patc
                            path, x, x_surf, y, y_surf)
         else:
             data_no_patch(cfg, best_classifier, classifier_name, dataset, index, list_result_fold, list_time, path, x,
-                          y)
+                          x_surf, y, y_surf)
 
         save_mean_std(best_params, cfg, list_result_fold, list_time, n_features, n_samples, path)
         list_result_classifier = list_result_classifier + list_result_fold
 
     my_ensemble_classifier(cfg, dataset, list_result_classifier, n_features, n_samples, n_patch=n_patch, orientation=orientation)
-    # ensemble_classifier(cfg, dataset, index, list_best_classifiers, n_features, n_samples, path, x, y, n_patch=n_patch, orientation=orientation, x_surf=x_surf, y_surf=y_surf)
+    ensemble_classifier(cfg, dataset, index, list_best_classifiers, n_features, n_samples, path, x, y, n_patch=n_patch,
+                        orientation=orientation, x_surf=x_surf, y_surf=y_surf)
