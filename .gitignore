@@ -6,3 +6,4 @@ out/
 *.png
 *.npy
 *.npz
+*.zip
