@@ -24,7 +24,7 @@ function [path] = path_to_img(path, dirname, filename)
 end
 
 function [] = list_dir_files(path, dirname, list_file)
-    new_size = 256;
+    new_size = 400;
     for i=3:length(list_file)
         img = imread(path_to_img(path, dirname, list_file(i).name));
         img2gray = rgb2gray(img);

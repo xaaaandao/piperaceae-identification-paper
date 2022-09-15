@@ -1,8 +1,10 @@
+import csv
 import markdownTable
 import matplotlib
 import numpy
 import operator
 import os
+import pandas
 import re
 import sklearn
 import time
@@ -11,6 +13,12 @@ from result import Result
 
 
 def save_mean_std(best_params, cfg, list_result_fold, list_time, n_features, n_samples, path):
+    columns_cfg = ["fold", "n_labels", "path_base", "path_out", "test_size", "train_size"]
+    data_cfg = [cfg["fold"], cfg["n_labels"], cfg["path_base"], cfg["path_out"], cfg["test_size"], cfg["train_size"]]
+    columns_best_params = ["best_params"]
+    data_best_params = [cfg["best_params"]]
+    columns_dataset = ["n_samples", "n_features"]
+    data_dataset = [n_samples, n_features]
     cfg_used = {
         "fold": str(cfg["fold"]),
         "n_labels": str(cfg["n_labels"]),
@@ -37,21 +45,27 @@ def save_mean_std(best_params, cfg, list_result_fold, list_time, n_features, n_s
                 mean_time = numpy.mean(list_time)
                 mean_accuracy = numpy.mean(list(getattr(l, "accuracy") for l in list_result_per_rule))
                 std_deviation = numpy.std(list(getattr(l, "accuracy") for l in list_result_per_rule))
-                mean = {
-                    "mean_time": str(time.strftime("%H:%M:%S", time.gmtime(mean_time))),
-                    "mean_accuracy": str(mean_accuracy),
-                    "mean_accuracy_per": str(round(mean_accuracy * 100, 4)),
-                    "std_deviation": str(std_deviation),
-                }
-                file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([mean])).getMarkdown()))
+                columns_mean = ["mean_time", "mean_accuracy", "mean_accuracy_per", "std_deviation"]
+                data_mean = [str(time.strftime("%H:%M:%S", time.gmtime(mean_time))), mean_accuracy,
+                             round(mean_accuracy * 100, 4), std_deviation]
+                # mean = {
+                #     "mean_time": ,
+                #     "mean_accuracy": str(mean_accuracy),
+                #     "mean_accuracy_per": str(round(mean_accuracy * 100, 4)),
+                #     "std_deviation": str(std_deviation),
+                # }
+                # file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([mean])).getMarkdown()))
                 best_accuracy = max(list_result_per_rule, key=operator.attrgetter("accuracy"))
-                best = {
-                    "best_fold": str(getattr(best_accuracy, "fold")),
-                    "best_accuracy": str(getattr(best_accuracy, "accuracy")),
-                    "best_accuracy_per": str(round(getattr(best_accuracy, "accuracy") * 100, 4)),
-                }
-                print(f"best_accuracy: {best['best_accuracy_per']}\n")
-                file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([best])).getMarkdown()))
+                columns_best = ["best_fold", "best_accuracy", "best_accuracy_per"]
+                data_best = [getattr(best_accuracy, "fold"), getattr(best_accuracy, "accuracy"),
+                             round(getattr(best_accuracy, "accuracy") * 100, 4)]
+                # best = {
+                #     "best_fold": str(getattr(best_accuracy, "fold")),
+                #     "best_accuracy": str(getattr(best_accuracy, "accuracy")),
+                #     "best_accuracy_per": str(round(getattr(best_accuracy, "accuracy") * 100, 4)),
+                # }
+                # print(f"best_accuracy: {best['best_accuracy_per']}\n")
+                # file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([best])).getMarkdown()))
             else:
                 list_result_between_rule = list()
                 for rule in ("max", "prod", "sum"):
@@ -68,12 +82,17 @@ def save_mean_std(best_params, cfg, list_result_fold, list_time, n_features, n_s
                         "mean_accuracy_per": str(round(mean_accuracy * 100, 4)),
                         "std_deviation": str(std_deviation),
                     }
-
+                    columns_mean = ["mean_time", "mean_accuracy", "mean_accuracy_per", "std_deviation"]
+                    data_mean = [str(time.strftime("%H:%M:%S", time.gmtime(mean_time))), mean_accuracy,
+                                 round(mean_accuracy * 100, 4), std_deviation]
                     best = {
                         "best_fold": str(getattr(best_fold, "fold")),
                         "best_accuracy": str(getattr(best_fold, "accuracy")),
                         "best_accuracy_per": str(round(getattr(best_fold, "accuracy") * 100, 4)),
                     }
+                    columns_b = ["best_fold", "best_accuracy", "best_accuracy_per"]
+                    data_b = [getattr(best_fold, "fold"), getattr(best_fold, "accuracy"),
+                              round(getattr(best_fold, "accuracy") * 100, 4)]
 
                     file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([mean])).getMarkdown()))
                     file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([best])).getMarkdown()))
@@ -119,19 +138,12 @@ def save_confusion_matrix(classifier_name, dataset, list_result, path):
 
 
 def save_fold(classifier_name, dataset, final_time, list_result, path):
-    try:
-        with open(os.path.join(path, "out.md"), "w") as file:
-            for result in list_result:
-                r = {
-                    "fold": str(getattr(result, "fold")),
-                    "rule": str(getattr(result, "rule")),
-                    "accuracy": str(getattr(result, "accuracy")),
-                    "accuracy_per": str(round(getattr(result, 'accuracy') * 100, 4)),
-                    "time": str(time.strftime("%H:%M:%S", time.gmtime(final_time)))
-                }
-                file.write(re.sub(r"```$", "\n```\n\n", markdownTable.markdownTable(list([r])).getMarkdown()))
-            save_confusion_matrix(classifier_name, dataset, list_result, path)
-            file.close()
-    except Exception as e:
-        print(f"exception in {e}")
-        raise
+    columns = ["fold", "rule", "accuracy", "accuracy_per", "time", "time_seg"]
+    for result in list_result:
+        data = [getattr(result, "fold"), getattr(result, "rule"), getattr(result, "accuracy"),
+                round(getattr(result, "accuracy") * 100, 4), str(time.strftime("%H:%M:%S", time.gmtime(final_time))),
+                final_time]
+        dataframe_cfg = pandas.DataFrame(data, columns)
+        dataframe_cfg.to_csv(os.path.join(path, "out.csv"), decimal=",", sep=";", na_rep=" ", header=False,
+                             quoting=csv.QUOTE_ALL)
+        save_confusion_matrix(classifier_name, dataset, list_result, path)
