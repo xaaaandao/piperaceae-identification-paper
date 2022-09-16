@@ -233,7 +233,7 @@ def classification_data(cfg, dataset, index, n_features, n_samples, x, y, n_patc
 
         save_mean_std(best_params, cfg, list_result_fold, list_time, n_features, n_samples, path)
         list_result_classifier = list_result_classifier + list_result_fold
-        # break
+        break
     my_ensemble_classifier(cfg, dataset, list_result_classifier, n_features, n_samples, n_patch=n_patch, orientation=orientation)
     ensemble_classifier(cfg, dataset, index, list_best_classifiers, n_features, n_samples, path, x, y, n_patch=n_patch,
                         orientation=orientation)

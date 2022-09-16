@@ -1,0 +1,5 @@
+function [dir] = sort_dir_name(list_dir)
+    list_dir = [list_dir(3:length(list_dir)-1)];    
+    list_dir = struct2table(list_dir);
+    dir = sortrows(list_dir,'name');
+end
