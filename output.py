@@ -138,12 +138,30 @@ def save_confusion_matrix(classifier_name, dataset, list_result, path):
 
 
 def save_fold(classifier_name, dataset, final_time, list_result, path):
-    columns = ["fold", "rule", "accuracy", "accuracy_per", "time", "time_seg"]
+    list_rule = list()
+    list_acc = list()
+    list_acc_per = list()
     for result in list_result:
-        data = [getattr(result, "fold"), getattr(result, "rule"), getattr(result, "accuracy"),
-                round(getattr(result, "accuracy") * 100, 4), str(time.strftime("%H:%M:%S", time.gmtime(final_time))),
-                final_time]
-        dataframe_cfg = pandas.DataFrame(data, columns)
-        dataframe_cfg.to_csv(os.path.join(path, "out.csv"), decimal=",", sep=";", na_rep=" ", header=False,
-                             quoting=csv.QUOTE_ALL)
-        save_confusion_matrix(classifier_name, dataset, list_result, path)
+        print(result["rule"])
+        list_rule.append(getattr(r[0], "rule"))
+        list_acc.append(getattr(r[0], "accuracy"))
+        list_acc_per.append(round(getattr(r[0], "accuracy") * 100, 4))
+    # list_rule = list()
+    # list_acc = list()
+    # list_acc_per = list()
+    # for rule in list(["max", "prod", "sum"]):
+    #     r = list(filter(lambda x: getattr(x, "rule") == rule, list_result))
+    #     # print(getattr(r[0], "rule"), getattr(r[0], "accuracy"))
+    #     list_rule.append(getattr(r[0], "rule"))
+    #     list_acc.append(getattr(r[0], "accuracy"))
+    #     list_acc_per.append(round(getattr(r[0], "accuracy") * 100, 4))
+    # # print(list_result)
+    # columns = ["rule", "accuracy", "accuracy_per"]
+    # data = [list_rule, list_acc, list_acc_per]
+    # c = ["fold", "time", "time_sec"]
+    # d = [getattr(list_result[0], "fold"), str(time.strftime("%H:%M:%S", time.gmtime(final_time))), final_time]
+    # # save_confusion_matrix(classifier_name, dataset, list_result, path)
+    # dataframe_cfg = pandas.DataFrame(data, columns)
+    # dataframe_cd = pandas.DataFrame(d, c)
+    # dataframe_f = pandas.concat([dataframe_cfg, dataframe_cd])
+    # dataframe_f.to_csv(os.path.join(path, "out.csv"), decimal=",", sep=";", na_rep=" ", header=False, quoting=csv.QUOTE_ALL)

@@ -1,5 +1,9 @@
+import csv
 import os
+import pandas
 import pathlib
+
+import numpy
 import sklearn.ensemble
 import sklearn.exceptions
 import sklearn.neighbors
@@ -100,10 +104,13 @@ def data_no_patch(cfg, best_classifier, classifier_name, dataset, index, list_ti
         list_result_fold.append(result_max_rule)
         list_result_fold.append(result_prod_rule)
         list_result_fold.append(result_sum_rule)
-        list_time.append(final_time)
+        list_time.append({
+            "fold": fold,
+            "final_time": final_time
+        })
 
-        save_fold(classifier_name, dataset, final_time, (result_max_rule, result_prod_rule, result_sum_rule), path_fold)
-    return list_result_fold
+        # save_fold(classifier_name, dataset, final_time, (result_max_rule, result_prod_rule, result_sum_rule), path_fold)
+    return list_result_fold, list_time
 
 
 def my_ensemble_classifier(cfg, dataset, list_result_classifier, n_features, n_samples, n_patch=None, orientation=None):
@@ -196,6 +203,46 @@ def ensemble_classifier(cfg, dataset, index, list_best_classifiers, n_features, 
     save_mean_std(None, cfg, list_result_fold, list_time, n_features, n_samples, path)
 
 
+def save(cfg, classifier_name, dataset, list_result_fold, list_time, path):
+    columns = ["rule", "accuracy", "accuracy_per"]
+    for f in range(0, cfg["fold"]):
+        list_fold = list(filter(lambda x: x["fold"] == f, list_result_fold))
+        t = list(filter(lambda x: x["fold"] == f, list_time))
+
+        list_rule = list()
+        list_accuracy = list()
+        list_accuracy_per = list()
+        for rule in list(["max", "prod", "sum"]):
+            result = list(filter(lambda x: x["rule"] == rule, list_fold))
+
+            list_rule.append(rule)
+            list_accuracy.append(result[0]["accuracy"])
+            list_accuracy_per.append(round(result[0]["accuracy"] * 100, 4))
+
+        best_rule = max(list_fold, key=lambda x: x["accuracy"])
+        # print(len(best_rule), type(best_rule))
+
+        path_fold = os.path.join(path, str(f))
+        dataframe_fold = pandas.DataFrame([list_rule, list_accuracy, list_accuracy_per], columns)
+        dataframe_fold.to_csv(os.path.join(path_fold, "out.csv"), decimal=",", sep=";", na_rep=" ", header=False, quoting=csv.QUOTE_ALL)
+
+        time_sec = time.strftime("%H:%M:%S", time.gmtime(t[0]["final_time"]))
+        dataframe_time = pandas.DataFrame([t[0]["final_time"], time_sec], ["time", "time_sec"])
+        dataframe_best_rule = pandas.DataFrame([best_rule["rule"], best_rule["accuracy"]], ["best_rule", "best_accuracy"])
+        dataframe_info = pandas.concat([dataframe_time, dataframe_best_rule])
+        dataframe_info.to_csv(os.path.join(path_fold, "fold_info.csv"), decimal=",", sep=";", na_rep=" ", header=False,
+                              quoting=csv.QUOTE_ALL)
+
+    best_fold = max(list_result_fold, key=lambda x: x["accuracy"])
+    mean_time = numpy.mean([t["final_time"] for t in list_time])
+    mean_time_sec = time.strftime("%H:%M:%S", time.gmtime(mean_time))
+    std_time = numpy.std([t["final_time"] for t in list_time])
+    dataframe_mean = pandas.DataFrame([mean_time, mean_time_sec, std_time, best_fold["fold"], best_fold["accuracy"]], ["mean_time", "mean_time_sec", "std_time", "best_fold", "best_fold_accuracy"])
+    dataframe_mean.to_csv(os.path.join(path, "mean.csv"), decimal=",", sep=";", na_rep=" ", header=False,
+            quoting=csv.QUOTE_ALL)
+    print(mean_time, std_time)
+
+
 def classification_data(cfg, dataset, index, n_features, n_samples, x, y, n_patch=None, orientation=None):
     list_best_classifiers = list()
     list_result_classifier = list()
@@ -224,16 +271,16 @@ def classification_data(cfg, dataset, index, n_features, n_samples, x, y, n_patc
             path = os.path.join(cfg["path_out"], dataset, classifier_name, str(n_features))
         pathlib.Path(path).mkdir(parents=True, exist_ok=True)
 
-
         if n_patch and orientation:
             list_result_fold = data_has_patch(cfg, best_classifier, classifier_name, dataset, index, list_time, n_patch,
                                               path, x, y)
         else:
-            list_result_fold = data_no_patch(cfg, best_classifier, classifier_name, dataset, index, list_time, path, x, y)
+            list_result_fold, list_time = data_no_patch(cfg, best_classifier, classifier_name, dataset, index, list_time, path, x, y)
 
-        save_mean_std(best_params, cfg, list_result_fold, list_time, n_features, n_samples, path)
+        # save_mean_std(best_params, cfg, list_result_fold, list_time, n_features, n_samples, path)
+        save(cfg, classifier_name, dataset, list_result_fold, list_time, path)
         list_result_classifier = list_result_classifier + list_result_fold
         break
-    my_ensemble_classifier(cfg, dataset, list_result_classifier, n_features, n_samples, n_patch=n_patch, orientation=orientation)
-    ensemble_classifier(cfg, dataset, index, list_best_classifiers, n_features, n_samples, path, x, y, n_patch=n_patch,
-                        orientation=orientation)
+    # my_ensemble_classifier(cfg, dataset, list_result_classifier, n_features, n_samples, n_patch=n_patch, orientation=orientation)
+    # ensemble_classifier(cfg, dataset, index, list_best_classifiers, n_features, n_samples, path, x, y, n_patch=n_patch,
+    #                     orientation=orientation)

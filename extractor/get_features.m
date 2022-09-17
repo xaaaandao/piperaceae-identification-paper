@@ -12,9 +12,9 @@ function get_features()
         img = imread(path_img);
         label = get_label(list_dir.name(i));
         
-%         addpath(genpath("lbp")); % tipo include e sem ele nao funfa
-%         feature = lbp(img);
-%         fileout("lbp.txt", feature, string(label));
+        addpath(genpath("lbp")); % tipo include e sem ele nao funfa
+        feature = lbp(img);
+        fileout("lbp.txt", feature, string(label));
 
         addpath(genpath("surf"));
         feature = surf(img, 64);

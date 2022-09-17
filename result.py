@@ -59,9 +59,25 @@ def calculate_test(cfg, fold, y_pred, y_test, n_patch=1):
     y_pred_max = max_rule(n_patch, y_pred)
     y_pred_prob_prod, y_pred_prod = prod_all_prob(cfg, n_patch, y_pred)
     y_pred_prob_sum, y_pred_sum = sum_all_prob(cfg, n_patch, y_pred)
-    return Result(fold, "max", y_pred, y_pred_max, y_test), \
-           Result(fold, "prod", y_pred_prob_prod, y_pred_prod, y_test), \
-           Result(fold, "sum", y_pred_prob_sum, y_pred_sum, y_test)
+    # return Result(fold, "max", y_pred, y_pred_max, y_test), \
+    #        Result(fold, "prod", y_pred_prob_prod, y_pred_prod, y_test), \
+    #        Result(fold, "sum", y_pred_prob_sum, y_pred_sum, y_test)
+    return create_result(fold, "max", y_pred, y_pred_max, y_test), \
+           create_result(fold, "prod", y_pred_prob_prod, y_pred_prod, y_test), \
+           create_result(fold, "sum", y_pred_prob_sum, y_pred_sum, y_test)
+
+def create_result(fold, rule, y_pred_prob, y_pred, y_test):
+    accuracy = sklearn.metrics.accuracy_score(y_pred=y_pred, y_true=y_test)
+    confusion_matrix = sklearn.metrics.confusion_matrix(y_pred=y_pred, y_true=y_test)
+    return {
+        "fold": fold,
+        "rule": rule,
+        "y_pred_prob": y_pred_prob,
+        "y_pred": y_pred,
+        "y_true": y_test,
+        "accuracy": accuracy,
+        "confusion_matrix": confusion_matrix
+    }
 
 
 def convert_prob_to_label(y_pred):
