@@ -1,5 +1,6 @@
 function get_features()
-    path = "./images/RGB/512/";
+    % path = "../../dataset/img+pred_mask/MATLAB/GRAYSCALE/256/";
+    path = "../../dataset/PHOTOSHOP/IMG+MASK/GRAYSCALE/SEM_RESIZE/OUT/";
     delete_file_exists();
     list_dir = sort_by_name(dir(path));
     
@@ -18,11 +19,11 @@ function get_features()
 
         addpath(genpath("surf"));
         feature = surf(img, 64);
-        fileout("surf64.txt", feature, label);
+        fileout("surf64.txt", feature, string(label));
         
         addpath(genpath("surf"));
         feature = surf(img, 128);
-        fileout("surf128.txt", feature, label);
+        fileout("surf128.txt", feature, string(label));
     end
 end
 
