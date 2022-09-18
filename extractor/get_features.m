@@ -1,6 +1,6 @@
 function get_features()
-    % path = "../../dataset/img+pred_mask/MATLAB/GRAYSCALE/256/";
-    path = "../../dataset/PHOTOSHOP/IMG+MASK/GRAYSCALE/SEM_RESIZE/OUT/";
+     path = "../../dataset/img+pred_mask/iwssip/";
+%     path = "../../dataset/PHOTOSHOP/IMG+MASK/MATLAB/GRAYSCALE/256/";
     delete_file_exists();
     list_dir = sort_by_name(dir(path));
     

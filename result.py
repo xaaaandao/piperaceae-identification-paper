@@ -1,5 +1,4 @@
 import collections
-import dataclasses
 import numpy
 import sklearn.metrics
 
@@ -59,9 +58,6 @@ def calculate_test(cfg, fold, y_pred, y_test, n_patch=1):
     y_pred_max = max_rule(n_patch, y_pred)
     y_pred_prob_prod, y_pred_prod = prod_all_prob(cfg, n_patch, y_pred)
     y_pred_prob_sum, y_pred_sum = sum_all_prob(cfg, n_patch, y_pred)
-    # return Result(fold, "max", y_pred, y_pred_max, y_test), \
-    #        Result(fold, "prod", y_pred_prob_prod, y_pred_prod, y_test), \
-    #        Result(fold, "sum", y_pred_prob_sum, y_pred_sum, y_test)
     return create_result(fold, "max", y_pred, y_pred_max, y_test), \
            create_result(fold, "prod", y_pred_prob_prod, y_pred_prod, y_test), \
            create_result(fold, "sum", y_pred_prob_sum, y_pred_sum, y_test)
@@ -89,8 +85,6 @@ def convert_prob_to_label(y_pred):
 
 
 def sum_all_results(list_result):
-    # list_result_per_sum = get_result_per_attribute_and_value("rule", list_result, "sum")
-    # result = getattr(list_result_per_sum[0], "y_pred_prob")
     list_result_per_sum = list(filter(lambda x: x["rule"] == "sum", list_result))
     result = list_result_per_sum[0]["y_pred_prob"]
     for l in list_result_per_sum[1:]:
@@ -99,8 +93,6 @@ def sum_all_results(list_result):
 
 
 def prod_all_results(list_result):
-    # list_result_per_prod = get_result_per_attribute_and_value("rule", list_result, "prod")
-    # result = getattr(list_result_per_prod[0], "y_pred_prob")
     list_result_per_prod = list(filter(lambda x: x["rule"] == "prod", list_result))
     result = list_result_per_prod[0]["y_pred_prob"]
     for l in list_result_per_prod[1:]:
@@ -109,7 +101,6 @@ def prod_all_results(list_result):
 
 
 def max_all_results(list_result):
-    # list_result_per_max = get_result_per_attribute_and_value("rule", list_result, "max")
     list_result_per_max = list(filter(lambda x: x["rule"] == "max", list_result))
     result = list_result_per_max[0]["y_pred"]
     for y_pred in list_result_per_max[1:]:
@@ -124,24 +115,3 @@ def get_max_row_values(current_y_pred, row, y_pred):
 
 def get_result_per_attribute_and_value(attribute, list_result_fold, value):
     return list(filter(lambda l: getattr(l, attribute) == value, list_result_fold))
-
-
-@dataclasses.dataclass
-class Result:
-    accuracy: float = dataclasses.field(init=False)
-    # classifier: c.Classifier
-    confusion_matrix: None = dataclasses.field(init=False)
-    fold: int
-    rule: str
-    y_pred_prob: None
-    y_pred: None
-    y_true: None
-
-    def __post_init__(self):
-        self.accuracy = sklearn.metrics.accuracy_score(y_pred=self.y_pred, y_true=self.y_true)
-        self.confusion_matrix = sklearn.metrics.confusion_matrix(y_pred=self.y_pred, y_true=self.y_true)
-
-
-def add_all_result(list_result_fold, list_result):
-    for result in list_result:
-        list_result_fold.append(result)
