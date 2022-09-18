@@ -115,26 +115,26 @@ def save_mean_std(best_params, cfg, list_result_fold, list_time, n_features, n_s
         raise
 
 
-def save_confusion_matrix(classifier_name, dataset, list_result, path):
-    for result in list_result:
-        filename = f"confusion_matrix-{getattr(result, 'rule')}.png"
-        labels = ["$\it{Manekia}$", "$\it{Ottonia}$", "$\it{Peperomia}$", "$\it{Piper}$", "$\it{Pothomorphe}$"]
-        confusion_matrix = sklearn.metrics.ConfusionMatrixDisplay(getattr(result, "confusion_matrix"))
-        confusion_matrix.plot(cmap="Reds")
-        title = f"Confusion Matrix\ndataset: {dataset}, classifier: {classifier_name}\naccuracy: {round(getattr(result, 'accuracy') * 100, 4)}, rule: {getattr(result, 'rule')}"
-        matplotlib.pyplot.ioff()
-        matplotlib.pyplot.title(title, pad=20)
-        matplotlib.pyplot.xticks(numpy.arange(5), labels, rotation=(45))
-        matplotlib.pyplot.yticks(numpy.arange(5), labels)
-        matplotlib.pyplot.ylabel("y_test", fontsize=12)
-        matplotlib.pyplot.xlabel("y_pred", fontsize=12)
-        matplotlib.pyplot.gcf().subplots_adjust(bottom=0.15, left=0.25)
-        matplotlib.pyplot.rcParams["figure.facecolor"] = "white"
-        matplotlib.pyplot.rcParams["figure.figsize"] = (10, 10)
-        matplotlib.pyplot.savefig(os.path.join(path, filename))
-        matplotlib.pyplot.cla()
-        matplotlib.pyplot.clf()
-        matplotlib.pyplot.close()
+def save_confusion_matrix(classifier_name, dataset, path, result):
+    # for result in list_result:
+    filename = f"confusion_matrix-{result['rule']}.png"
+    labels = ["$\it{Manekia}$", "$\it{Ottonia}$", "$\it{Peperomia}$", "$\it{Piper}$", "$\it{Pothomorphe}$"]
+    confusion_matrix = sklearn.metrics.ConfusionMatrixDisplay(result["confusion_matrix"])
+    confusion_matrix.plot(cmap="Reds")
+    title = f"Confusion Matrix\ndataset: {dataset}, classifier: {classifier_name}\naccuracy: {round(result['accuracy'] * 100, 4)}, rule: {result['rule']}"
+    matplotlib.pyplot.ioff()
+    matplotlib.pyplot.title(title, pad=20)
+    matplotlib.pyplot.xticks(numpy.arange(5), labels, rotation=(45))
+    matplotlib.pyplot.yticks(numpy.arange(5), labels)
+    matplotlib.pyplot.ylabel("y_test", fontsize=12)
+    matplotlib.pyplot.xlabel("y_pred", fontsize=12)
+    matplotlib.pyplot.gcf().subplots_adjust(bottom=0.15, left=0.25)
+    matplotlib.pyplot.rcParams["figure.facecolor"] = "white"
+    matplotlib.pyplot.rcParams["figure.figsize"] = (10, 10)
+    matplotlib.pyplot.savefig(os.path.join(path, filename))
+    matplotlib.pyplot.cla()
+    matplotlib.pyplot.clf()
+    matplotlib.pyplot.close()
 
 
 def save_fold(classifier_name, dataset, final_time, list_result, path):

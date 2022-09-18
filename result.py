@@ -66,6 +66,7 @@ def calculate_test(cfg, fold, y_pred, y_test, n_patch=1):
            create_result(fold, "prod", y_pred_prob_prod, y_pred_prod, y_test), \
            create_result(fold, "sum", y_pred_prob_sum, y_pred_sum, y_test)
 
+
 def create_result(fold, rule, y_pred_prob, y_pred, y_test):
     accuracy = sklearn.metrics.accuracy_score(y_pred=y_pred, y_true=y_test)
     confusion_matrix = sklearn.metrics.confusion_matrix(y_pred=y_pred, y_true=y_test)
@@ -88,27 +89,32 @@ def convert_prob_to_label(y_pred):
 
 
 def sum_all_results(list_result):
-    list_result_per_sum = get_result_per_attribute_and_value("rule", list_result, "sum")
-    result = getattr(list_result_per_sum[0], "y_pred_prob")
+    # list_result_per_sum = get_result_per_attribute_and_value("rule", list_result, "sum")
+    # result = getattr(list_result_per_sum[0], "y_pred_prob")
+    list_result_per_sum = list(filter(lambda x: x["rule"] == "sum", list_result))
+    result = list_result_per_sum[0]["y_pred_prob"]
     for l in list_result_per_sum[1:]:
-        result = result + getattr(l, "y_pred_prob")
+        result = result + l["y_pred_prob"]
     return result
 
 
 def prod_all_results(list_result):
-    list_result_per_prod = get_result_per_attribute_and_value("rule", list_result, "prod")
-    result = getattr(list_result_per_prod[0], "y_pred_prob")
+    # list_result_per_prod = get_result_per_attribute_and_value("rule", list_result, "prod")
+    # result = getattr(list_result_per_prod[0], "y_pred_prob")
+    list_result_per_prod = list(filter(lambda x: x["rule"] == "prod", list_result))
+    result = list_result_per_prod[0]["y_pred_prob"]
     for l in list_result_per_prod[1:]:
-        result = result * getattr(l, "y_pred_prob")
+        result = result * l["y_pred_prob"]
     return result
 
 
 def max_all_results(list_result):
-    list_result_per_max = get_result_per_attribute_and_value("rule", list_result, "max")
-    result = getattr(list_result_per_max[0], "y_pred")
+    # list_result_per_max = get_result_per_attribute_and_value("rule", list_result, "max")
+    list_result_per_max = list(filter(lambda x: x["rule"] == "max", list_result))
+    result = list_result_per_max[0]["y_pred"]
     for y_pred in list_result_per_max[1:]:
         for row, current_y_pred in enumerate(result):
-            result[row] = get_max_row_values(current_y_pred, row, getattr(y_pred, "y_pred"))
+            result[row] = get_max_row_values(current_y_pred, row, y_pred["y_pred"])
     return result
 
 
