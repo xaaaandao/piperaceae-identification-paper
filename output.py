@@ -40,10 +40,11 @@ def save_mean(best_params, list_result_fold, list_time, path):
     mean_time = numpy.mean([t["final_time"] for t in list_time])
     mean_time_sec = time.strftime("%H:%M:%S", time.gmtime(mean_time))
     std_time = numpy.std([t["final_time"] for t in list_time])
-    print(f"mean acc: {round(best_fold['accuracy'] * 100, 4)}")
+    print(f"best acc (%): {round(best_fold['accuracy'] * 100, 4)}")
+    print(f"best fold: {best_fold['fold']}, best rule: {best_fold['rule']}")
     dataframe_mean = pandas.DataFrame(
-        [mean_time, mean_time_sec, std_time, best_fold["fold"], best_fold["accuracy"],  round(best_fold["accuracy"] * 100, 4), str(best_params)],
-        ["mean_time", "mean_time_sec", "std_time", "best_fold", "best_fold_accuracy", "best_fold_accuracy_per", "best_params"])
+        [mean_time, mean_time_sec, std_time, best_fold["fold"], best_fold["rule"], best_fold["accuracy"],  round(best_fold["accuracy"] * 100, 4), str(best_params)],
+        ["mean_time", "mean_time_sec", "std_time", "best_fold", "best_rule", "best_fold_accuracy", "best_fold_accuracy_per", "best_params"])
     dataframe_mean.to_csv(os.path.join(path, "mean.csv"), decimal=",", sep=";", na_rep=" ", header=False,
                           quoting=csv.QUOTE_ALL)
 
