@@ -159,12 +159,8 @@ def ensemble_classifier(cfg, dataset, index, list_best_classifiers, n_features, 
     list_result_fold = list()
     list_time = list()
 
-    if n_patch and orientation:
-        path_classifier = os.path.join(cfg["path_out"], dataset, classifier_name, orientation, str(n_patch),
-                                       str(n_features))
-    else:
-        path_classifier = os.path.join(cfg["path_out"], dataset, classifier_name, str(n_features))
-    pathlib.Path(path_classifier).mkdir(parents=True, exist_ok=True)
+    path = os.path.join(path, classifier_name, str(n_features))
+    pathlib.Path(path).mkdir(parents=True, exist_ok=True)
 
     for fold, (index_train, index_test) in enumerate(index):
         if n_patch and orientation:
@@ -188,7 +184,6 @@ def ensemble_classifier(cfg, dataset, index, list_best_classifiers, n_features, 
         else:
             y_true = y_test
 
-        # r = Result(fold, None, None, y_pred, y_true)
         r = create_result(fold, None, None, y_pred, y_true)
         list_time.append({
             "fold": fold,
@@ -227,11 +222,7 @@ def classification_data(cfg, dataset, file_input, index, n_features, n_samples, 
         dataframe.to_csv(os.path.join(path, "info.csv"), decimal=",", sep=";", na_rep=" ", header=False,
                           quoting=csv.QUOTE_ALL)
 
-
-        if n_patch and orientation:
-            path_completed = os.path.join(path, classifier_name, orientation, str(n_patch), str(n_features))
-        else:
-            path_completed = os.path.join(path, classifier_name, str(n_features))
+        path_completed = os.path.join(path, classifier_name, str(n_features))
         pathlib.Path(path_completed).mkdir(parents=True, exist_ok=True)
 
         if n_patch and orientation:
@@ -240,6 +231,7 @@ def classification_data(cfg, dataset, file_input, index, n_features, n_samples, 
         else:
             list_result_fold, list_time = data_no_patch(cfg, best_classifier, classifier_name, dataset, index, path, x, y)
 
+        print(path, path_completed, sep="\n")
         save(best_params, cfg, classifier_name, dataset, list_result_fold, list_time, path_completed)
         list_result_classifier = list_result_classifier + list_result_fold
 

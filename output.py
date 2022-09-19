@@ -57,6 +57,7 @@ def save_fold(cfg, classifier_name, dataset, list_result_fold, list_time, path):
         list_accuracy = list()
         list_accuracy_per = list()
         path_fold = os.path.join(path, str(f))
+        print(path_fold)
         pathlib.Path(path_fold).mkdir(parents=True, exist_ok=True)
         for rule in list(["max", "prod", "sum"]):
             result = list(filter(lambda x: x["rule"] == rule, list_fold))
