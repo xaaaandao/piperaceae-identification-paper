@@ -36,15 +36,46 @@ def save(best_params, cfg, classifier_name, dataset, list_result_fold, list_time
 
 
 def save_mean(best_params, list_result_fold, list_time, path):
-    best_fold = max(list_result_fold, key=lambda x: x["accuracy"])
     mean_time = numpy.mean([t["final_time"] for t in list_time])
     mean_time_sec = time.strftime("%H:%M:%S", time.gmtime(mean_time))
     std_time = numpy.std([t["final_time"] for t in list_time])
+    list_mean_rule = list()
+    list_mean_rule.append({
+        "mean": numpy.mean([r["accuracy"] for r in list(filter(lambda x: x["rule"] == "sum", list_result_fold))]),
+        "std": numpy.std([r["accuracy"] for r in list(filter(lambda x: x["rule"] == "sum", list_result_fold))]),
+        "rule": "sum"
+    })
+    list_mean_rule.append({
+        "mean": numpy.mean([r["accuracy"] for r in list(filter(lambda x: x["rule"] == "max", list_result_fold))]),
+        "std": numpy.std([r["accuracy"] for r in list(filter(lambda x: x["rule"] == "max", list_result_fold))]),
+        "rule": "max"
+    })
+    list_mean_rule.append({
+        "mean": numpy.mean([r["accuracy"] for r in list(filter(lambda x: x["rule"] == "prod", list_result_fold))]),
+        "std": numpy.std([r["accuracy"] for r in list(filter(lambda x: x["rule"] == "prod", list_result_fold))]),
+        "rule": "prod"
+    })
+    best_mean = max(list_mean_rule, key=lambda x: x["mean"])
+    print(f"best mean (%): {round(best_mean['mean'] * 100, 4)}")
+    print(f"best rule: {best_mean['rule']}, best_std: {best_mean['std']}")
+    mean_max = list(filter(lambda x: x["rule"] == "max", list_mean_rule))[0]["mean"]
+    std_max = list(filter(lambda x: x["rule"] == "max", list_mean_rule))[0]["std"]
+    mean_prod = list(filter(lambda x: x["rule"] == "prod", list_mean_rule))[0]["mean"]
+    std_prod = list(filter(lambda x: x["rule"] == "prod", list_mean_rule))[0]["std"]
+    mean_sum = list(filter(lambda x: x["rule"] == "sum", list_mean_rule))[0]["mean"]
+    std_sum = list(filter(lambda x: x["rule"] == "sum", list_mean_rule))[0]["std"]
+    best_fold = max(list_result_fold, key=lambda x: x["accuracy"])
     print(f"best acc (%): {round(best_fold['accuracy'] * 100, 4)}")
     print(f"best fold: {best_fold['fold']}, best rule: {best_fold['rule']}")
     dataframe_mean = pandas.DataFrame(
-        [mean_time, mean_time_sec, std_time, best_fold["fold"], best_fold["rule"], best_fold["accuracy"],  round(best_fold["accuracy"] * 100, 4), str(best_params)],
-        ["mean_time", "mean_time_sec", "std_time", "best_fold", "best_rule", "best_fold_accuracy", "best_fold_accuracy_per", "best_params"])
+        [mean_time, mean_time_sec, std_time, mean_sum, std_sum,
+         mean_prod, std_prod, mean_max, std_max, best_mean["rule"], best_mean["mean"], best_mean["std"],
+         best_fold["fold"], best_fold["rule"], best_fold["accuracy"],
+         round(best_fold["accuracy"] * 100, 4), str(best_params)],
+        ["mean_time", "mean_time_sec", "std_time", "mean_sum",
+         "std_sum", "mean_prod", "std_prod", "mean_max", "std_max", "best_mean_rule", "best_mean_mean", "best_mean_std",
+         "best_fold", "best_rule", "best_fold_accuracy",
+         "best_fold_accuracy_per", "best_params"])
     dataframe_mean.to_csv(os.path.join(path, "mean.csv"), decimal=",", sep=";", na_rep=" ", header=False,
                           quoting=csv.QUOTE_ALL)
 

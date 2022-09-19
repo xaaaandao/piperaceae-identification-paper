@@ -230,7 +230,6 @@ def classification_data(cfg, dataset, file_input, index, n_features, n_samples, 
         else:
             list_result_fold, list_time = data_no_patch(cfg, best_classifier, classifier_name, dataset, index, path, x, y)
 
-        # print(path, path_completed, sep="\n")
         save(best_params, cfg, classifier_name, dataset, list_result_fold, list_time, path_completed)
         list_result_classifier = list_result_classifier + list_result_fold
 
