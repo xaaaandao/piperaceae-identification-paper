@@ -40,9 +40,10 @@ def save_mean(best_params, list_result_fold, list_time, path):
     mean_time = numpy.mean([t["final_time"] for t in list_time])
     mean_time_sec = time.strftime("%H:%M:%S", time.gmtime(mean_time))
     std_time = numpy.std([t["final_time"] for t in list_time])
+    print(f"mean acc: {round(best_fold['accuracy'] * 100, 4)}")
     dataframe_mean = pandas.DataFrame(
-        [mean_time, mean_time_sec, std_time, best_fold["fold"], best_fold["accuracy"], str(best_params)],
-        ["mean_time", "mean_time_sec", "std_time", "best_fold", "best_fold_accuracy", "best_params"])
+        [mean_time, mean_time_sec, std_time, best_fold["fold"], best_fold["accuracy"],  round(best_fold["accuracy"] * 100, 4), str(best_params)],
+        ["mean_time", "mean_time_sec", "std_time", "best_fold", "best_fold_accuracy", "best_fold_accuracy_per", "best_params"])
     dataframe_mean.to_csv(os.path.join(path, "mean.csv"), decimal=",", sep=";", na_rep=" ", header=False,
                           quoting=csv.QUOTE_ALL)
 
@@ -57,7 +58,7 @@ def save_fold(cfg, classifier_name, dataset, list_result_fold, list_time, path):
         list_accuracy = list()
         list_accuracy_per = list()
         path_fold = os.path.join(path, str(f))
-        print(path_fold)
+
         pathlib.Path(path_fold).mkdir(parents=True, exist_ok=True)
         for rule in list(["max", "prod", "sum"]):
             result = list(filter(lambda x: x["rule"] == rule, list_fold))
@@ -69,6 +70,7 @@ def save_fold(cfg, classifier_name, dataset, list_result_fold, list_time, path):
 
             list_rule.append(rule)
             list_accuracy.append(r["accuracy"])
+
             list_accuracy_per.append(round(r["accuracy"] * 100, 4))
             save_confusion_matrix(classifier_name, dataset, path_fold, r)
 
