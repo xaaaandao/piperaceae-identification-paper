@@ -207,7 +207,7 @@ def classification_data(cfg, dataset, file_input, index, n_features, n_samples, 
         classifier_name = classifier.__class__.__name__
 
         model = sklearn.model_selection.GridSearchCV(classifier, hyperparams[classifier_name], scoring="accuracy",
-                                                     cv=cfg["fold"])
+                                                     cv=index, n_jobs=-1, verbose=True)
         model.fit(x, y)
 
         best_classifier = model.best_estimator_
