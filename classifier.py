@@ -203,12 +203,12 @@ def classification_data(cfg, dataset, file_input, index, n_features, n_samples, 
             sklearn.tree.DecisionTreeClassifier(random_state=cfg["random_state"]),
             sklearn.neighbors.KNeighborsClassifier(n_jobs=-1),
             sklearn.neural_network.MLPClassifier(random_state=cfg["random_state"]),
-            sklearn.ensemble.RandomForestClassifier(random_state=cfg["random_state"], n_jobs=-1),
-            sklearn.svm.SVC(random_state=cfg["random_state"], probability=True)):
+            sklearn.ensemble.RandomForestClassifier(random_state=cfg["random_state"], n_jobs=-1)):
+            #sklearn.svm.SVC(random_state=cfg["random_state"], probability=True))[4:]:
         classifier_name = classifier.__class__.__name__
         print(numpy.unique(y))
         model = sklearn.model_selection.GridSearchCV(classifier, hyperparams[classifier_name], scoring="accuracy",
-                                                     cv=index, n_jobs=-1, verbose=True)
+                                                     cv=index, n_jobs=-1, verbose=2)
         model.fit(x, y)
 
         best_classifier = model.best_estimator_
