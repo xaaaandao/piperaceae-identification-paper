@@ -1,5 +1,6 @@
 import csv
 import os
+import numpy
 import pandas
 import pathlib
 
@@ -193,8 +194,8 @@ def ensemble_classifier(cfg, dataset, index, list_best_classifiers, n_features, 
 
     save(None, cfg, classifier_name, dataset, list_result_fold, list_time, path)
 
-
-def classification_data(cfg, dataset, file_input, index, n_features, n_samples, path, x, y, n_patch=None, orientation=None):
+# classification_data(cfg, dataset, str(file), list(kf.split(x_surf)), pca, n_samples, path, x, x_surf, y, n_patch=n_patch, orientation=orientation)
+def classification_data(cfg, dataset, file_input, index, n_features, n_samples, path, x, x_surf, y, n_patch=None, orientation=None):
     list_best_classifiers = list()
     list_result_classifier = list()
 
@@ -205,7 +206,7 @@ def classification_data(cfg, dataset, file_input, index, n_features, n_samples, 
             sklearn.ensemble.RandomForestClassifier(random_state=cfg["random_state"], n_jobs=-1),
             sklearn.svm.SVC(random_state=cfg["random_state"], probability=True)):
         classifier_name = classifier.__class__.__name__
-
+        print(numpy.unique(y))
         model = sklearn.model_selection.GridSearchCV(classifier, hyperparams[classifier_name], scoring="accuracy",
                                                      cv=index, n_jobs=-1, verbose=True)
         model.fit(x, y)
@@ -225,10 +226,10 @@ def classification_data(cfg, dataset, file_input, index, n_features, n_samples, 
         pathlib.Path(path_completed).mkdir(parents=True, exist_ok=True)
 
         if n_patch and orientation:
-            list_result_fold, list_time = data_has_patch(cfg, best_classifier, classifier_name, dataset, index, n_patch,
+            list_result_fold, list_time = data_has_patch(cfg, best_classifier, classifier_name, dataset, list(index.split(x_surf)), n_patch,
                                               path_completed, x, y)
         else:
-            list_result_fold, list_time = data_no_patch(cfg, best_classifier, classifier_name, dataset, index, path, x, y)
+            list_result_fold, list_time = data_no_patch(cfg, best_classifier, classifier_name, dataset, list(index.split(x_surf)), path, x, y)
 
         save(best_params, cfg, classifier_name, dataset, list_result_fold, list_time, path_completed)
         list_result_classifier = list_result_classifier + list_result_fold
