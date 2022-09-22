@@ -49,7 +49,7 @@ def save_mean(best_params, list_result_fold, list_time, path):
             "rule": None
         })
         best_mean = max(list_mean_rule, key=lambda x: x["mean"])
-        print(f"best mean (%): {round(best_mean['mean'] * 100, 4)}")
+        print(f"best mean (%): {round(best_mean['mean'] * 100, 3)}")
         print(f"best rule: {best_mean['rule']}, best_std: {best_mean['std']}")
         mean_max = None
         mean_max_per = None
@@ -61,7 +61,7 @@ def save_mean(best_params, list_result_fold, list_time, path):
         mean_sum_per = None
         std_sum = None
         best_fold = max(list_result_fold, key=lambda x: x["accuracy"])
-        print(f"best acc (%): {round(best_fold['accuracy'] * 100, 4)}")
+        print(f"best acc (%): {round(best_fold['accuracy'] * 100, 3)}")
         print(f"best fold: {best_fold['fold']}, best rule: {best_fold['rule']}")
     else:
         list_mean_rule.append({
@@ -83,13 +83,13 @@ def save_mean(best_params, list_result_fold, list_time, path):
         print(f"best mean (%): {round(best_mean['mean'] * 100, 4)}")
         print(f"best rule: {best_mean['rule']}, best_std: {best_mean['std']}")
         mean_max = list(filter(lambda x: x["rule"] == "max", list_mean_rule))[0]["mean"]
-        mean_max_per = round(mean_max * 100, 4)
+        mean_max_per = round(mean_max * 100, 3)
         std_max = list(filter(lambda x: x["rule"] == "max", list_mean_rule))[0]["std"]
         mean_prod = list(filter(lambda x: x["rule"] == "prod", list_mean_rule))[0]["mean"]
-        mean_prod_per = round(mean_max * 100, 4)
+        mean_prod_per = round(mean_prod * 100, 3)
         std_prod = list(filter(lambda x: x["rule"] == "prod", list_mean_rule))[0]["std"]
         mean_sum = list(filter(lambda x: x["rule"] == "sum", list_mean_rule))[0]["mean"]
-        mean_sum_per = round(mean_max * 100, 4)
+        mean_sum_per = round(mean_sum * 100, 3)
         std_sum = list(filter(lambda x: x["rule"] == "sum", list_mean_rule))[0]["std"]
         best_fold = max(list_result_fold, key=lambda x: x["accuracy"])
         print(f"best acc (%): {round(best_fold['accuracy'] * 100, 4)}")
@@ -99,9 +99,9 @@ def save_mean(best_params, list_result_fold, list_time, path):
         [mean_time, mean_time_millisec, mean_time_min, mean_time_hour_min_sec, std_time, mean_sum, mean_sum_per,
          std_sum,
          mean_prod, mean_prod_per, std_prod, mean_max, mean_max_per, std_max, best_mean["rule"], best_mean["mean"],
-         round(best_mean["mean"] * 100, 4),
+         round(best_mean["mean"] * 100, 3),
          best_mean["std"],
-         best_fold["fold"], best_fold["rule"], best_fold["accuracy"], round(best_fold["accuracy"] * 100, 4),
+         best_fold["fold"], best_fold["rule"], best_fold["accuracy"], round(best_fold["accuracy"] * 100, 3),
          str(best_params)],
         ["mean_time_sec", "mean_time_millisec", "mean_time_min", "mean_time_hour_min_sec", "std_time",
          "mean_sum", "mean_sum_per", "std_sum", "mean_prod", "mean_prod_per", "std_prod", "mean_max", "mean_max_per",
