@@ -203,7 +203,7 @@ def classification_data(cfg, dataset, file_input, index, n_features, n_samples, 
             sklearn.neighbors.KNeighborsClassifier(n_jobs=-1),
             sklearn.neural_network.MLPClassifier(random_state=cfg["random_state"]),
             sklearn.ensemble.RandomForestClassifier(random_state=cfg["random_state"], n_jobs=-1),
-            sklearn.svm.SVC(random_state=cfg["random_state"], probability=True))[2:]:
+            sklearn.svm.SVC(random_state=cfg["random_state"], probability=True)):
         classifier_name = classifier.__class__.__name__
 
         model = sklearn.model_selection.GridSearchCV(classifier, hyperparams[classifier_name], scoring="accuracy",
@@ -232,7 +232,7 @@ def classification_data(cfg, dataset, file_input, index, n_features, n_samples, 
 
         save(best_params, cfg, classifier_name, dataset, list_result_fold, list_time, path_completed)
         list_result_classifier = list_result_classifier + list_result_fold
-        break
+
     # my_ensemble_classifier(cfg, dataset, list_result_classifier, n_features, n_samples, n_patch=n_patch, orientation=orientation)
     # ensemble_classifier(cfg, dataset, index, list_best_classifiers, n_features, n_samples, path, x, y, n_patch=n_patch,
     #                     orientation=orientation)
