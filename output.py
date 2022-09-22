@@ -103,7 +103,7 @@ def save_mean(best_params, list_result_fold, list_time, path):
          best_mean["std"],
          best_fold["fold"], best_fold["rule"], best_fold["accuracy"], round(best_fold["accuracy"] * 100, 4),
          str(best_params)],
-        ["mean_time (sec)", "mean_time (millisec)", "mean_time (minutes)", "mean_time_hour_min_sec", "std_time",
+        ["mean_time_sec", "mean_time_millisec", "mean_time_min", "mean_time_hour_min_sec", "std_time",
          "mean_sum", "mean_sum_per", "std_sum", "mean_prod", "mean_prod_per", "std_prod", "mean_max", "mean_max_per",
          "std_max", "best_mean_rule", "BEST_MEAN", "BEST_MEAN_per",
          "best_mean_std", "best_fold", "best_rule", "best_fold_accuracy", "best_fold_accuracy_per", "best_params"])
