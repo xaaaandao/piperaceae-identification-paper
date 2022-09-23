@@ -134,7 +134,7 @@ def save_fold(cfg, classifier_name, dataset, list_result_fold, list_time, path):
             list_rule.append(rule)
             list_accuracy.append(r["accuracy"])
 
-            list_accuracy_per.append(round(r["accuracy"] * 100, 4))
+            list_accuracy_per.append(round(r["accuracy"] * 100, 3))
             save_confusion_matrix(classifier_name, dataset, path_fold, r)
 
         best_rule = max(list_fold, key=lambda x: x["accuracy"])

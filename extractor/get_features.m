@@ -1,5 +1,5 @@
 function get_features()
-     path = "../../dataset/img+pred_mask/PHOTOSHOP/GRAYSCALE/400/OUT";
+     path = "../../dataset/PHOTOSHOP/GRAYSCALE/512";
     delete_file_exists();
     list_dir = sort_by_name(dir(path));
     
@@ -9,20 +9,21 @@ function get_features()
     %}
     for i=1:height(list_dir)
         path_img = append(list_dir.folder(i), "/", list_dir.name(i));
+        path_img
         img = imread(path_img);
         label = get_label(list_dir.name(i));
         
-        addpath(genpath("lbp")); % tipo include e sem ele nao funfa
+%         addpath(genpath("lbp")); % tipo include e sem ele nao funfa
         feature = lbp(img);
         fileout("lbp.txt", feature, string(label));
 
 %         addpath(genpath("surf"));
-%         feature = surf(img, 64);
-%         fileout("surf64.txt", feature, string(label));
+        feature = surf(img, 64);
+        fileout("surf64.txt", feature, string(label));
         
 %         addpath(genpath("surf"));
-%         feature = surf(img, 128);
-%         fileout("surf128.txt", feature, string(label));
+        feature = surf(img, 128);
+        fileout("surf128.txt", feature, string(label));
     end
 end
 
@@ -30,10 +31,6 @@ function [sort_list_by_name] = sort_by_name(list)
     list = [list(3:length(list))];    
     list = struct2table(list);
     sort_list_by_name = sortrows(list, "name");
-end
-
-function [path] = path_to_img(path, dirname, filename)
-    path = append(path, append(dirname, append("/", filename)));
 end
 
 function delete_file_exists()
@@ -61,3 +58,39 @@ function fileout(filename, feature, label)
     fclose(file);
 end
 
+function feature = lbp(image)
+    lbpFeatures = extractLBPFeatures(image);
+    numNeighbors = 8;
+    numBins = numNeighbors*(numNeighbors-1)+3;
+    lbpCellHists = reshape(lbpFeatures, numBins, []);
+    feature = reshape(lbpCellHists, 1, []);
+end
+
+function [featVector] = surf(I, SURFSize)
+
+    points = detectSURFFeatures( I );
+    [histograma, valid_points] = extractFeatures(I, points, 'SURFSize', SURFSize); 
+
+
+    % escreve QTDE. DESCRITORES na tela
+    vHist =  size(histograma, 1);
+
+    % media
+    vetorAux = mean(histograma, 1);
+    media =  vetorAux(1:size(vetorAux, 2));
+
+    % desvio padrao
+    vetorAux = std(histograma, 0, 1);
+    desvPad =  vetorAux(1:size(vetorAux, 2));
+
+    % Obliquidade
+    vetorAux = skewness(histograma, 0, 1);
+    obliq =  vetorAux(1:size(vetorAux, 2));
+
+    % Curtose
+    vetorAux = kurtosis(histograma, 0, 1);
+    curt = vetorAux(1:size(vetorAux, 2));
+
+    featVector = [vHist, media, desvPad, obliq, curt] ;
+
+end

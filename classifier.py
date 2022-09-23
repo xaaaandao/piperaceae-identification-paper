@@ -205,7 +205,7 @@ def classification_data(cfg, dataset, file_input, index, n_features, n_samples, 
             sklearn.neighbors.KNeighborsClassifier(n_jobs=-1),
             sklearn.neural_network.MLPClassifier(random_state=cfg["random_state"]),
             sklearn.ensemble.RandomForestClassifier(random_state=cfg["random_state"], n_jobs=-1)):
-        # sklearn.svm.SVC(random_state=cfg["random_state"], probability=True))[4:]:
+            # sklearn.svm.SVC(random_state=cfg["random_state"], probability=True))[4:]:
         classifier_name = classifier.__class__.__name__
 
         model = sklearn.model_selection.GridSearchCV(classifier, hyperparams[classifier_name], scoring="accuracy",
@@ -217,13 +217,13 @@ def classification_data(cfg, dataset, file_input, index, n_features, n_samples, 
 
         list_best_classifiers.append((classifier_name, best_classifier))
 
-        data = [file_input, n_features, n_samples, n_patch, orientation]
+        data = [file_input, x.shape[1], n_samples, n_patch, orientation]
         columns = ["file_input", "n_features", "n_samples", "n_patch", "orientation"]
         dataframe = pandas.DataFrame(data, columns)
         dataframe.to_csv(os.path.join(path, "info.csv"), decimal=",", sep=";", na_rep=" ", header=False,
                          quoting=csv.QUOTE_ALL)
 
-        path_completed = os.path.join(path, classifier_name, str(n_features))
+        path_completed = os.path.join(path, classifier_name, str(x.shape[1]))
         pathlib.Path(path_completed).mkdir(parents=True, exist_ok=True)
 
         if n_patch and orientation:
