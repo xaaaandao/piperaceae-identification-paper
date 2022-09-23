@@ -3,7 +3,7 @@ import os
 import numpy
 import pandas
 import pathlib
-
+import joblib
 import sklearn.ensemble
 import sklearn.exceptions
 import sklearn.neighbors
@@ -194,46 +194,48 @@ def ensemble_classifier(cfg, dataset, index, list_best_classifiers, n_features, 
 
     save(None, cfg, classifier_name, dataset, list_result_fold, list_time, path)
 
-# classification_data(cfg, dataset, str(file), list(kf.split(x_surf)), pca, n_samples, path, x, x_surf, y, n_patch=n_patch, orientation=orientation)
-def classification_data(cfg, dataset, file_input, index, n_features, n_samples, path, x, x_surf, y, n_patch=None, orientation=None):
+
+def classification_data(cfg, dataset, file_input, index, n_features, n_samples, path, x, x_surf, y, n_patch=None,
+                        orientation=None):
     list_best_classifiers = list()
     list_result_classifier = list()
 
-    for classifier in (
-            sklearn.tree.DecisionTreeClassifier(random_state=cfg["random_state"]),
-            sklearn.neighbors.KNeighborsClassifier(n_jobs=-1),
-            sklearn.neural_network.MLPClassifier(random_state=cfg["random_state"]),
-            sklearn.ensemble.RandomForestClassifier(random_state=cfg["random_state"], n_jobs=-1)):
-            #sklearn.svm.SVC(random_state=cfg["random_state"], probability=True))[4:]:
-        classifier_name = classifier.__class__.__name__
-        print(numpy.unique(y))
-        model = sklearn.model_selection.GridSearchCV(classifier, hyperparams[classifier_name], scoring="accuracy",
-                                                     cv=index, n_jobs=-1, verbose=2)
-        model.fit(x, y)
+    with joblib.parallel_backend("threading", 24):
+        for classifier in (
+                sklearn.tree.DecisionTreeClassifier(random_state=cfg["random_state"]),
+                sklearn.neighbors.KNeighborsClassifier(n_jobs=-1),
+                sklearn.neural_network.MLPClassifier(random_state=cfg["random_state"]),
+                sklearn.ensemble.RandomForestClassifier(random_state=cfg["random_state"], n_jobs=-1),
+                sklearn.svm.SVC(random_state=cfg["random_state"], probability=True))[4:]:
+            classifier_name = classifier.__class__.__name__
 
-        best_classifier = model.best_estimator_
-        best_params = model.best_params_
+            model = sklearn.model_selection.GridSearchCV(classifier, hyperparams[classifier_name], scoring="accuracy",
+                                                         cv=index, n_jobs=-1, verbose=2)
+            model.fit(x, y)
 
-        list_best_classifiers.append((classifier_name, best_classifier))
+            best_classifier = model.best_estimator_
+            best_params = model.best_params_
 
-        data = [file_input, n_features, n_samples, n_patch, orientation]
-        columns = ["file_input", "n_features", "n_samples", "n_patch", "orientation"]
-        dataframe = pandas.DataFrame(data, columns)
-        dataframe.to_csv(os.path.join(path, "info.csv"), decimal=",", sep=";", na_rep=" ", header=False,
-                          quoting=csv.QUOTE_ALL)
+            list_best_classifiers.append((classifier_name, best_classifier))
 
-        path_completed = os.path.join(path, classifier_name, str(n_features))
-        pathlib.Path(path_completed).mkdir(parents=True, exist_ok=True)
+            data = [file_input, n_features, n_samples, n_patch, orientation]
+            columns = ["file_input", "n_features", "n_samples", "n_patch", "orientation"]
+            dataframe = pandas.DataFrame(data, columns)
+            dataframe.to_csv(os.path.join(path, "info.csv"), decimal=",", sep=";", na_rep=" ", header=False,
+                              quoting=csv.QUOTE_ALL)
 
-        if n_patch and orientation:
-            list_result_fold, list_time = data_has_patch(cfg, best_classifier, classifier_name, dataset, list(index.split(x_surf)), n_patch,
-                                              path_completed, x, y)
-        else:
-            list_result_fold, list_time = data_no_patch(cfg, best_classifier, classifier_name, dataset, list(index.split(x_surf)), path, x, y)
+            path_completed = os.path.join(path, classifier_name, str(n_features))
+            pathlib.Path(path_completed).mkdir(parents=True, exist_ok=True)
 
-        save(best_params, cfg, classifier_name, dataset, list_result_fold, list_time, path_completed)
-        list_result_classifier = list_result_classifier + list_result_fold
+            if n_patch and orientation:
+                list_result_fold, list_time = data_has_patch(cfg, best_classifier, classifier_name, dataset, list(index.split(x_surf)), n_patch,
+                                                  path_completed, x, y)
+            else:
+                list_result_fold, list_time = data_no_patch(cfg, best_classifier, classifier_name, dataset, list(index.split(x_surf)), path, x, y)
 
-    # my_ensemble_classifier(cfg, dataset, list_result_classifier, n_features, n_samples, n_patch=n_patch, orientation=orientation)
-    # ensemble_classifier(cfg, dataset, index, list_best_classifiers, n_features, n_samples, path, x, y, n_patch=n_patch,
-    #                     orientation=orientation)
+            save(best_params, cfg, classifier_name, dataset, list_result_fold, list_time, path_completed)
+            list_result_classifier = list_result_classifier + list_result_fold
+
+        # my_ensemble_classifier(cfg, dataset, list_result_classifier, n_features, n_samples, n_patch=n_patch, orientation=orientation)
+        # ensemble_classifier(cfg, dataset, index, list_best_classifiers, n_features, n_samples, path, x, y, n_patch=n_patch,
+        #                     orientation=orientation)
