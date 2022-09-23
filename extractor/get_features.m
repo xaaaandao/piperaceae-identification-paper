@@ -16,13 +16,13 @@ function get_features()
         feature = lbp(img);
         fileout("lbp.txt", feature, string(label));
 
-        addpath(genpath("surf"));
-        feature = surf(img, 64);
-        fileout("surf64.txt", feature, string(label));
+%         addpath(genpath("surf"));
+%         feature = surf(img, 64);
+%         fileout("surf64.txt", feature, string(label));
         
-        addpath(genpath("surf"));
-        feature = surf(img, 128);
-        fileout("surf128.txt", feature, string(label));
+%         addpath(genpath("surf"));
+%         feature = surf(img, 128);
+%         fileout("surf128.txt", feature, string(label));
     end
 end
 
