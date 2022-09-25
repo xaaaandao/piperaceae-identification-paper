@@ -1,5 +1,5 @@
 function get_features()
-     path = "../../dataset/PHOTOSHOP/GRAYSCALE/512";
+     path = "../../dataset/PHOTOSHOP/GRAYSCALE/400";
     delete_file_exists();
     list_dir = sort_by_name(dir(path));
     
@@ -9,21 +9,20 @@ function get_features()
     %}
     for i=1:height(list_dir)
         path_img = append(list_dir.folder(i), "/", list_dir.name(i));
-        path_img
         img = imread(path_img);
         label = get_label(list_dir.name(i));
         
 %         addpath(genpath("lbp")); % tipo include e sem ele nao funfa
-        feature = lbp(img);
-        fileout("lbp.txt", feature, string(label));
+%         feature = lbp(img);
+%         fileout("lbp.txt", feature, string(label));
 
-%         addpath(genpath("surf"));
+        addpath(genpath("surf"));
         feature = surf(img, 64);
         fileout("surf64.txt", feature, string(label));
         
 %         addpath(genpath("surf"));
-        feature = surf(img, 128);
-        fileout("surf128.txt", feature, string(label));
+%         feature = surf(img, 128);
+%         fileout("surf128.txt", feature, string(label));
     end
 end
 

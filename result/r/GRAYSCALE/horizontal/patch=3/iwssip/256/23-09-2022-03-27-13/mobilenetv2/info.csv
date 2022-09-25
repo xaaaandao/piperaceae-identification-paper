@@ -1,0 +1,5 @@
+"file_input";"../features/iwssip/mobilenetv2/horizontal+patch=3+mobilenetv2.npz"
+"n_features";"1280"
+"n_samples";"1125"
+"n_patch";"3"
+"orientation";"horizontal"

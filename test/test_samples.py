@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy
 
-from samples import get_index, Index
+from cp.samples import get_index, Index
 
 
 class Test(TestCase):

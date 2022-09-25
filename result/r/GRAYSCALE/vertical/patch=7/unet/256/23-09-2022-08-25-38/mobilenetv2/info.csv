@@ -1,0 +1,5 @@
+"file_input";"../features/unet/GRAYSCALE/256/mobilenetv2/vertical+patch=7+mobilenetv2.npz"
+"n_features";"1280"
+"n_samples";"2625"
+"n_patch";"7"
+"orientation";"vertical"

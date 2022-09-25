@@ -36,7 +36,7 @@ def y_pred_with_patch(n_patch, y_test):
 
 def prod_all_prob(cfg, n_patch, y_pred):
     new_y_pred = numpy.empty(shape=(0,))
-    new_y_pred_prob_prod = numpy.empty(shape=(0, cfg["n_labels"]))
+    new_y_pred_prob_prod = numpy.empty(shape=(0, cfg['n_labels']))
     for i, j in next_sequence(0, y_pred.shape[0], n_patch):
         new_y_pred = numpy.append(new_y_pred, numpy.argmax(y_pred[i:j].prod(axis=0)) + 1)
         new_y_pred_prob_prod = numpy.vstack((new_y_pred_prob_prod, y_pred[i:j].prod(axis=0)))
@@ -45,7 +45,7 @@ def prod_all_prob(cfg, n_patch, y_pred):
 
 def sum_all_prob(cfg, n_patch, y_pred):
     new_y_pred = numpy.empty(shape=(0,))
-    new_y_pred_prob_sum = numpy.empty(shape=(0, cfg["n_labels"]))
+    new_y_pred_prob_sum = numpy.empty(shape=(0, cfg['n_labels']))
     for i, j in next_sequence(0, y_pred.shape[0], n_patch):
         new_y_pred = numpy.append(new_y_pred, numpy.argmax(y_pred[i:j].sum(axis=0)) + 1)
         new_y_pred_prob_sum = numpy.vstack((new_y_pred_prob_sum, y_pred[i:j].sum(axis=0)))

@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy
 
-from result import get_index_max_value, next_sequence, y_test_with_patch, prod_all_prob, sum_all_prob, \
+from cp.result import get_index_max_value, next_sequence, y_test_with_patch, prod_all_prob, sum_all_prob, \
     convert_prob_to_label, Result, sum_all_results, prod_all_results, max_all_results
 
 
