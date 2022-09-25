@@ -283,6 +283,9 @@ def save_confusion_matrix(classifier_name, dataset, path, result):
 
 
 if __name__ == '__main__':
+    os.environ['OPENBLAS_NUM_THREADS'] = '1'
+    os.environ['GOTO_NUM_THREADS'] = '1'
+    os.environ['OMP_NUM_THREADS'] = '1'
     main()
 
 
