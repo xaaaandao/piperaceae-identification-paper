@@ -77,86 +77,92 @@ def main():
     }
 
     current_datetime = datetime.datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
-    dir_input = os.path.join('../new_features', 'unet/GRAYSCALE/mobilenetv2/256/horizontal/patch=3')
     kf = sklearn.model_selection.KFold(n_splits=cfg['fold'], shuffle=True, random_state=cfg['seed'])
-    _, _, dataset, color_mode, extractor, dim, slice, _ = re.split('/', dir_input)
+    list_dir_input = [
+        os.path.join('../new_features', 'unet/GRAYSCALE/mobilenetv2/256/horizontal/patch=3'),
+        os.path.join('../new_features', 'unet/GRAYSCALE/mobilenetv2/256/horizontal/patch=5'),
+        os.path.join('../new_features', 'unet/GRAYSCALE/mobilenetv2/256/horizontal/patch=7')
+    ]
 
-    list_data = []
-    for file in sorted(pathlib.Path(dir_input).rglob('*.npy')):
-        data = np.load(str(file))
-        fold, patch = re.split('_', str(file.stem))
-        _, n_fold = re.split('-', fold)
-        _, n_patch = re.split('-', patch)
+    for dir_input in list_dir_input:
+        _, _, dataset, color_mode, extractor, dim, slice, _ = re.split('/', dir_input)
 
-        for d in data:
-            list_data.append(np.append(d, int(n_fold)))
+        list_data = []
+        for file in sorted(pathlib.Path(dir_input).rglob('*.npy')):
+            data = np.load(str(file))
+            fold, patch = re.split('_', str(file.stem))
+            _, n_fold = re.split('-', fold)
+            _, n_patch = re.split('-', patch)
 
-    new_data = np.array(list_data)
-    n_samples, n_features = new_data.shape
-    x, y = new_data[0:, 0:n_features - 1], new_data[:, n_features - 1]
-    x_normalized = sklearn.preprocessing.StandardScaler().fit_transform(x)
+            for d in data:
+                list_data.append(np.append(d, int(n_fold)))
 
-    l_data = []
-    for pca in list_extractor[extractor]:
-        l_data.append({
-            'x': x_normalized if pca == max(list_extractor[extractor]) else sklearn.decomposition.PCA(
-                n_components=pca, random_state=cfg['seed']).fit_transform(x_normalized),
-            'y': y,
-            'pca': pca
-        })
+        new_data = np.array(list_data)
+        n_samples, n_features = new_data.shape
+        x, y = new_data[0:, 0:n_features - 1], new_data[:, n_features - 1]
+        x_normalized = sklearn.preprocessing.StandardScaler().fit_transform(x)
 
-    for data in l_data:
-        for classifier in list_classifiers:
-            classifier_name = classifier.__class__.__name__
+        l_data = []
+        for pca in list_extractor[extractor]:
+            l_data.append({
+                'x': x_normalized if pca == max(list_extractor[extractor]) else sklearn.decomposition.PCA(
+                    n_components=pca, random_state=cfg['seed']).fit_transform(x_normalized),
+                'y': y,
+                'pca': pca
+            })
 
-            classifier_best_params = sklearn.model_selection.GridSearchCV(classifier, list_hyperparametrs[classifier_name],
-                                                          scoring='accuracy', cv=cfg['fold'],
-                                                          verbose=42, n_jobs=cfg['n_jobs'])
+        for data in l_data:
+            for classifier in list_classifiers:
+                classifier_name = classifier.__class__.__name__
 
-            with joblib.parallel_backend('threading', n_jobs=cfg['n_jobs']):
-                start_search_best_hyperparameters = time.time()
-                classifier_best_params.fit(data['x'], data['y'])
-                end_search_best_hyperparameters = time.time()
-            time_search_best_params = end_search_best_hyperparameters - start_search_best_hyperparameters
+                classifier_best_params = sklearn.model_selection.GridSearchCV(classifier, list_hyperparametrs[classifier_name],
+                                                              scoring='accuracy', cv=cfg['fold'],
+                                                              verbose=42, n_jobs=cfg['n_jobs'])
 
-            best_classifier = classifier_best_params.best_estimator_
-            best_params = classifier_best_params.best_params_
+                with joblib.parallel_backend('threading', n_jobs=cfg['n_jobs']):
+                    start_search_best_hyperparameters = time.time()
+                    classifier_best_params.fit(data['x'], data['y'])
+                    end_search_best_hyperparameters = time.time()
+                time_search_best_params = end_search_best_hyperparameters - start_search_best_hyperparameters
 
-            list_result_fold = []
-            list_time = []
+                best_classifier = classifier_best_params.best_estimator_
+                best_params = classifier_best_params.best_params_
 
-            path = os.path.join(cfg['dir_output'], current_datetime, classifier_name, str(data['pca']))
-            pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+                list_result_fold = []
+                list_time = []
 
-            for fold, (index_train, index_test) in enumerate(kf.split(np.random.rand(375,))):
-                print(len(index_train), len(index_test))
-                x_train, y_train = get_samples_with_patch(data['x'], data['y'], index_train, int(n_patch))
-                x_test, y_test = get_samples_with_patch(data['x'], data['y'], index_test, int(n_patch))
+                path = os.path.join(cfg['dir_output'], current_datetime, classifier_name, f'patch={n_patch}', str(data['pca']))
+                pathlib.Path(path).mkdir(parents=True, exist_ok=True)
 
-                start_time_train_valid = time.time()
-                best_classifier.fit(x_train, y_train)
-                y_pred = best_classifier.predict_proba(x_test)
+                for fold, (index_train, index_test) in enumerate(kf.split(np.random.rand(375,))):
+                    print(len(index_train), len(index_test))
+                    x_train, y_train = get_samples_with_patch(data['x'], data['y'], index_train, int(n_patch))
+                    x_test, y_test = get_samples_with_patch(data['x'], data['y'], index_test, int(n_patch))
 
-                result_max_rule, result_prod_rule, result_sum_rule = calculate_test(cfg, fold, y_pred, y_test, n_patch=int(n_patch))
-                end_time_train_valid = time.time()
-                time_train_valid = end_time_train_valid - start_time_train_valid
+                    start_time_train_valid = time.time()
+                    best_classifier.fit(x_train, y_train)
+                    y_pred = best_classifier.predict_proba(x_test)
 
-                print(result_max_rule['accuracy'], result_sum_rule['accuracy'], result_prod_rule['accuracy'], sep='\n')
-                print('\n')
-                list_result_fold.append(result_max_rule)
-                list_result_fold.append(result_prod_rule)
-                list_result_fold.append(result_sum_rule)
-                list_time.append({
-                    "fold": fold,
-                    "time_train_valid": time_train_valid,
-                    "time_search_best_params": time_search_best_params
-                })
+                    result_max_rule, result_prod_rule, result_sum_rule = calculate_test(cfg, fold, y_pred, y_test, n_patch=int(n_patch))
+                    end_time_train_valid = time.time()
+                    time_train_valid = end_time_train_valid - start_time_train_valid
 
-            save_fold(cfg, classifier_name, dataset, list_result_fold, list_time, path)
-            save_mean(best_params, list_result_fold, list_time, data['x'].shape[0], path)
-            save_info_dataset(color_mode, data, dataset, dim, dir_input, extractor, n_patch, path, slice)
+                    print(result_max_rule['accuracy'], result_sum_rule['accuracy'], result_prod_rule['accuracy'], sep='\n')
+                    print('\n')
+                    list_result_fold.append(result_max_rule)
+                    list_result_fold.append(result_prod_rule)
+                    list_result_fold.append(result_sum_rule)
+                    list_time.append({
+                        "fold": fold,
+                        "time_train_valid": time_train_valid,
+                        "time_search_best_params": time_search_best_params
+                    })
+
+                save_fold(cfg, classifier_name, dataset, list_result_fold, list_time, path)
+                save_mean(best_params, list_result_fold, list_time, data['x'].shape[0], path)
+                save_info_dataset(color_mode, data, dataset, dim, dir_input, extractor, n_patch, path, slice)
+                # break
             # break
-        # break
 
 
 def save_mean(best_params, list_result_fold, list_time, n_features, path):
@@ -166,26 +172,7 @@ def save_mean(best_params, list_result_fold, list_time, n_features, path):
     mean_time_hour_min_sec = time.strftime('%H:%M:%S', time.gmtime(float(mean_time)))
     std_time = np.std([t['time_train_valid'] for t in list_time])
 
-    list_mean_rule = list()
-    # if all(r['rule'] for r in list_result_fold):
-    #     list_mean_rule.append({
-    #         'mean': np.mean([r['accuracy'] for r in list_result_fold]),
-    #         'std': np.std([r['accuracy'] for r in list_result_fold]),
-    #         'rule': None
-    #     })
-    #     best_mean = max(list_mean_rule, key=lambda x: x['mean'])
-    #     # print(f'best mean (%): {round(best_mean['mean'] * 100, 3)}')
-    #     # print(f'best rule: {best_mean['rule']}, best_std: {best_mean['std']}')
-    #     mean_max = None
-    #     std_max = None
-    #     mean_prod = None
-    #     std_prod = None
-    #     mean_sum = None
-    #     std_sum = None
-    #     best_fold = max(list_result_fold, key=lambda x: x['accuracy'])
-    #     # print(f'best acc (%): {round(best_fold['accuracy'] * 100, 3)}')
-    #     # print(f'best fold: {best_fold['fold']}, best rule: {best_fold['rule']}')
-    # else:
+    list_mean_rule = []
     list_mean_rule.append({
         'mean': np.mean([r['accuracy'] for r in list(filter(lambda x: x['rule'] == 'sum', list_result_fold))]),
         'std': np.std([r['accuracy'] for r in list(filter(lambda x: x['rule'] == 'sum', list_result_fold))]),
