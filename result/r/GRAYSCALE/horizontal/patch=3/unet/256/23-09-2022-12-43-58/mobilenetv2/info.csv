@@ -1,5 +1,0 @@
-"file_input";"../features/unet/GRAYSCALE/256/mobilenetv2/horizontal+patch=3+mobilenetv2.npz"
-"n_features";"256"
-"n_samples";"1125"
-"n_patch";"3"
-"orientation";"horizontal"

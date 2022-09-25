@@ -1,5 +1,0 @@
-"file_input";"../features/unet/GRAYSCALE/256/resnet50v2/horizontal+patch=5+resnet50v2.npz"
-"n_features";"2048"
-"n_samples";"1875"
-"n_patch";"5"
-"orientation";"horizontal"
