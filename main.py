@@ -26,7 +26,7 @@ def main():
         'n_samples': 375,
         'n_labels': 5,
         'seed': 1234,
-        'dir_input': '../new_features',
+        'dir_input': '../dataset/features',
         'dir_output': 'out'
     }
 
@@ -78,10 +78,24 @@ def main():
     current_datetime = datetime.datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
     kf = sklearn.model_selection.KFold(n_splits=cfg['fold'], shuffle=True, random_state=cfg['seed'])
     list_data_input = [
-        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '256', 'mobilenetv2', 'horizontal', 'patch=3'),
-        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '256', 'mobilenetv2', 'horizontal', 'patch=5'),
-        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '256', 'mobilenetv2', 'horizontal', 'patch=7'),
-        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '256', 'lbp.txt')
+        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '256', 'mobilenetv2', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '400', 'mobilenetv2', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '512', 'mobilenetv2', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '256', 'vgg16', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '400', 'vgg16', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '512', 'vgg16', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '256', 'resnet50v2', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '400', 'resnet50v2', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '512', 'resnet50v2', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '256', 'lbp.txt'),
+        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '400', 'lbp.txt'),
+        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '512', 'lbp.txt'),
+        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '256', 'surf64.txt'),
+        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '400', 'surf64.txt'),
+        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '512', 'surf64.txt'),
+        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '256', 'surf128.txt'),
+        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '400', 'surf128.txt'),
+        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '512', 'surf128.txt')
     ]
 
     list_only_file = [file for file in list_data_input if os.path.isfile(file)]
