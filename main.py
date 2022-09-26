@@ -128,10 +128,9 @@ def main():
                                                                               scoring='accuracy', cv=cfg['fold'],
                                                                               verbose=42, n_jobs=cfg['n_jobs'])
 
-                with joblib.parallel_backend('threading', n_jobs=cfg['n_jobs']):
-                    start_search_best_hyperparameters = time.time()
-                    classifier_best_params.fit(data['x'], data['y'])
-                    end_search_best_hyperparameters = time.time()
+                start_search_best_hyperparameters = time.time()
+                classifier_best_params.fit(data['x'], data['y'])
+                end_search_best_hyperparameters = time.time()
                 time_search_best_params = end_search_best_hyperparameters - start_search_best_hyperparameters
 
                 best_classifier = classifier_best_params.best_estimator_
@@ -205,10 +204,9 @@ def main():
                                                               scoring='accuracy', cv=cfg['fold'],
                                                               verbose=42, n_jobs=cfg['n_jobs'])
 
-                with joblib.parallel_backend('threading', n_jobs=cfg['n_jobs']):
-                    start_search_best_hyperparameters = time.time()
-                    classifier_best_params.fit(data['x'], data['y'])
-                    end_search_best_hyperparameters = time.time()
+                start_search_best_hyperparameters = time.time()
+                classifier_best_params.fit(data['x'], data['y'])
+                end_search_best_hyperparameters = time.time()
                 time_search_best_params = end_search_best_hyperparameters - start_search_best_hyperparameters
 
                 best_classifier = classifier_best_params.best_estimator_

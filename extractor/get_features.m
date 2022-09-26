@@ -1,5 +1,5 @@
 function get_features()
-     path = "../../dataset/imgs/manual/GRAYSCALE/SEM_RESIZE/td";
+     path = "../../dataset/imgs/manual/GRAYSCALE/512/td";
     delete_file_exists();
     list_dir = sort_by_name(dir(path));
     
