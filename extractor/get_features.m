@@ -1,7 +1,8 @@
 function get_features()
-     path = "../../dataset/imgs/manual/GRAYSCALE/512/td";
+    path_in = "../../dataset/imgs/manual/GRAYSCALE/SEM_RESIZE/OUT";
+    path_out = "../../dataset/features/manual/GRAYSCALE/SEM_RESIZE";
     delete_file_exists();
-    list_dir = sort_by_name(dir(path));
+    list_dir = sort_by_name(dir(path_in));
     
     %{
         quando lista o diretorio os dois primeiros valores sao '.' e '..'
@@ -12,17 +13,17 @@ function get_features()
         img = imread(path_img);
         label = get_label(list_dir.name(i));
         
-        addpath(genpath("lbp")); % tipo include e sem ele nao funfa
         feature = lbp(img);
-        fileout("lbp.txt", feature, string(label));
+        filename_lbp = append(path_out, "/" , "lbp.txt");
+        fileout(filename_lbp, feature, string(label));
 
-        addpath(genpath("surf"));
         feature = surf(img, 64);
-        fileout("surf64.txt", feature, string(label));
+        filename_surf = append(path_out, "/" , "surf64.txt");
+        fileout(filename_surf, feature, string(label));
         
-         addpath(genpath("surf"));
-         feature = surf(img, 128);
-         fileout("surf128.txt", feature, string(label));
+        feature = surf(img, 128);
+        filename_surf = append(path_out, "/", "surf128.txt");
+        fileout(filename_surf, feature, string(label));
     end
 end
 

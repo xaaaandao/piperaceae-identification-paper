@@ -1,6 +1,6 @@
 function rgb2gray_resize()
-    path = "../../dataset/PHOTOSHOP/RGB/SEM_RESIZE";
-    new_size = 256;
+    path = "~/Downloads/mat/OUT";
+    new_size = 512;
         
     list_imgs = sort_dir_name(dir(path));
     %{
@@ -12,9 +12,9 @@ function rgb2gray_resize()
         path_img_input = append(path, append(list_imgs.name(i)));
         img_input = imread(path_img_input);
         img2gray = rgb2gray(img_input);
-        img_resize = imresize(img2gray, [new_size, new_size]);
+%         img_resize = imresize(img2gray, [new_size, new_size]);
     
-        imwrite(img_resize, append("./rgb2gray/", list_imgs.name(i)));
+        imwrite(img2gray, append("./rgb2gray/", list_imgs.name(i)));
     end
 end
 

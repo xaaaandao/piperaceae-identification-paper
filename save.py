@@ -35,9 +35,9 @@ def save_mean(best_params, list_result_fold, list_time, path):
              'best_mean_rule', 'best_mean', 'best_mean_std',
              'best_fold', 'best_fold_rule', 'best_fold_accuracy',
              'best_params']
-    values = [mean_time_train_valid, mean_time_millisec_train_valid, mean_time_min_train_valid, [std_time_train_valid],
+    values = [mean_time_train_valid, mean_time_millisec_train_valid, mean_time_min_train_valid, std_time_train_valid,
               mean_time_search_best_params, mean_time_millisec_search_best_params, mean_time_min_search_best_params,
-              [std_time_search_best_params],
+              std_time_search_best_params,
               mean_sum, std_sum, mean_prod, std_prod, mean_max, std_max,
               [best_mean['rule']], [best_mean['mean'], round(float(best_mean['mean']), 2)],
               [best_mean['std'], round(float(best_mean['std']), 2)],
@@ -132,7 +132,6 @@ def save_confusion_matrix(classifier_name, dataset, path, result):
     plt.xlabel('y_pred', fontsize=8)
     plt.gcf().subplots_adjust(bottom=0.15, left=0.25)
     plt.rcParams['figure.facecolor'] = 'white'
-    # plt.rcParams['figure.figsize'] = (10, 10)
     plt.tight_layout()
     plt.savefig(os.path.join(path, filename), bbox_inches='tight')
     plt.cla()

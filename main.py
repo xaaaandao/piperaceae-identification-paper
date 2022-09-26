@@ -33,7 +33,7 @@ def main():
     list_extractor = {
         'lbp': [59],
         'surf64': [128, 256, 257],
-        'surf128': [128, 256, 513],
+        'surf128': [128, 256, 512, 513],
         'mobilenetv2': [128, 256, 512, 1024, 1280],
         'resnet50v2': [128, 256, 512, 1024, 2048],
         'vgg16': [128, 256, 512]
@@ -78,24 +78,27 @@ def main():
     current_datetime = datetime.datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
     kf = sklearn.model_selection.KFold(n_splits=cfg['fold'], shuffle=True, random_state=cfg['seed'])
     list_data_input = [
-        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '256', 'mobilenetv2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '400', 'mobilenetv2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '512', 'mobilenetv2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '256', 'vgg16', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '400', 'vgg16', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '512', 'vgg16', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '256', 'resnet50v2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '400', 'resnet50v2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '512', 'resnet50v2', 'horizontal', 'patch=3'),
-        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '256', 'lbp.txt'),
-        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '400', 'lbp.txt'),
-        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '512', 'lbp.txt'),
-        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '256', 'surf64.txt'),
-        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '400', 'surf64.txt'),
-        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '512', 'surf64.txt'),
-        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '256', 'surf128.txt'),
-        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '400', 'surf128.txt'),
-        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '512', 'surf128.txt')
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '256', 'mobilenetv2', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '400', 'mobilenetv2', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '512', 'mobilenetv2', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '256', 'vgg16', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '400', 'vgg16', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '512', 'vgg16', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '256', 'resnet50v2', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '400', 'resnet50v2', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '512', 'resnet50v2', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '256', 'lbp.txt'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '400', 'lbp.txt'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '512', 'lbp.txt'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', 'SEM_RESIZE', 'lbp.txt'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '256', 'surf64.txt'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '400', 'surf64.txt'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '512', 'surf64.txt'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', 'SEM_RESIZE', 'surf64.txt'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '256', 'surf128.txt'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '400', 'surf128.txt'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '512', 'surf128.txt'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', 'SEM_RESIZE', 'surf128.txt')
     ]
 
     list_only_file = [file for file in list_data_input if os.path.isfile(file)]
