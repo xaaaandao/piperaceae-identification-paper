@@ -140,7 +140,7 @@ def main():
                 list_result_fold = []
                 list_time = []
 
-                path = os.path.join(cfg['dir_output'], current_datetime, dataset, dim, classifier_name, f'patch=None',
+                path = os.path.join(cfg['dir_output'], current_datetime, dataset, dim, extractor, classifier_name, f'patch=None',
                                     str(data['pca']))
                 pathlib.Path(path).mkdir(parents=True, exist_ok=True)
 
@@ -217,7 +217,7 @@ def main():
                 list_result_fold = []
                 list_time = []
 
-                path = os.path.join(cfg['dir_output'], current_datetime, dataset, dim, classifier_name,
+                path = os.path.join(cfg['dir_output'], current_datetime, dataset, dim, extractor, classifier_name,
                                     f'patch={n_patch}', str(data['pca']))
                 pathlib.Path(path).mkdir(parents=True, exist_ok=True)
 
