@@ -100,7 +100,7 @@ def main():
 
     list_only_file = [file for file in list_data_input if os.path.isfile(file)]
     for file in list_only_file:
-        _, _, dataset, color_mode, dim, filename = re.split('/', file)
+        _, _, _, dataset, color_mode, dim, filename = re.split('/', file)
         data = np.loadtxt(file)
         n_samples, n_features = data.shape
         x, y = data[0:, 0:n_features - 1], data[:, n_features - 1]
@@ -140,7 +140,7 @@ def main():
                 list_result_fold = []
                 list_time = []
 
-                path = os.path.join(cfg['dir_output'], current_datetime, classifier_name, f'patch={None}',
+                path = os.path.join(cfg['dir_output'], current_datetime, dataset, dim, classifier_name, f'patch=None',
                                     str(data['pca']))
                 pathlib.Path(path).mkdir(parents=True, exist_ok=True)
 
@@ -171,7 +171,8 @@ def main():
 
     list_only_dir = [dir for dir in list_data_input if os.path.isdir(dir)]
     for dir in list_only_dir:
-        _, _, dataset, color_mode, dim, extractor, slice, _ = re.split('/', dir)
+        _, _, _, dataset, color_mode, dim, extractor, slice, _ = re.split('/', dir)
+        print(dataset, color_mode, dim, extractor, slice)
         list_data = []
         for file in sorted(pathlib.Path(dir).rglob('*.npy')):
             data = np.load(str(file))
@@ -216,7 +217,8 @@ def main():
                 list_result_fold = []
                 list_time = []
 
-                path = os.path.join(cfg['dir_output'], current_datetime, classifier_name, f'patch={n_patch}', str(data['pca']))
+                path = os.path.join(cfg['dir_output'], current_datetime, dataset, dim, classifier_name,
+                                    f'patch={n_patch}', str(data['pca']))
                 pathlib.Path(path).mkdir(parents=True, exist_ok=True)
 
                 for fold, (index_train, index_test) in enumerate(kf.split(np.random.rand(cfg['n_samples'], ))):
