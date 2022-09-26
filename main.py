@@ -89,13 +89,13 @@ def main():
         # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '512', 'resnet50v2', 'horizontal', 'patch=3'),
         os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '256', 'lbp.txt'),
         os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '400', 'lbp.txt'),
-        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '512', 'lbp.txt'),
+        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '512', 'lbp.txt'),
         os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '256', 'surf64.txt'),
         os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '400', 'surf64.txt'),
-        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '512', 'surf64.txt'),
+        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '512', 'surf64.txt'),
         os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '256', 'surf128.txt'),
         os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '400', 'surf128.txt'),
-        os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '512', 'surf128.txt')
+        # os.path.join(cfg['dir_input'], 'unet', 'GRAYSCALE', '512', 'surf128.txt')
     ]
 
     list_only_file = [file for file in list_data_input if os.path.isfile(file)]
