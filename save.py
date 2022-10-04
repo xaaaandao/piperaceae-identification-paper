@@ -43,8 +43,9 @@ def save_mean(best_params, list_result_fold, list_time, path):
               [best_mean['std'], round(float(best_mean['std']), 2)],
               [best_fold['fold']], [best_fold['rule']], [best_fold['accuracy'], round(best_fold['accuracy'], 2)],
               [best_params]]
-    dataframe_mean = pd.DataFrame(values, index)
-    dataframe_mean.to_csv(os.path.join(path, 'mean.csv'), sep=';', na_rep='', header=False, quoting=csv.QUOTE_ALL)
+    df = pd.DataFrame(values, index)
+    df.to_excel(os.path.join(path, 'mean.xlsx'), na_rep='', engine='xlsxwriter', header=False)
+    df.to_csv(os.path.join(path, 'mean.csv'), sep=';', na_rep='', header=False, quoting=csv.QUOTE_ALL)
 
 
 def get_mean_std_by_rule(list_result_fold, rule):
@@ -93,29 +94,38 @@ def create_file_info_fold(best_rule, path, time):
     values_time = [[time[0]['time_train_valid'], round(time[0]['time_train_valid'], 2)],
                    [time[0]['time_search_best_params'], round(time[0]['time_search_best_params'], 2)]]
 
-    dataframe_time = pd.DataFrame(values_time, index_time)
+    df_time = pd.DataFrame(values_time, index_time)
 
     index_best = ['best_rule', 'best_accuracy']
     values_best = [[best_rule['rule']], [best_rule['accuracy'], round(float(best_rule['accuracy']), 2)]]
-    dataframe_best_rule = pd.DataFrame(values_best, index_best)
+    df_best_rule = pd.DataFrame(values_best, index_best)
 
-    dataframe_info = pd.concat([dataframe_time, dataframe_best_rule])
-    dataframe_info.to_csv(os.path.join(path, 'fold_info.csv'), sep=';', na_rep='', header=False,
-                          quoting=csv.QUOTE_ALL)
+    # dataframe_info = pd.concat([dataframe_time, dataframe_best_rule])
+    p = os.path.join(path, 'xlsx')
+    pathlib.Path(p).mkdir(exist_ok=True, parents=True)
+    df_time.to_excel(os.path.join(p, 'fold_time.xlsx'), na_rep='', engine='xlsxwriter', header=False)
+    df_time.to_csv(os.path.join(path, 'fold_time.csv'), sep=';', na_rep='', header=False, quoting=csv.QUOTE_ALL)
+    df_best_rule.to_excel(os.path.join(p, 'fold_best.xlsx'), na_rep='', engine='xlsxwriter', header=False)
+    df_best_rule.to_csv(os.path.join(path, 'fold_best.csv'), sep=';', na_rep='', header=False, quoting=csv.QUOTE_ALL)
 
 
 def create_file_accuracy_by_rule(index, path, values):
-    dataframe_fold = pd.DataFrame(values, index)
-    dataframe_fold.to_csv(os.path.join(path, 'accuracy_by_rule.csv'), sep=';', na_rep='', header=False,
-                          quoting=csv.QUOTE_ALL)
+    df = pd.DataFrame(values, index)
+    p = os.path.join(path, 'xlsx')
+    pathlib.Path(p).mkdir(exist_ok=True, parents=True)
+    df.to_excel(os.path.join(p, 'accuracy_by_rule.xlsx'), na_rep='', engine='xlsxwriter', header=False)
+    df.to_csv(os.path.join(path, 'accuracy_by_rule.csv'), sep=';', na_rep='', header=False, quoting=csv.QUOTE_ALL)
 
 
 def save_info_dataset(color_mode, data, dataset, dim, dir_input, extractor, n_patch, path, slice):
     index = ['color_mode', 'data_n_features', 'data_n_samples', 'dataset', 'dim_image', 'dir_input', 'extractor', 'n_patch',
              'slice']
     values = [color_mode, data['x'].shape[1], data['x'].shape[0], dataset, dim, dir_input, extractor, n_patch, slice]
-    dataframe = pd.DataFrame(values, index)
-    dataframe.to_csv(os.path.join(path, 'info.csv'), sep=';', na_rep='', header=False, quoting=csv.QUOTE_ALL)
+    df = pd.DataFrame(values, index)
+    p = os.path.join(path, 'xlsx')
+    pathlib.Path(p).mkdir(exist_ok=True, parents=True)
+    df.to_excel(os.path.join(p, 'info.xlsx'), na_rep='', engine='xlsxwriter', header=False)
+    df.to_csv(os.path.join(path, 'info.csv'), sep=';', na_rep='', header=False, quoting=csv.QUOTE_ALL)
 
 
 def save_confusion_matrix(classifier_name, dataset, path, result):
@@ -136,5 +146,4 @@ def save_confusion_matrix(classifier_name, dataset, path, result):
     plt.savefig(os.path.join(path, filename), bbox_inches='tight')
     plt.cla()
     plt.clf()
-    # time.sleep(3) # avoid bug first plot
     plt.close()
