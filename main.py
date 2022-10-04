@@ -78,21 +78,7 @@ def main():
     current_datetime = datetime.datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
     kf = sklearn.model_selection.KFold(n_splits=cfg['fold'], shuffle=True, random_state=cfg['seed'])
     list_data_input = [
-        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '256', 'mobilenetv2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '400', 'mobilenetv2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '512', 'mobilenetv2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '256', 'vgg16', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '400', 'vgg16', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '512', 'vgg16', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '256', 'resnet50v2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '400', 'resnet50v2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '512', 'resnet50v2', 'horizontal', 'patch=3'),
-        os.path.join(cfg['dir_input'], 'manual', 'RGB', '256', 'lbp.txt'),
-        os.path.join(cfg['dir_input'], 'manual', 'RGB', '400', 'surf64.txt'),
-        os.path.join(cfg['dir_input'], 'manual', 'RGB', '512', 'surf128.txt'),
-        os.path.join(cfg['dir_input'], 'unet', 'RGB', '256', 'lbp.txt'),
-        os.path.join(cfg['dir_input'], 'unet', 'RGB', '400', 'surf64.txt'),
-        os.path.join(cfg['dir_input'], 'unet', 'RGB', '512', 'surf128.txt'),
+        os.path.join(cfg['dir_input'], 'manual', 'RGB', '256', 'mobilenetv2', 'horizontal', 'patch=3')
     ]
 
     list_only_file = [file for file in list_data_input if os.path.isfile(file)]
@@ -107,14 +93,7 @@ def main():
         slice = None
         n_patch = None
 
-        list_data_pca = []
-        for pca in list_extractor[extractor]:
-            list_data_pca.append({
-                'x': x_normalized if pca == max(list_extractor[extractor]) else sklearn.decomposition.PCA(
-                    n_components=pca, random_state=cfg['seed']).fit_transform(x_normalized),
-                'y': y,
-                'pca': pca
-            })
+        list_data_pca = p(cfg, extractor, list_extractor, x_normalized, y)
 
         for data in list_data_pca:
             for classifier in list_classifiers:
@@ -184,14 +163,7 @@ def main():
         x, y = new_data[0:, 0:n_features - 1], new_data[:, n_features - 1]
         x_normalized = sklearn.preprocessing.StandardScaler().fit_transform(x)
 
-        list_data_pca = []
-        for pca in list_extractor[extractor]:
-            list_data_pca.append({
-                'x': x_normalized if pca == max(list_extractor[extractor]) else sklearn.decomposition.PCA(
-                    n_components=pca, random_state=cfg['seed']).fit_transform(x_normalized),
-                'y': y,
-                'pca': pca
-            })
+        list_data_pca = p(cfg, extractor, list_extractor, x_normalized, y)
 
         for data in list_data_pca:
             for classifier in list_classifiers:
@@ -241,6 +213,18 @@ def main():
                 save_fold(cfg, classifier_name, dataset, list_result_fold, list_time, path)
                 save_mean(best_params, list_result_fold, list_time, path)
                 save_info_dataset(color_mode, data, dataset, dim, dir, extractor, n_patch, path, slice)
+
+
+def p(cfg, extractor, list_extractor, x_normalized, y):
+    list_data_pca = []
+    for pca in list_extractor[extractor]:
+        list_data_pca.append({
+            'x': x_normalized if pca == max(list_extractor[extractor]) else sklearn.decomposition.PCA(
+                n_components=pca, random_state=cfg['seed']).fit_transform(x_normalized),
+            'y': y,
+            'pca': pca
+        })
+    return list_data_pca
 
 
 if __name__ == '__main__':
