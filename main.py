@@ -78,7 +78,24 @@ def main():
     current_datetime = datetime.datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
     kf = sklearn.model_selection.KFold(n_splits=cfg['fold'], shuffle=True, random_state=cfg['seed'])
     list_data_input = [
-        os.path.join(cfg['dir_input'], 'manual', 'RGB', '256', 'mobilenetv2', 'horizontal', 'patch=3')
+        os.path.join(cfg['dir_input'], 'manual', 'RGB', '256', 'mobilenetv2', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'RGB', '400', 'mobilenetv2', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'RGB', '512', 'mobilenetv2', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'RGB', '256', 'resnet50v2', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'RGB', '400', 'resnet50v2', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'RGB', '512', 'resnet50v2', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'RGB', '256', 'vgg16', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'RGB', '400', 'vgg16', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'RGB', '512', 'vgg16', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '256', 'mobilenetv2', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '400', 'mobilenetv2', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '512', 'mobilenetv2', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '256', 'resnet50v2', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '400', 'resnet50v2', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '512', 'resnet50v2', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '256', 'vgg16', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '400', 'vgg16', 'horizontal', 'patch=3'),
+        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '512', 'vgg16', 'horizontal', 'patch=3')
     ]
 
     list_only_file = [file for file in list_data_input if os.path.isfile(file)]
