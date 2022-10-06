@@ -147,3 +147,10 @@ def save_confusion_matrix(classifier_name, dataset, path, result):
     plt.cla()
     plt.clf()
     plt.close()
+
+
+def save(best_params, cfg, classifier_name, color_mode, data, dataset, dim, extractor, file, list_result_fold,
+         list_time, n_patch, path, slice):
+    save_fold(cfg, classifier_name, dataset, list_result_fold, list_time, path)
+    save_mean(best_params, list_result_fold, list_time, path)
+    save_info_dataset(color_mode, data, dataset, dim, file, extractor, n_patch, path, slice)

@@ -3,7 +3,6 @@ import pathlib
 import re
 import time
 
-import joblib
 import numpy as np
 import os
 
@@ -16,7 +15,7 @@ import sklearn.tree
 
 from result import calculate_test
 from samples import get_samples_with_patch
-from save import save_mean, save_fold, save_info_dataset
+from save import save
 
 
 def main():
@@ -79,87 +78,26 @@ def main():
     kf = sklearn.model_selection.KFold(n_splits=cfg['fold'], shuffle=True, random_state=cfg['seed'])
     list_data_input = [
         os.path.join(cfg['dir_input'], 'manual', 'RGB', '256', 'mobilenetv2', 'horizontal', 'patch=3'),
-        os.path.join(cfg['dir_input'], 'manual', 'RGB', '400', 'mobilenetv2', 'horizontal', 'patch=3'),
-        os.path.join(cfg['dir_input'], 'manual', 'RGB', '512', 'mobilenetv2', 'horizontal', 'patch=3'),
-        os.path.join(cfg['dir_input'], 'manual', 'RGB', '256', 'resnet50v2', 'horizontal', 'patch=3'),
-        os.path.join(cfg['dir_input'], 'manual', 'RGB', '400', 'resnet50v2', 'horizontal', 'patch=3'),
-        os.path.join(cfg['dir_input'], 'manual', 'RGB', '512', 'resnet50v2', 'horizontal', 'patch=3'),
-        os.path.join(cfg['dir_input'], 'manual', 'RGB', '256', 'vgg16', 'horizontal', 'patch=3'),
-        os.path.join(cfg['dir_input'], 'manual', 'RGB', '400', 'vgg16', 'horizontal', 'patch=3'),
-        os.path.join(cfg['dir_input'], 'manual', 'RGB', '512', 'vgg16', 'horizontal', 'patch=3'),
-        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '256', 'mobilenetv2', 'horizontal', 'patch=3'),
-        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '400', 'mobilenetv2', 'horizontal', 'patch=3'),
-        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '512', 'mobilenetv2', 'horizontal', 'patch=3'),
-        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '256', 'resnet50v2', 'horizontal', 'patch=3'),
-        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '400', 'resnet50v2', 'horizontal', 'patch=3'),
-        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '512', 'resnet50v2', 'horizontal', 'patch=3'),
-        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '256', 'vgg16', 'horizontal', 'patch=3'),
-        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '400', 'vgg16', 'horizontal', 'patch=3'),
-        os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '512', 'vgg16', 'horizontal', 'patch=3')
+        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '400', 'mobilenetv2', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '512', 'mobilenetv2', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '256', 'resnet50v2', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '400', 'resnet50v2', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '512', 'resnet50v2', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '256', 'vgg16', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '400', 'vgg16', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '512', 'vgg16', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '256', 'mobilenetv2', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '400', 'mobilenetv2', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '512', 'mobilenetv2', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '256', 'resnet50v2', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '400', 'resnet50v2', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '512', 'resnet50v2', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '256', 'vgg16', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '400', 'vgg16', 'horizontal', 'patch=3'),
+        # os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '512', 'vgg16', 'horizontal', 'patch=3')
     ]
 
-    list_only_file = [file for file in list_data_input if os.path.isfile(file)]
-    for file in list_only_file:
-        _, _, _, dataset, color_mode, dim, filename = re.split('/', file)
-        data = np.loadtxt(file)
-        n_samples, n_features = data.shape
-        x, y = data[0:, 0:n_features - 1], data[:, n_features - 1]
-        x_normalized = sklearn.preprocessing.StandardScaler().fit_transform(x)
-
-        extractor = filename.replace('.txt', '')
-        slice = None
-        n_patch = None
-
-        list_data_pca = p(cfg, extractor, list_extractor, x_normalized, y)
-
-        for data in list_data_pca:
-            for classifier in list_classifiers:
-                classifier_name = classifier.__class__.__name__
-
-                classifier_best_params = sklearn.model_selection.GridSearchCV(classifier,
-                                                                              list_hyperparametrs[classifier_name],
-                                                                              scoring='accuracy', cv=cfg['fold'],
-                                                                              verbose=42, n_jobs=cfg['n_jobs'])
-
-                start_search_best_hyperparameters = time.time()
-                classifier_best_params.fit(data['x'], data['y'])
-                end_search_best_hyperparameters = time.time()
-                time_search_best_params = end_search_best_hyperparameters - start_search_best_hyperparameters
-
-                best_classifier = classifier_best_params.best_estimator_
-                best_params = classifier_best_params.best_params_
-
-                list_result_fold = []
-                list_time = []
-
-                path = os.path.join(cfg['dir_output'], current_datetime, dataset, dim, extractor, classifier_name, f'patch=None',
-                                    str(data['pca']))
-                pathlib.Path(path).mkdir(parents=True, exist_ok=True)
-
-                for fold, (index_train, index_test) in enumerate(kf.split(np.random.rand(cfg['n_samples'], ))):
-                    x_train, y_train = x[index_train], y[index_train]
-                    x_test, y_test = x[index_test], y[index_test]
-
-                    start_time_train_valid = time.time()
-                    best_classifier.fit(x_train, y_train)
-                    y_pred = best_classifier.predict_proba(x_test)
-
-                    result_max_rule, result_prod_rule, result_sum_rule = calculate_test(cfg, fold, y_pred, y_test)
-                    end_time_train_valid = time.time()
-                    time_train_valid = end_time_train_valid - start_time_train_valid
-
-                    list_result_fold.append(result_max_rule)
-                    list_result_fold.append(result_prod_rule)
-                    list_result_fold.append(result_sum_rule)
-                    list_time.append({
-                        "fold": fold,
-                        "time_train_valid": time_train_valid,
-                        "time_search_best_params": time_search_best_params
-                    })
-
-                save_fold(cfg, classifier_name, dataset, list_result_fold, list_time, path)
-                save_mean(best_params, list_result_fold, list_time, path)
-                save_info_dataset(color_mode, data, dataset, dim, file, extractor, n_patch, path, slice)
+    # n_patch = handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, list_extractor, list_hyperparametrs)
 
     list_only_dir = [dir for dir in list_data_input if os.path.isdir(dir)]
     for dir in list_only_dir:
@@ -186,17 +124,7 @@ def main():
             for classifier in list_classifiers:
                 classifier_name = classifier.__class__.__name__
 
-                classifier_best_params = sklearn.model_selection.GridSearchCV(classifier, list_hyperparametrs[classifier_name],
-                                                              scoring='accuracy', cv=cfg['fold'],
-                                                              verbose=42, n_jobs=cfg['n_jobs'])
-
-                start_search_best_hyperparameters = time.time()
-                classifier_best_params.fit(data['x'], data['y'])
-                end_search_best_hyperparameters = time.time()
-                time_search_best_params = end_search_best_hyperparameters - start_search_best_hyperparameters
-
-                best_classifier = classifier_best_params.best_estimator_
-                best_params = classifier_best_params.best_params_
+                best_classifier, best_params, time_search_best_params = find_best_classifier_and_hyperparameters(cfg, classifier, classifier_name, data, list_hyperparametrs)
 
                 list_result_fold = []
                 list_time = []
@@ -227,9 +155,80 @@ def main():
                         "time_search_best_params": time_search_best_params
                     })
 
-                save_fold(cfg, classifier_name, dataset, list_result_fold, list_time, path)
-                save_mean(best_params, list_result_fold, list_time, path)
-                save_info_dataset(color_mode, data, dataset, dim, dir, extractor, n_patch, path, slice)
+                save(best_params, cfg, classifier_name, color_mode, data, dataset, dim, extractor, dir,
+                     list_result_fold, list_time, n_patch, path, slice)
+
+
+def handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, list_extractor, list_hyperparametrs):
+    list_only_file = [file for file in list_data_input if os.path.isfile(file)]
+    for file in list_only_file:
+        _, _, _, dataset, color_mode, dim, filename = re.split('/', file)
+        data = np.loadtxt(file)
+        n_samples, n_features = data.shape
+        x, y = data[0:, 0:n_features - 1], data[:, n_features - 1]
+        x_normalized = sklearn.preprocessing.StandardScaler().fit_transform(x)
+
+        extractor = filename.replace('.txt', '')
+        slice = None
+        n_patch = None
+
+        list_data_pca = p(cfg, extractor, list_extractor, x_normalized, y)
+
+        for data in list_data_pca:
+            for classifier in list_classifiers:
+                classifier_name = classifier.__class__.__name__
+
+                best_classifier, best_params, time_search_best_params = find_best_classifier_and_hyperparameters(cfg,
+                                                                                                                 classifier,
+                                                                                                                 classifier_name,
+                                                                                                                 data,
+                                                                                                                 list_hyperparametrs)
+
+                list_result_fold = []
+                list_time = []
+
+                path = os.path.join(cfg['dir_output'], current_datetime, dataset, dim, extractor, classifier_name,
+                                    f'patch=None',
+                                    str(data['pca']))
+                pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+
+                for fold, (index_train, index_test) in enumerate(kf.split(np.random.rand(cfg['n_samples'], ))):
+                    x_train, y_train = x[index_train], y[index_train]
+                    x_test, y_test = x[index_test], y[index_test]
+
+                    start_time_train_valid = time.time()
+                    best_classifier.fit(x_train, y_train)
+                    y_pred = best_classifier.predict_proba(x_test)
+                    result_max_rule, result_prod_rule, result_sum_rule = calculate_test(cfg, fold, y_pred, y_test)
+                    end_time_train_valid = time.time()
+                    time_train_valid = end_time_train_valid - start_time_train_valid
+
+                    list_result_fold.append(result_max_rule)
+                    list_result_fold.append(result_prod_rule)
+                    list_result_fold.append(result_sum_rule)
+                    list_time.append({
+                        "fold": fold,
+                        "time_train_valid": time_train_valid,
+                        "time_search_best_params": time_search_best_params
+                    })
+
+                save(best_params, cfg, classifier_name, color_mode, data, dataset, dim, extractor, file,
+                     list_result_fold, list_time, n_patch, path, slice)
+    return n_patch
+
+
+def find_best_classifier_and_hyperparameters(cfg, classifier, classifier_name, data,
+                                             list_hyperparametrs):
+    classifier_best_params = sklearn.model_selection.GridSearchCV(classifier, list_hyperparametrs[classifier_name],
+                                                                  scoring='accuracy', cv=cfg['fold'],
+                                                                  verbose=42, n_jobs=cfg['n_jobs'])
+    start_search_best_hyperparameters = time.time()
+    classifier_best_params.fit(data['x'], data['y'])
+    end_search_best_hyperparameters = time.time()
+    time_search_best_params = end_search_best_hyperparameters - start_search_best_hyperparameters
+    best_classifier = classifier_best_params.best_estimator_
+    best_params = classifier_best_params.best_params_
+    return best_classifier, best_params, time_search_best_params
 
 
 def p(cfg, extractor, list_extractor, x_normalized, y):

@@ -66,6 +66,8 @@ def calculate_test(cfg, fold, y_pred, y_test, n_patch=1):
 def create_result(fold, rule, y_pred_prob, y_pred, y_test):
     accuracy = sklearn.metrics.accuracy_score(y_pred=y_pred, y_true=y_test)
     confusion_matrix = sklearn.metrics.confusion_matrix(y_pred=y_pred, y_true=y_test)
+    f1_score = sklearn.metrics.f1_score(y_pred=y_pred, y_true=y_test, average='binary')
+    top_k_accuracy = sklearn.metrics.top_k_accuracy(y_pred=y_pred, y_true=y_test, average='binary')
     return {
         "fold": fold,
         "rule": rule,
