@@ -6,23 +6,17 @@
                     (only_filename (substring filename 0 (- (string-length filename) 4)))
                     (image (car (gimp-file-load RUN-NONINTERACTIVE filename filename)))
                     (drawable (car (gimp-image-active-drawable image)))
+                    (layer (car (gimp-image-get-layer-by-name image "exsiccata")))
                 )
                 (gimp-message filename)
+                (gimp-layer-set-visible layer FALSE)
                 (let 
                     ((nfilename (string-append only_filename ".jpeg")))
-                    (gimp-xcf-save RUN-NONINTERACTIVE image drawable nfilename nfilename)
+                    (gimp-file-save RUN-NONINTERACTIVE image drawable nfilename nfilename)
                 )
                 (gimp-image-delete image)
             )
             (set! filelist (cdr filelist))
         )
 	)
-)
-(script-fu-register "converter-xcf"
-	""
-	"Do nothing"
-	"Joey User"
-	"Joey User"
-	"August 2000"
-	""
 )

@@ -21,7 +21,7 @@
                 )
                 (gimp-item-set-name layer "exsiccata")
                 (gimp-item-set-name layer_mask "mask")
-                (gimp-layer-set-opacity layer_mask 60)
+                (gimp-layer-set-opacity layer_mask 32)
                 (gimp-message filename)
                 (gimp-image-insert-layer image layer_mask 0 -1)
                 (gimp-layer-scale layer_mask width height TRUE)

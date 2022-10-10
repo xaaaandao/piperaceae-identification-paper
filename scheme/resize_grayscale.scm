@@ -1,16 +1,19 @@
-(define (export-jpeg)
-	(let* ((filelist (cadr (file-glob "*.xcf" 1))))
+(define (batch-resize)
+	(let* ((filelist (cadr (file-glob "*.jpeg" 1))))
 		(while (not (null? filelist))
             (let* (
                     (filename (car filelist))
-                    (only_filename (substring filename 0 (- (string-length filename) 4)))
                     (image (car (gimp-file-load RUN-NONINTERACTIVE filename filename)))
                     (drawable (car (gimp-image-active-drawable image)))
+					(width 256)
+					(height 256)
                 )
                 (gimp-message filename)
+                (gimp-image-scale-full image width height INTERPOLATION-CUBIC)
+				; (gimp-image-convert-grayscale image)
                 (let 
-                    ((nfilename (string-append only_filename ".jpeg")))
-                    (gimp-xcf-save RUN-NONINTERACTIVE image drawable nfilename nfilename)
+                    ((nfilename (string-append "thumb_" filename)))
+                    (gimp-file-save RUN-NONINTERACTIVE image drawable nfilename nfilename)
                 )
                 (gimp-image-delete image)
             )
@@ -18,7 +21,7 @@
         )
 	)
 )
-(script-fu-register "converter-xcf"
+(script-fu-register "batch-resize"
 	""
 	"Do nothing"
 	"Joey User"
