@@ -1,6 +1,6 @@
 function get_features()
-    path_in = "../../dataset/imgs/manual/GRAYSCALE/SEM_RESIZE/OUT";
-    path_out = "../../dataset/features/manual/GRAYSCALE/SEM_RESIZE";
+    path_in = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/grayscale/segmented_unet/512/jpeg/w_pred_mask";
+    path_out = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/features/grayscale/segmented_unet/512";
     delete_file_exists();
     list_dir = sort_by_name(dir(path_in));
     

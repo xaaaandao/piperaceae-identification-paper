@@ -77,28 +77,52 @@ def main():
     current_datetime = datetime.datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
     kf = sklearn.model_selection.KFold(n_splits=cfg['fold'], shuffle=True, random_state=cfg['seed'])
     list_data_input = [
-        os.path.join(cfg['dir_input'], 'manual', 'RGB', '256', 'mobilenetv2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '400', 'mobilenetv2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '512', 'mobilenetv2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '256', 'resnet50v2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '400', 'resnet50v2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '512', 'resnet50v2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '256', 'vgg16', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '400', 'vgg16', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'RGB', '512', 'vgg16', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '256', 'mobilenetv2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '400', 'mobilenetv2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '512', 'mobilenetv2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '256', 'resnet50v2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '400', 'resnet50v2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '512', 'resnet50v2', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '256', 'vgg16', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '400', 'vgg16', 'horizontal', 'patch=3'),
-        # os.path.join(cfg['dir_input'], 'manual', 'GRAYSCALE', '512', 'vgg16', 'horizontal', 'patch=3')
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/256/lbp.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/256/surf64.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/256/surf128.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/400/lbp.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/400/surf64.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/400/surf128.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/512/lbp.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/512/surf64.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/512/surf128.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_manual/256/lbp.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_manual/256/surf64.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_manual/256/surf128.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_manual/400/lbp.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_manual/400/surf64.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_manual/400/surf128.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_manual/512/lbp.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_manual/512/surf64.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_manual/512/surf128.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_unet/256/lbp.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_unet/256/surf64.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_unet/256/surf128.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_unet/400/lbp.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_unet/400/surf64.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_unet/400/surf128.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/lbp.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/surf64.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/surf128.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_unet/256/lbp.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_unet/256/surf64.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_unet/256/surf128.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_unet/400/lbp.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_unet/400/surf64.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_unet/400/surf128.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_unet/512/lbp.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_unet/512/surf64.txt',
+        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_unet/512/surf128.txt'    
     ]
 
-    # n_patch = handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, list_extractor, list_hyperparametrs)
+    n_patch = handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, list_extractor, list_hyperparametrs)
 
+    non_handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, list_extractor, list_hyperparametrs,
+                  n_patch)
+
+
+def non_handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, list_extractor, list_hyperparametrs,
+                  n_patch):
     list_only_dir = [dir for dir in list_data_input if os.path.isdir(dir)]
     for dir in list_only_dir:
         _, _, _, dataset, color_mode, dim, extractor, slice, _ = re.split('/', dir)
@@ -124,7 +148,11 @@ def main():
             for classifier in list_classifiers:
                 classifier_name = classifier.__class__.__name__
 
-                best_classifier, best_params, time_search_best_params = find_best_classifier_and_hyperparameters(cfg, classifier, classifier_name, data, list_hyperparametrs)
+                best_classifier, best_params, time_search_best_params = find_best_classifier_and_hyperparameters(cfg,
+                                                                                                                 classifier,
+                                                                                                                 classifier_name,
+                                                                                                                 data,
+                                                                                                                 list_hyperparametrs)
 
                 list_result_fold = []
                 list_time = []
@@ -142,7 +170,8 @@ def main():
                     best_classifier.fit(x_train, y_train)
                     y_pred = best_classifier.predict_proba(x_test)
 
-                    result_max_rule, result_prod_rule, result_sum_rule = calculate_test(cfg, fold, y_pred, y_test, n_patch=int(n_patch))
+                    result_max_rule, result_prod_rule, result_sum_rule = calculate_test(cfg, fold, y_pred, y_test,
+                                                                                        n_patch=int(n_patch))
                     end_time_train_valid = time.time()
                     time_train_valid = end_time_train_valid - start_time_train_valid
 
@@ -166,55 +195,58 @@ def handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, list
         data = np.loadtxt(file)
         n_samples, n_features = data.shape
         x, y = data[0:, 0:n_features - 1], data[:, n_features - 1]
-        x_normalized = sklearn.preprocessing.StandardScaler().fit_transform(x)
 
-        extractor = filename.replace('.txt', '')
-        slice = None
-        n_patch = None
+        if not np.isnan(x):
 
-        list_data_pca = p(cfg, extractor, list_extractor, x_normalized, y)
+            x_normalized = sklearn.preprocessing.StandardScaler().fit_transform(x)
 
-        for data in list_data_pca:
-            for classifier in list_classifiers:
-                classifier_name = classifier.__class__.__name__
+            extractor = filename.replace('.txt', '')
+            slice = None
+            n_patch = None
 
-                best_classifier, best_params, time_search_best_params = find_best_classifier_and_hyperparameters(cfg,
-                                                                                                                 classifier,
-                                                                                                                 classifier_name,
-                                                                                                                 data,
-                                                                                                                 list_hyperparametrs)
+            list_data_pca = p(cfg, extractor, list_extractor, x_normalized, y)
 
-                list_result_fold = []
-                list_time = []
+            for data in list_data_pca:
+                for classifier in list_classifiers:
+                    classifier_name = classifier.__class__.__name__
 
-                path = os.path.join(cfg['dir_output'], current_datetime, dataset, dim, extractor, classifier_name,
-                                    f'patch=None',
-                                    str(data['pca']))
-                pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+                    best_classifier, best_params, time_search_best_params = find_best_classifier_and_hyperparameters(cfg,
+                                                                                                                     classifier,
+                                                                                                                     classifier_name,
+                                                                                                                     data,
+                                                                                                                     list_hyperparametrs)
 
-                for fold, (index_train, index_test) in enumerate(kf.split(np.random.rand(cfg['n_samples'], ))):
-                    x_train, y_train = x[index_train], y[index_train]
-                    x_test, y_test = x[index_test], y[index_test]
+                    list_result_fold = []
+                    list_time = []
 
-                    start_time_train_valid = time.time()
-                    best_classifier.fit(x_train, y_train)
-                    y_pred = best_classifier.predict_proba(x_test)
-                    result_max_rule, result_prod_rule, result_sum_rule = calculate_test(cfg, fold, y_pred, y_test)
-                    end_time_train_valid = time.time()
-                    time_train_valid = end_time_train_valid - start_time_train_valid
+                    path = os.path.join(cfg['dir_output'], current_datetime, dataset, dim, extractor, classifier_name,
+                                        f'patch=None',
+                                        str(data['pca']))
+                    pathlib.Path(path).mkdir(parents=True, exist_ok=True)
 
-                    list_result_fold.append(result_max_rule)
-                    list_result_fold.append(result_prod_rule)
-                    list_result_fold.append(result_sum_rule)
-                    list_time.append({
-                        "fold": fold,
-                        "time_train_valid": time_train_valid,
-                        "time_search_best_params": time_search_best_params
-                    })
+                    for fold, (index_train, index_test) in enumerate(kf.split(np.random.rand(cfg['n_samples'], ))):
+                        x_train, y_train = x[index_train], y[index_train]
+                        x_test, y_test = x[index_test], y[index_test]
 
-                save(best_params, cfg, classifier_name, color_mode, data, dataset, dim, extractor, file,
-                     list_result_fold, list_time, n_patch, path, slice)
-    return n_patch
+                        start_time_train_valid = time.time()
+                        best_classifier.fit(x_train, y_train)
+                        y_pred = best_classifier.predict_proba(x_test)
+                        result_max_rule, result_prod_rule, result_sum_rule = calculate_test(cfg, fold, y_pred, y_test)
+                        end_time_train_valid = time.time()
+                        time_train_valid = end_time_train_valid - start_time_train_valid
+
+                        list_result_fold.append(result_max_rule)
+                        list_result_fold.append(result_prod_rule)
+                        list_result_fold.append(result_sum_rule)
+                        list_time.append({
+                            "fold": fold,
+                            "time_train_valid": time_train_valid,
+                            "time_search_best_params": time_search_best_params
+                        })
+
+                    save(best_params, cfg, classifier_name, color_mode, data, dataset, dim, extractor, file,
+                         list_result_fold, list_time, n_patch, path, slice)
+    return None
 
 
 def find_best_classifier_and_hyperparameters(cfg, classifier, classifier_name, data,
