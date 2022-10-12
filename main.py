@@ -77,45 +77,28 @@ def main():
     current_datetime = datetime.datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
     kf = sklearn.model_selection.KFold(n_splits=cfg['fold'], shuffle=True, random_state=cfg['seed'])
     list_data_input = [
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/256/lbp.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/256/surf64.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/256/surf128.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/400/lbp.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/400/surf64.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/400/surf128.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/512/lbp.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/512/surf64.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/512/surf128.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_manual/256/lbp.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_manual/256/surf64.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_manual/256/surf128.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_manual/400/lbp.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_manual/400/surf64.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_manual/400/surf128.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_manual/512/lbp.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_manual/512/surf64.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_manual/512/surf128.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_unet/256/lbp.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_unet/256/surf64.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_unet/256/surf128.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_unet/400/lbp.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_unet/400/surf64.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_unet/400/surf128.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/lbp.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/surf64.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/surf128.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_unet/256/lbp.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_unet/256/surf64.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_unet/256/surf128.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_unet/400/lbp.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_unet/400/surf64.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_unet/400/surf128.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_unet/512/lbp.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_unet/512/surf64.txt',
-        '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/RGB/segmented_unet/512/surf128.txt'    
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/256/lbp.txt',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/256/surf64.txt',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/256/surf128.txt',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/400/lbp.txt',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/400/surf64.txt',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/400/surf128.txt',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/512/lbp.txt',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/512/surf64.txt',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/512/surf128.txt',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/256/lbp.txt',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/256/surf64.txt',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/256/surf128.txt',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/400/lbp.txt',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/400/surf64.txt',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/400/surf128.txt',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/lbp.txt',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/surf64.txt',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/surf128.txt',
     ]
 
-    n_patch = handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, list_extractor, list_hyperparametrs)
+    n_patch = None
+    handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, list_extractor, list_hyperparametrs, n_patch)
 
     non_handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, list_extractor, list_hyperparametrs,
                   n_patch)
@@ -188,21 +171,22 @@ def non_handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, 
                      list_result_fold, list_time, n_patch, path, slice)
 
 
-def handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, list_extractor, list_hyperparametrs):
+def handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, list_extractor, list_hyperparametrs, n_patch):
     list_only_file = [file for file in list_data_input if os.path.isfile(file)]
     for file in list_only_file:
-        _, _, _, dataset, color_mode, dim, filename = re.split('/', file)
+        print(file)
+        _, _, dataset, _, color_mode, _, dim, filename = re.split('/', file)
         data = np.loadtxt(file)
         n_samples, n_features = data.shape
         x, y = data[0:, 0:n_features - 1], data[:, n_features - 1]
 
-        if not np.isnan(x):
+        if not np.isnan(x).any():
 
             x_normalized = sklearn.preprocessing.StandardScaler().fit_transform(x)
 
             extractor = filename.replace('.txt', '')
             slice = None
-            n_patch = None
+            # n_patch = None
 
             list_data_pca = p(cfg, extractor, list_extractor, x_normalized, y)
 
@@ -246,7 +230,7 @@ def handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, list
 
                     save(best_params, cfg, classifier_name, color_mode, data, dataset, dim, extractor, file,
                          list_result_fold, list_time, n_patch, path, slice)
-    return None
+    # return None
 
 
 def find_best_classifier_and_hyperparameters(cfg, classifier, classifier_name, data,
