@@ -95,6 +95,24 @@ def main():
         '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/lbp.txt',
         '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/surf64.txt',
         '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/surf128.txt',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/256/mobilenetv2/horizontal/patch=3',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/400/mobilenetv2/horizontal/patch=3',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/512/mobilenetv2/horizontal/patch=3',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/256/resnet50v2/horizontal/patch=3',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/400/resnet50v2/horizontal/patch=3',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/512/resnet50v2/horizontal/patch=3',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/256/vgg16/horizontal/patch=3',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/400/vgg16/horizontal/patch=3',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/512/vgg16/horizontal/patch=3',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/256/mobilenetv2/horizontal/patch=3',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/400/mobilenetv2/horizontal/patch=3',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/mobilenetv2/horizontal/patch=3',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/256/resnet50v2/horizontal/patch=3',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/400/resnet50v2/horizontal/patch=3',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/resnet50v2/horizontal/patch=3',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/256/vgg16/horizontal/patch=3',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/400/vgg16/horizontal/patch=3',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/vgg16/horizontal/patch=3',
     ]
 
     n_patch = None
@@ -108,7 +126,9 @@ def non_handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, 
                   n_patch):
     list_only_dir = [dir for dir in list_data_input if os.path.isdir(dir)]
     for dir in list_only_dir:
-        _, _, _, dataset, color_mode, dim, extractor, slice, _ = re.split('/', dir)
+        print(dir)
+        _, _, dataset, _, color_mode, segmented, dim, extractor, slice, _ = re.split('/', dir)
+        # _, _, dataset, _, color_mode, _, dim, filename = re.split('/', file)
         print(dataset, color_mode, dim, extractor, slice)
         list_data = []
         for file in sorted(pathlib.Path(dir).rglob('*.npy')):
@@ -140,7 +160,7 @@ def non_handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, 
                 list_result_fold = []
                 list_time = []
 
-                path = os.path.join(cfg['dir_output'], current_datetime, dataset, dim, extractor, classifier_name,
+                path = os.path.join(cfg['dir_output'], current_datetime, dataset, segmented, dim, extractor, classifier_name,
                                     f'patch={n_patch}', str(data['pca']))
                 pathlib.Path(path).mkdir(parents=True, exist_ok=True)
 
@@ -175,7 +195,7 @@ def handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, list
     list_only_file = [file for file in list_data_input if os.path.isfile(file)]
     for file in list_only_file:
         print(file)
-        _, _, dataset, _, color_mode, _, dim, filename = re.split('/', file)
+        _, _, dataset, _, color_mode, segmented, dim, filename = re.split('/', file)
         data = np.loadtxt(file)
         n_samples, n_features = data.shape
         x, y = data[0:, 0:n_features - 1], data[:, n_features - 1]
@@ -203,7 +223,7 @@ def handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, list
                     list_result_fold = []
                     list_time = []
 
-                    path = os.path.join(cfg['dir_output'], current_datetime, dataset, dim, extractor, classifier_name,
+                    path = os.path.join(cfg['dir_output'], current_datetime, dataset, segmented, dim, extractor, classifier_name,
                                         f'patch=None',
                                         str(data['pca']))
                     pathlib.Path(path).mkdir(parents=True, exist_ok=True)
