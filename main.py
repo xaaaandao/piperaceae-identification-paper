@@ -32,7 +32,7 @@ def main():
     list_extractor = {
         'lbp': [59],
         'surf64': [128, 256, 257],
-        'surf128': [128, 256, 512, 513],
+        'surf128': [128, 256, 513],
         'mobilenetv2': [128, 256, 512, 1024, 1280],
         'resnet50v2': [128, 256, 512, 1024, 2048],
         'vgg16': [128, 256, 512]
@@ -95,24 +95,24 @@ def main():
         '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/lbp.txt',
         '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/surf64.txt',
         '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/surf128.txt',
-        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/256/mobilenetv2/horizontal/patch=3',
-        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/400/mobilenetv2/horizontal/patch=3',
-        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/512/mobilenetv2/horizontal/patch=3',
-        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/256/resnet50v2/horizontal/patch=3',
-        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/400/resnet50v2/horizontal/patch=3',
-        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/512/resnet50v2/horizontal/patch=3',
-        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/256/vgg16/horizontal/patch=3',
-        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/400/vgg16/horizontal/patch=3',
-        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/512/vgg16/horizontal/patch=3',
-        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/256/mobilenetv2/horizontal/patch=3',
-        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/400/mobilenetv2/horizontal/patch=3',
-        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/mobilenetv2/horizontal/patch=3',
-        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/256/resnet50v2/horizontal/patch=3',
-        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/400/resnet50v2/horizontal/patch=3',
-        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/resnet50v2/horizontal/patch=3',
-        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/256/vgg16/horizontal/patch=3',
-        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/400/vgg16/horizontal/patch=3',
-        '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/vgg16/horizontal/patch=3',
+        # '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/256/mobilenetv2/horizontal/patch=3',
+        # '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/400/mobilenetv2/horizontal/patch=3',
+        # '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/512/mobilenetv2/horizontal/patch=3',
+        # '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/256/resnet50v2/horizontal/patch=3',
+        # '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/400/resnet50v2/horizontal/patch=3',
+        # '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/512/resnet50v2/horizontal/patch=3',
+        # '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/256/vgg16/horizontal/patch=3',
+        # '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/400/vgg16/horizontal/patch=3',
+        # '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/512/vgg16/horizontal/patch=3',
+        # '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/256/mobilenetv2/horizontal/patch=3',
+        # '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/400/mobilenetv2/horizontal/patch=3',
+        # '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/mobilenetv2/horizontal/patch=3',
+        # '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/256/resnet50v2/horizontal/patch=3',
+        # '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/400/resnet50v2/horizontal/patch=3',
+        # '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/resnet50v2/horizontal/patch=3',
+        # '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/256/vgg16/horizontal/patch=3',
+        # '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/400/vgg16/horizontal/patch=3',
+        # '../dataset_gimp/imagens_sp/features/grayscale/segmented_unet/512/vgg16/horizontal/patch=3',
     ]
 
     n_patch = None
@@ -126,8 +126,12 @@ def non_handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, 
                   n_patch):
     list_only_dir = [dir for dir in list_data_input if os.path.isdir(dir)]
     for dir in list_only_dir:
-        print(dir)
-        _, _, dataset, _, color_mode, segmented, dim, extractor, slice, _ = re.split('/', dir)
+
+        if len(re.split('/', dir)) == 10:
+            _, _, dataset, _, color_mode, segmented, dim, extractor, slice, _ = re.split('/', dir)
+        elif len(re.split('/', dir)) == 11:
+            _, _, dataset, _, color_mode, segmented, dim, extractor, slice, _, _ = re.split('/', dir)
+
         # _, _, dataset, _, color_mode, _, dim, filename = re.split('/', file)
         print(dataset, color_mode, dim, extractor, slice)
         list_data = []
@@ -143,6 +147,7 @@ def non_handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, 
         new_data = np.array(list_data)
         n_samples, n_features = new_data.shape
         x, y = new_data[0:, 0:n_features - 1], new_data[:, n_features - 1]
+        # print(numpy.unique(y))
         x_normalized = sklearn.preprocessing.StandardScaler().fit_transform(x)
 
         list_data_pca = p(cfg, extractor, list_extractor, x_normalized, y)
@@ -160,7 +165,7 @@ def non_handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, 
                 list_result_fold = []
                 list_time = []
 
-                path = os.path.join(cfg['dir_output'], current_datetime, dataset, segmented, dim, extractor, classifier_name,
+                path = os.path.join(cfg['dir_output'], current_datetime, dataset, segmented, color_mode, dim, extractor, classifier_name,
                                     f'patch={n_patch}', str(data['pca']))
                 pathlib.Path(path).mkdir(parents=True, exist_ok=True)
 
@@ -223,7 +228,7 @@ def handcraft(cfg, current_datetime, kf, list_classifiers, list_data_input, list
                     list_result_fold = []
                     list_time = []
 
-                    path = os.path.join(cfg['dir_output'], current_datetime, dataset, segmented, dim, extractor, classifier_name,
+                    path = os.path.join(cfg['dir_output'], current_datetime, dataset, segmented, color_mode, dim, extractor, classifier_name,
                                         f'patch=None',
                                         str(data['pca']))
                     pathlib.Path(path).mkdir(parents=True, exist_ok=True)

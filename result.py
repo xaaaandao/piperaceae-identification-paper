@@ -37,19 +37,31 @@ def y_pred_with_patch(n_patch, y_test):
 def prod_all_prob(cfg, n_patch, y_pred):
     new_y_pred = numpy.empty(shape=(0,))
     new_y_pred_prob_prod = numpy.empty(shape=(0, cfg['n_labels']))
+    # new_y_pred = []
+    # new_y_pred_prob_prod = []
+    # print(y_pred)
     for i, j in next_sequence(0, y_pred.shape[0], n_patch):
+        # new_y_pred.append(numpy.argmax(y_pred[i:j].prod(axis=0)) + 1)
+        # new_y_pred_prob_prod.append(y_pred[i:j].prod(axis=0))
         new_y_pred = numpy.append(new_y_pred, numpy.argmax(y_pred[i:j].prod(axis=0)) + 1)
         new_y_pred_prob_prod = numpy.vstack((new_y_pred_prob_prod, y_pred[i:j].prod(axis=0)))
+    # print(new_y_pred)
+    # return numpy.array(new_y_pred_prob_prod), numpy.array(new_y_pred)
     return new_y_pred_prob_prod, new_y_pred
 
 
 def sum_all_prob(cfg, n_patch, y_pred):
     new_y_pred = numpy.empty(shape=(0,))
     new_y_pred_prob_sum = numpy.empty(shape=(0, cfg['n_labels']))
+    # new_y_pred = []
+    # new_y_pred_prob_sum = []
     for i, j in next_sequence(0, y_pred.shape[0], n_patch):
+        # new_y_pred.append(numpy.argmax(y_pred[i:j].sum(axis=0)) + 1)
+        # new_y_pred_prob_sum.append(y_pred[i:j].sum(axis=0))
         new_y_pred = numpy.append(new_y_pred, numpy.argmax(y_pred[i:j].sum(axis=0)) + 1)
         new_y_pred_prob_sum = numpy.vstack((new_y_pred_prob_sum, y_pred[i:j].sum(axis=0)))
     return new_y_pred_prob_sum, new_y_pred
+    # return numpy.array(new_y_pred_prob_sum), numpy.array(new_y_pred)
 
 
 def calculate_test(cfg, fold, y_pred, y_test, n_patch=1):
@@ -66,8 +78,8 @@ def calculate_test(cfg, fold, y_pred, y_test, n_patch=1):
 def create_result(fold, rule, y_pred_prob, y_pred, y_test):
     accuracy = sklearn.metrics.accuracy_score(y_pred=y_pred, y_true=y_test)
     confusion_matrix = sklearn.metrics.confusion_matrix(y_pred=y_pred, y_true=y_test)
-    # f1_score = sklearn.metrics.f1_score(y_pred=y_pred, y_true=y_test, average='binary')
-    # top_k_accuracy = sklearn.metrics.top_k_accuracy(y_pred=y_pred, y_true=y_test, average='binary')
+    # f1_score = sklearn.metrics.f1_score(y_pred=y_pred, y_true=y_test, average=None)
+    # top_k_accuracy = sklearn.metrics.top_k_accuracy_score(y_score=y_pred, y_true=y_test)
     f1_score = -1
     top_k_accuracy = -1
     return {
@@ -77,6 +89,8 @@ def create_result(fold, rule, y_pred_prob, y_pred, y_test):
         "y_pred": y_pred,
         "y_true": y_test,
         "accuracy": accuracy,
+        "f1_score": f1_score,
+        "top_k": top_k_accuracy,
         "confusion_matrix": confusion_matrix
     }
 

@@ -24,8 +24,12 @@ def save_mean(best_params, list_result_fold, list_time, path):
     list_mean_rule.append(mean_std_prod)
 
     best_mean = max(list_mean_rule, key=lambda x: x['mean'])
+    best_mean_f1_score = max(list_mean_rule, key=lambda x: x['mean_f1_score'])
+    best_mean_top_k = max(list_mean_rule, key=lambda x: x['mean_top_k'])
     best_fold = max(list_result_fold, key=lambda x: x['accuracy'])
     print(f'best accuracy: {round(float(best_mean["mean"]), 2)}')
+    print(f'best f1_score: {round(float(best_mean_f1_score["mean_f1_score"]), 2)}')
+    print(f'best top_k: {round(float(best_mean_top_k["mean_top_k"]), 2)}')
 
     index = ['mean_time_train_valid', 'mean_time_millisec_train_valid', 'mean_time_min_train_valid',
              'std_time_train_valid',
@@ -50,11 +54,15 @@ def save_mean(best_params, list_result_fold, list_time, path):
 
 def get_mean_std_by_rule(list_result_fold, rule):
     mean = np.mean([r['accuracy'] for r in list(filter(lambda x: x['rule'] == rule, list_result_fold))])
+    mean_f1_score = np.mean([r['f1_score'] for r in list(filter(lambda x: x['rule'] == rule, list_result_fold))])
+    mean_top_k = np.mean([r['top_k'] for r in list(filter(lambda x: x['rule'] == rule, list_result_fold))])
     std = np.std([r['accuracy'] for r in list(filter(lambda x: x['rule'] == rule, list_result_fold))])
     return [mean, round(float(mean), 2)], [std, round(float(std), 2)], {
         'mean': mean,
         'std': std,
-        'rule': rule
+        'rule': rule,
+        'mean_f1_score': mean_f1_score,
+        'mean_top_k': mean_top_k
     }
 
 
