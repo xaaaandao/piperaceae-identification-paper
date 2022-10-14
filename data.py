@@ -43,7 +43,7 @@ def get_samples_with_patch(x, y, list_index, n_patch):
 
 
 def search_info(list_info, info):
-    result = list(filter(lambda x: x in str(info), list_info))
+    result = list(filter(lambda x: x in str(info).lower(), list_info))
     return None if len(result) == 0 else result[0]
 
 
