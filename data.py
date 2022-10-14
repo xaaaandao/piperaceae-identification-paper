@@ -53,5 +53,7 @@ def get_info(path):
     segmented = search_info(['manual', 'unet'], str(path))
     dim = search_info(['256', '400', '512'], str(path))
     extractor = search_info(['lbp', 'surf', 'mobilenetv2', 'resnet50v2', 'vgg16'], str(path))
+    slice = search_info(['horizontal', 'vertical', 'h+v'], str(path))
 
-    return dataset, color_mode, segmented, dim, extractor
+
+    return dataset, color_mode, segmented, dim, extractor, slice

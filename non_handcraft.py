@@ -17,7 +17,7 @@ def non_handcraft(cfg, current_datetime, kf, list_data_input, list_extractor):
     for dir in list_only_dir:
 
         n_patch = -1
-        dataset, color_mode, segmented, dim, extractor = get_info(dir)
+        dataset, color_mode, segmented, dim, extractor, slice = get_info(dir)
 
         list_data = []
         n_patch = merge_all_files(dir, list_data, n_patch)
@@ -81,8 +81,8 @@ def non_handcraft(cfg, current_datetime, kf, list_data_input, list_extractor):
 
                 save(best['params'], cfg, classifier_name, color_mode, data, dataset, dim, extractor, dir,
                      list_result_fold, list_time, n_patch, path, slice)
-            break
-        break
+        #     break
+        # break
 
 
 def create_path_base(cfg, classifier_name, color_mode, current_datetime, data, dataset, dim, extractor, n_patch,
