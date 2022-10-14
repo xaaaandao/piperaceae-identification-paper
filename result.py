@@ -8,8 +8,9 @@ def get_index_max_value(y):
     return int(index[1])
 
 
-def max_rule(n_patch, y_pred):
+def max_rule(n_labels, n_patch, y_pred):
     new_y_pred = numpy.empty(shape=(0,))
+    new_y_pred_prob = numpy.empty(shape=(0, n_labels))
     for i, j in next_sequence(0, y_pred.shape[0], n_patch):
         new_y_pred = numpy.append(new_y_pred, get_index_max_value(y_pred[i:j]) + 1)
     return new_y_pred
@@ -34,54 +35,49 @@ def y_pred_with_patch(n_patch, y_test):
     return new_y_test
 
 
-def prod_all_prob(cfg, n_patch, y_pred):
+def prod_all_prob(n_labels, n_patch, y_pred):
     new_y_pred = numpy.empty(shape=(0,))
-    new_y_pred_prob_prod = numpy.empty(shape=(0, cfg['n_labels']))
-    # new_y_pred = []
-    # new_y_pred_prob_prod = []
-    # print(y_pred)
+    # print(n_labels)
+    new_y_pred_prob_prod = numpy.empty(shape=(0, n_labels))
+    # print(new_y_pred_prob_prod.shape)
     for i, j in next_sequence(0, y_pred.shape[0], n_patch):
-        # new_y_pred.append(numpy.argmax(y_pred[i:j].prod(axis=0)) + 1)
-        # new_y_pred_prob_prod.append(y_pred[i:j].prod(axis=0))
         new_y_pred = numpy.append(new_y_pred, numpy.argmax(y_pred[i:j].prod(axis=0)) + 1)
         new_y_pred_prob_prod = numpy.vstack((new_y_pred_prob_prod, y_pred[i:j].prod(axis=0)))
-    # print(new_y_pred)
-    # return numpy.array(new_y_pred_prob_prod), numpy.array(new_y_pred)
+    # print(y_pred.shape, new_y_pred_prob_prod.shape, new_y_pred.shape)
     return new_y_pred_prob_prod, new_y_pred
 
 
-def sum_all_prob(cfg, n_patch, y_pred):
+def sum_all_prob(n_labels, n_patch, y_pred):
     new_y_pred = numpy.empty(shape=(0,))
-    new_y_pred_prob_sum = numpy.empty(shape=(0, cfg['n_labels']))
-    # new_y_pred = []
-    # new_y_pred_prob_sum = []
+    new_y_pred_prob_sum = numpy.empty(shape=(0, n_labels))
     for i, j in next_sequence(0, y_pred.shape[0], n_patch):
-        # new_y_pred.append(numpy.argmax(y_pred[i:j].sum(axis=0)) + 1)
-        # new_y_pred_prob_sum.append(y_pred[i:j].sum(axis=0))
         new_y_pred = numpy.append(new_y_pred, numpy.argmax(y_pred[i:j].sum(axis=0)) + 1)
         new_y_pred_prob_sum = numpy.vstack((new_y_pred_prob_sum, y_pred[i:j].sum(axis=0)))
+    # print(y_pred.shape, new_y_pred_prob_sum.shape, new_y_pred.shape)
     return new_y_pred_prob_sum, new_y_pred
-    # return numpy.array(new_y_pred_prob_sum), numpy.array(new_y_pred)
 
 
-def calculate_test(cfg, fold, y_pred, y_test, n_patch=1):
+def calculate_test(fold, n_labels, y_pred, y_test, n_patch=1):
     if n_patch > 1:
         y_test = y_test_with_patch(n_patch, y_test)
-    y_pred_max = max_rule(n_patch, y_pred)
-    y_pred_prob_prod, y_pred_prod = prod_all_prob(cfg, n_patch, y_pred)
-    y_pred_prob_sum, y_pred_sum = sum_all_prob(cfg, n_patch, y_pred)
-    return create_result(fold, "max", y_pred, y_pred_max, y_test), \
-           create_result(fold, "prod", y_pred_prob_prod, y_pred_prod, y_test), \
-           create_result(fold, "sum", y_pred_prob_sum, y_pred_sum, y_test)
+    y_pred_max = max_rule(n_labels, n_patch, y_pred)
+    y_pred_prob_prod, y_pred_prod = prod_all_prob(n_labels, n_patch, y_pred)
+    y_pred_prob_sum, y_pred_sum = sum_all_prob(n_labels, n_patch, y_pred)
+    return create_result(fold, n_labels, "max", y_pred, y_pred_max, y_test), \
+           create_result(fold, n_labels, "prod", y_pred_prob_prod, y_pred_prod, y_test), \
+           create_result(fold, n_labels, "sum", y_pred_prob_sum, y_pred_sum, y_test)
 
-
-def create_result(fold, rule, y_pred_prob, y_pred, y_test):
+def create_result(fold, n_labels, rule, y_pred_prob, y_pred, y_test):
     accuracy = sklearn.metrics.accuracy_score(y_pred=y_pred, y_true=y_test)
     confusion_matrix = sklearn.metrics.confusion_matrix(y_pred=y_pred, y_true=y_test)
-    # f1_score = sklearn.metrics.f1_score(y_pred=y_pred, y_true=y_test, average=None)
-    # top_k_accuracy = sklearn.metrics.top_k_accuracy_score(y_score=y_pred, y_true=y_test)
-    f1_score = -1
-    top_k_accuracy = -1
+
+    f1_score = 0
+    if min(list(collections.Counter(y_test).values())) != max(list(collections.Counter(y_test).values())):
+        f1_score = sklearn.metrics.f1_score(y_pred=y_pred, y_true=y_test, average='weighted')
+
+    top_k_accuracy = 0
+    if n_labels > 2:
+        top_k_accuracy = sklearn.metrics.top_k_accuracy_score(y_true=y_test, y_score=y_pred_prob)
     return {
         "fold": fold,
         "rule": rule,
