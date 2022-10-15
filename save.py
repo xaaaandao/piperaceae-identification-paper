@@ -8,6 +8,8 @@ import numpy as np
 import pandas as pd
 import sklearn.metrics
 
+ROUND_VALUE = 2
+
 
 def save_mean(best_params, list_result_fold, list_time, path):
     mean_time_train_valid, mean_time_millisec_train_valid, \
@@ -81,12 +83,24 @@ def get_mean_std_by_rule(list_result_fold, rule):
 
 def get_mean_std_time(key, list_time):
     mean_time = np.mean([t[key] for t in list_time])
+    round_mean_time = round(float(mean_time), ROUND_VALUE)
     std_time = np.std([t[key] for t in list_time])
+    round_std_time = round(float(std_time), ROUND_VALUE)
     mean_time_millisec = mean_time * 1000
+    round_mean_time_millisec = round(float(mean_time_millisec), ROUND_VALUE)
     mean_time_min = mean_time / 60
-    return [mean_time, round(float(mean_time), 2)], \
-           [mean_time_millisec, round(float(mean_time_millisec), 2)], \
-           [mean_time_min, round(float(mean_time_min), 2)], [std_time, round(float(std_time), 2)]
+    round_mean_time_min = round(float(mean_time_min), ROUND_VALUE)
+    return [mean_time, round_mean_time], \
+           [mean_time_millisec, round_mean_time_millisec], \
+           [mean_time_min, round_mean_time_min], [std_time, round_std_time]
+
+
+def create_file_xlsx_and_csv(filename, index, path, values):
+    df = pd.DataFrame(values, index)
+    p = os.path.join(path, 'xlsx')
+    pathlib.Path(p).mkdir(exist_ok=True, parents=True)
+    df.to_excel(os.path.join(p, f'{filename}.xlsx'), na_rep='', engine='xlsxwriter', header=False)
+    df.to_csv(os.path.join(path, f'{filename}.csv'), sep=';', na_rep='', header=False, quoting=csv.QUOTE_ALL)
 
 
 def save_fold(cfg, classifier_name, dataset, list_result_fold, list_time, path):
@@ -97,87 +111,108 @@ def save_fold(cfg, classifier_name, dataset, list_result_fold, list_time, path):
         path_fold = os.path.join(path, str(fold))
         pathlib.Path(path_fold).mkdir(parents=True, exist_ok=True)
 
-        index = []
-        values_mean = []
-        values_f1 = []
-        for rule in ['max', 'prod', 'sum']:
-            result = list(filter(lambda x: x['rule'] == rule, list_fold))
-            index.append(rule)
-            values_mean.append([result[0]['accuracy'], round(result[0]['accuracy'], 2)])
-            values_f1.append([result[0]['f1_score'], round(result[0]['f1_score'], 2)])
-            save_confusion_matrix(classifier_name, dataset, path_fold, result[0])
+        index, values_mean = find_values_fold_by_rule(classifier_name, dataset, list_fold, 'accuracy', path_fold)
+        index, values_f1 = find_values_fold_by_rule(classifier_name, dataset, list_fold, 'f1_score', path_fold)
 
-        best_rule = max(list_fold, key=lambda x: x['accuracy'])
-        create_file_accuracy_by_rule(index, path_fold, values_mean)
-        create_file_f1_score_by_rule(index, path_fold, values_f1)
-        create_file_info_fold(best_rule, path_fold, time_fold)
+        best_rule_accuracy = max(list_fold, key=lambda x: x['accuracy'])
+        create_file_xlsx_and_csv('accuracy', index, path_fold, values_mean)
+        create_file_xlsx_and_csv('f1_score', index, path_fold, values_mean)
+        create_file_info_fold(best_rule_accuracy, path_fold, time_fold)
+
+
+def find_values_fold_by_rule(classifier_name, dataset, list_fold, metric, path_fold):
+    index = []
+    values = []
+    for rule in ['max', 'prod', 'sum']:
+        result = list(filter(lambda x: x['rule'] == rule, list_fold))
+        index.append(rule)
+        values.append([result[0][metric], round(result[0][metric], ROUND_VALUE)])
+        save_confusion_matrix(classifier_name, dataset, path_fold, result[0])
+    return index, values
 
 
 def create_file_info_fold(best_rule, path, time):
-    index_time = ['time_train_valid', 'time_search_best_params']
-    values_time = [[time[0]['time_train_valid'], round(time[0]['time_train_valid'], 2)],
-                   [time[0]['time_search_best_params'], round(time[0]['time_search_best_params'], 2)]]
-    df_time = pd.DataFrame(values_time, index_time)
+    index_time, values_time = info_time(time)
+    index_best, values_best = info_best(best_rule)
+    index_best_f1, values_best_f1 = info_best_f1(best_rule)
 
+    create_file_xlsx_and_csv('fold_time', index_time, path, values_time)
+    create_file_xlsx_and_csv('fold_best', index_best, path, values_best)
+    create_file_xlsx_and_csv('fold_best_f1', index_best_f1, path, values_best_f1)
+
+
+def info_best_f1(best):
+    best_rule = [best['rule']]
+    best_f1 = best['f1_score']
+    round_best_f1 = round(float(best_f1), ROUND_VALUE)
+    index = ['best_rule', 'best_f1']
+    values = [best_rule, [best_f1, round_best_f1]]
+    return index, values
+
+
+def info_best(best):
+    best_rule = [best['rule']]
+    best_accuracy = best['accuracy']
+    round_best_accuracy = round(float(best_accuracy), ROUND_VALUE)
     index_best = ['best_rule', 'best_accuracy']
-    values_best = [[best_rule['rule']], [best_rule['accuracy'], round(float(best_rule['accuracy']), 2)]]
-    df_best_rule = pd.DataFrame(values_best, index_best)
-
-    index_best_f1 = ['best_rule', 'best_f1']
-    values_best_f1 = [[best_rule['rule']], [best_rule['f1_score'], round(float(best_rule['f1_score']), 2)]]
-    df_best_rule_f1 = pd.DataFrame(values_best_f1, index_best_f1)
-
-    # dataframe_info = pd.concat([dataframe_time, dataframe_best_rule])
-    p = os.path.join(path, 'xlsx')
-    pathlib.Path(p).mkdir(exist_ok=True, parents=True)
-    df_time.to_excel(os.path.join(p, 'fold_time.xlsx'), na_rep='', engine='xlsxwriter', header=False)
-    df_time.to_csv(os.path.join(path, 'fold_time.csv'), sep=';', na_rep='', header=False, quoting=csv.QUOTE_ALL)
-    df_best_rule.to_excel(os.path.join(p, 'fold_best.xlsx'), na_rep='', engine='xlsxwriter', header=False)
-    df_best_rule.to_csv(os.path.join(path, 'fold_best.csv'), sep=';', na_rep='', header=False, quoting=csv.QUOTE_ALL)
-    df_best_rule_f1.to_excel(os.path.join(p, 'fold_best_f1.xlsx'), na_rep='', engine='xlsxwriter', header=False)
-    df_best_rule_f1.to_csv(os.path.join(path, 'fold_best_f1.csv'), sep=';', na_rep='', header=False, quoting=csv.QUOTE_ALL)
+    values_best = [best_rule, [best_accuracy, round_best_accuracy]]
+    return index_best, values_best
 
 
-def create_file_accuracy_by_rule(index, path, values):
-    df = pd.DataFrame(values, index)
-    p = os.path.join(path, 'xlsx')
-    pathlib.Path(p).mkdir(exist_ok=True, parents=True)
-    df.to_excel(os.path.join(p, 'accuracy_by_rule.xlsx'), na_rep='', engine='xlsxwriter', header=False)
-    df.to_csv(os.path.join(path, 'accuracy_by_rule.csv'), sep=';', na_rep='', header=False, quoting=csv.QUOTE_ALL)
+def info_time(time):
+    time_train_valid = time[0]['time_train_valid']
+    round_time_train_valid = round(time_train_valid, ROUND_VALUE)
+    time_search_best_params = time[0]['time_search_best_params']
+    round_search_best_params = round(time_search_best_params, ROUND_VALUE)
+    index_time = ['time_train_valid', 'time_search_best_params']
+    values_time = [[time_train_valid, round_time_train_valid],
+                   [time_search_best_params, round_search_best_params]]
+    return index_time, values_time
 
-def create_file_f1_score_by_rule(index, path, values):
-    df = pd.DataFrame(values, index)
-    p = os.path.join(path, 'xlsx')
-    pathlib.Path(p).mkdir(exist_ok=True, parents=True)
-    df.to_excel(os.path.join(p, 'f1_score_by_rule.xlsx'), na_rep='', engine='xlsxwriter', header=False)
-    df.to_csv(os.path.join(path, 'f1_score_by_rule.csv'), sep=';', na_rep='', header=False, quoting=csv.QUOTE_ALL)
 
 def save_info_dataset(color_mode, data, dataset, dim, dir_input, extractor, n_patch, path, slice):
+    n_features = data['x'].shape[1]
+    n_samples = data['x'].shape[0]
     index = ['color_mode', 'data_n_features', 'data_n_samples', 'dataset', 'dim_image', 'dir_input', 'extractor', 'n_patch',
              'slice']
-    values = [color_mode, data['x'].shape[1], data['x'].shape[0], dataset, dim, dir_input, extractor, n_patch, slice]
-    df = pd.DataFrame(values, index)
-    p = os.path.join(path, 'xlsx')
-    pathlib.Path(p).mkdir(exist_ok=True, parents=True)
-    df.to_excel(os.path.join(p, 'info.xlsx'), na_rep='', engine='xlsxwriter', header=False)
-    df.to_csv(os.path.join(path, 'info.csv'), sep=';', na_rep='', header=False, quoting=csv.QUOTE_ALL)
+    values = [color_mode, n_features, n_samples, dataset, dim, dir_input, extractor, n_patch, slice]
+    create_file_xlsx_and_csv('info', index, path, values)
 
 
 def save_confusion_matrix(classifier_name, dataset, path, result):
-    filename = f'confusion_matrix-{result["rule"]}.png'
+    filename = f'confusion_matrix_{result["rule"]}.png'
+    # cinco labels -> IWSSIP
     # labels = ['$\it{Manekia}$', '$\it{Ottonia}$', '$\it{Peperomia}$', '$\it{Piper}$', '$\it{Pothomorphe}$']
+
+    # acima de cinco labels -> dataset George
+    # labels =
+
+    # acima de cinco dez -> dataset George
+
+    # acima de cinco vinte -> dataset George
+
+
+    # duas labels -> dataset George
     labels = ['$\it{Peperomia}$', '$\it{Piper}$']
+
     confusion_matrix = sklearn.metrics.ConfusionMatrixDisplay(result['confusion_matrix'])
     confusion_matrix.plot(cmap='Reds')
-    title = f'Confusion Matrix\ndataset: {dataset}, classifier: {classifier_name}\naccuracy: {round(result["accuracy"], 2)}, rule: {result["rule"]}'
+
+    title = f'Confusion Matrix\ndataset: {dataset}, classifier: {classifier_name}\naccuracy: {round(result["accuracy"], ROUND_VALUE)}, rule: {result["rule"]}'
+    fontsize_title = 12
+    pad_title = 20
+
+    fontsize_labels = 8
+
+    background_color = 'white'
     plt.ioff()
-    plt.title(title, fontsize=12, pad=20)
-    plt.xticks(np.arange(len(labels)), labels, rotation=45, fontsize=8)
-    plt.yticks(np.arange(len(labels)), labels, fontsize=8)
-    plt.ylabel('y_test', fontsize=8)
-    plt.xlabel('y_pred', fontsize=8)
+    plt.title(title, fontsize=fontsize_title, pad=pad_title)
+    plt.xticks(np.arange(len(labels)), labels, rotation=45, fontsize=fontsize_labels)
+    plt.yticks(np.arange(len(labels)), labels, fontsize=fontsize_labels)
+    plt.ylabel('y_test', fontsize=fontsize_labels)
+    plt.xlabel('y_pred', fontsize=fontsize_labels)
     plt.gcf().subplots_adjust(bottom=0.15, left=0.25)
-    plt.rcParams['figure.facecolor'] = 'white'
+    plt.rcParams['figure.facecolor'] = background_color
     plt.tight_layout()
     plt.savefig(os.path.join(path, filename), bbox_inches='tight')
     plt.cla()

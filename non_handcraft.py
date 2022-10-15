@@ -13,11 +13,11 @@ from save import save
 
 
 def non_handcraft(cfg, current_datetime, kf, list_data_input, list_extractor):
-    list_only_dir = [dir for dir in list_data_input if os.path.isdir(dir)]
+    list_only_dir = [dir for dir in list_data_input if os.path.isdir(dir) and len(os.listdir(dir)) > 0]
     for dir in list_only_dir:
 
         n_patch = -1
-        dataset, color_mode, segmented, dim, extractor, slice = get_info(dir)
+        dataset, color_mode, segmented, dim, extractor, slice_patch = get_info(dir)
 
         list_data = []
         n_patch = merge_all_files(dir, list_data, n_patch)
@@ -80,9 +80,7 @@ def non_handcraft(cfg, current_datetime, kf, list_data_input, list_extractor):
                     })
 
                 save(best['params'], cfg, classifier_name, color_mode, data, dataset, dim, extractor, dir,
-                     list_result_fold, list_time, n_patch, path, slice)
-        #     break
-        # break
+                     list_result_fold, list_time, n_patch, path, slice_patch)
 
 
 def create_path_base(cfg, classifier_name, color_mode, current_datetime, data, dataset, dim, extractor, n_patch,
@@ -91,5 +89,3 @@ def create_path_base(cfg, classifier_name, color_mode, current_datetime, data, d
                         classifier_name, f'patch={n_patch}', str(data['pca']))
     pathlib.Path(path).mkdir(parents=True, exist_ok=True)
     return path
-
-

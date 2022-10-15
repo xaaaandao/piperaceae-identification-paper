@@ -77,7 +77,7 @@ def create_result(fold, n_labels, rule, y_pred_prob, y_pred, y_test):
 
     top_k_accuracy = 0
     if n_labels > 2:
-        top_k_accuracy = sklearn.metrics.top_k_accuracy_score(y_true=y_test, y_score=y_pred_prob)
+        top_k_accuracy = sklearn.metrics.top_k_accuracy_score(y_true=y_test, y_score=y_pred_prob, normalize=False)
     return {
         "fold": fold,
         "rule": rule,
