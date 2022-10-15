@@ -9,10 +9,7 @@ import sklearn.svm
 import sklearn.tree
 
 from handcraft import handcraft
-# from classifier import find_best_classifier_and_hyperparameters
 from non_handcraft import non_handcraft
-# from result import calculate_test
-# from save import save
 
 
 def main():

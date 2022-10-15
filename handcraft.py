@@ -73,7 +73,7 @@ def handcraft(cfg, current_datetime, kf, list_data_input, list_extractor):
 
                     save(best['params'], cfg, classifier_name, color_mode, data, dataset, dim, extractor, file,
                          list_result_fold, list_time, n_patch, path, patch_slice)
-                    break
-                break
-            break
-        break
+        #             break
+        #         break
+        #     break
+        # break
