@@ -63,7 +63,7 @@ def calculate_test(fold, n_labels, y_pred, y_test, n_patch=1):
     y_pred_max = max_rule(n_labels, n_patch, y_pred)
     y_pred_prob_prod, y_pred_prod = prod_all_prob(n_labels, n_patch, y_pred)
     y_pred_prob_sum, y_pred_sum = sum_all_prob(n_labels, n_patch, y_pred)
-    max = create_result(fold, n_labels, "max", y_pred, y_pred_max, y_test)
+    # max = create_result(fold, n_labels, "max", y_pred, y_pred_max, y_test)
     prod = create_result(fold, n_labels, 'prod', y_pred_prob_prod, y_pred_prod, y_test)
     sum = create_result(fold, n_labels, 'sum', y_pred_prob_sum, y_pred_sum, y_test)
     return prod, sum
