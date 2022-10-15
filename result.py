@@ -1,18 +1,18 @@
 import collections
-import numpy
+import numpy as np
 import sklearn.metrics
 
 
 def get_index_max_value(y):
-    index = numpy.unravel_index(numpy.argmax(y, axis=None), y.shape)  # index return a tuple
+    index = np.unravel_index(np.argmax(y, axis=None), y.shape)  # index return a tuple
     return int(index[1])
 
 
 def max_rule(n_labels, n_patch, y_pred):
-    new_y_pred = numpy.empty(shape=(0,))
-    new_y_pred_prob = numpy.empty(shape=(0, n_labels))
+    new_y_pred = np.empty(shape=(0,))
+    new_y_pred_prob = np.empty(shape=(0, n_labels))
     for i, j in next_sequence(0, y_pred.shape[0], n_patch):
-        new_y_pred = numpy.append(new_y_pred, get_index_max_value(y_pred[i:j]) + 1)
+        new_y_pred = np.append(new_y_pred, get_index_max_value(y_pred[i:j]) + 1)
     return new_y_pred
 
 
@@ -22,37 +22,37 @@ def next_sequence(start, end, step):
 
 
 def y_test_with_patch(n_patch, y_test):
-    new_y_test = numpy.empty(shape=(0,))
+    new_y_test = np.empty(shape=(0,))
     for i, j in next_sequence(0, y_test.shape[0], n_patch):
-        new_y_test = numpy.append(new_y_test, y_test[i])
+        new_y_test = np.append(new_y_test, y_test[i])
     return new_y_test
 
 
 def y_pred_with_patch(n_patch, y_test):
-    new_y_test = numpy.empty(shape=(0,))
+    new_y_test = np.empty(shape=(0,))
     for i, j in next_sequence(0, y_test.shape[0], n_patch):
-        new_y_test = numpy.append(new_y_test, collections.Counter(y_test[i:j].tolist()).most_common(1)[0][0])
+        new_y_test = np.append(new_y_test, collections.Counter(y_test[i:j].tolist()).most_common(1)[0][0])
     return new_y_test
 
 
 def prod_all_prob(n_labels, n_patch, y_pred):
-    new_y_pred = numpy.empty(shape=(0,))
+    new_y_pred = np.empty(shape=(0,))
     # print(n_labels)
-    new_y_pred_prob_prod = numpy.empty(shape=(0, n_labels))
+    new_y_pred_prob_prod = np.empty(shape=(0, n_labels))
     # print(new_y_pred_prob_prod.shape)
     for i, j in next_sequence(0, y_pred.shape[0], n_patch):
-        new_y_pred = numpy.append(new_y_pred, numpy.argmax(y_pred[i:j].prod(axis=0)) + 1)
-        new_y_pred_prob_prod = numpy.vstack((new_y_pred_prob_prod, y_pred[i:j].prod(axis=0)))
+        new_y_pred = np.append(new_y_pred, np.argmax(y_pred[i:j].prod(axis=0)) + 1)
+        new_y_pred_prob_prod = np.vstack((new_y_pred_prob_prod, y_pred[i:j].prod(axis=0)))
     # print(y_pred.shape, new_y_pred_prob_prod.shape, new_y_pred.shape)
     return new_y_pred_prob_prod, new_y_pred
 
 
 def sum_all_prob(n_labels, n_patch, y_pred):
-    new_y_pred = numpy.empty(shape=(0,))
-    new_y_pred_prob_sum = numpy.empty(shape=(0, n_labels))
+    new_y_pred = np.empty(shape=(0,))
+    new_y_pred_prob_sum = np.empty(shape=(0, n_labels))
     for i, j in next_sequence(0, y_pred.shape[0], n_patch):
-        new_y_pred = numpy.append(new_y_pred, numpy.argmax(y_pred[i:j].sum(axis=0)) + 1)
-        new_y_pred_prob_sum = numpy.vstack((new_y_pred_prob_sum, y_pred[i:j].sum(axis=0)))
+        new_y_pred = np.append(new_y_pred, np.argmax(y_pred[i:j].sum(axis=0)) + 1)
+        new_y_pred_prob_sum = np.vstack((new_y_pred_prob_sum, y_pred[i:j].sum(axis=0)))
     # print(y_pred.shape, new_y_pred_prob_sum.shape, new_y_pred.shape)
     return new_y_pred_prob_sum, new_y_pred
 
@@ -63,9 +63,10 @@ def calculate_test(fold, n_labels, y_pred, y_test, n_patch=1):
     y_pred_max = max_rule(n_labels, n_patch, y_pred)
     y_pred_prob_prod, y_pred_prod = prod_all_prob(n_labels, n_patch, y_pred)
     y_pred_prob_sum, y_pred_sum = sum_all_prob(n_labels, n_patch, y_pred)
-    return create_result(fold, n_labels, "max", y_pred, y_pred_max, y_test), \
-           create_result(fold, n_labels, "prod", y_pred_prob_prod, y_pred_prod, y_test), \
-           create_result(fold, n_labels, "sum", y_pred_prob_sum, y_pred_sum, y_test)
+    max = create_result(fold, n_labels, "max", y_pred, y_pred_max, y_test)
+    prod = create_result(fold, n_labels, 'prod', y_pred_prob_prod, y_pred_prod, y_test)
+    sum = create_result(fold, n_labels, 'sum', y_pred_prob_sum, y_pred_sum, y_test)
+    return prod, sum
 
 def create_result(fold, n_labels, rule, y_pred_prob, y_pred, y_test):
     accuracy = sklearn.metrics.accuracy_score(y_pred=y_pred, y_true=y_test)
@@ -75,9 +76,13 @@ def create_result(fold, n_labels, rule, y_pred_prob, y_pred, y_test):
     if min(list(collections.Counter(y_test).values())) != max(list(collections.Counter(y_test).values())):
         f1_score = sklearn.metrics.f1_score(y_pred=y_pred, y_true=y_test, average='weighted')
 
-    top_k_accuracy = 0
+    list_top_k_accuracy = []
     if n_labels > 2:
-        top_k_accuracy = sklearn.metrics.top_k_accuracy_score(y_true=y_test, y_score=y_pred_prob, normalize=False)
+        for k in range(3, n_labels):
+            print(y_test.shape, y_pred_prob.shape)
+            top_k_accuracy = sklearn.metrics.top_k_accuracy_score(y_true=y_test, y_score=y_pred_prob, normalize=False,
+                                                                  k=k)
+            list_top_k_accuracy.append({'k': k, 'top_k_accuracy': top_k_accuracy})
     return {
         "fold": fold,
         "rule": rule,
@@ -86,15 +91,17 @@ def create_result(fold, n_labels, rule, y_pred_prob, y_pred, y_test):
         "y_true": y_test,
         "accuracy": accuracy,
         "f1_score": f1_score,
-        "top_k": top_k_accuracy,
+        "top_k": list_top_k_accuracy,
+        "max_top_k": max(list_top_k_accuracy, key=lambda x: x['top_k_accuracy'])['top_k_accuracy'],
+        "min_top_k": min(list_top_k_accuracy, key=lambda x: x['top_k_accuracy'])['top_k_accuracy'],
         "confusion_matrix": confusion_matrix
     }
 
 
 def convert_prob_to_label(y_pred):
-    y = numpy.empty(shape=(0,))
+    y = np.empty(shape=(0,))
     for k, j in enumerate(y_pred):
-        y = numpy.insert(y, k, [numpy.argmax(j) + 1])
+        y = np.insert(y, k, [np.argmax(j) + 1])
     return y
 
 
@@ -124,7 +131,7 @@ def max_all_results(list_result):
 
 
 def get_max_row_values(current_y_pred, row, y_pred):
-    return current_y_pred if numpy.all(current_y_pred > y_pred[row]) else y_pred[row]
+    return current_y_pred if np.all(current_y_pred > y_pred[row]) else y_pred[row]
 
 
 def get_result_per_attribute_and_value(attribute, list_result_fold, value):

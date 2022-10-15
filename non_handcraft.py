@@ -65,12 +65,15 @@ def non_handcraft(cfg, current_datetime, kf, list_data_input, list_extractor):
                     best['classifier'].fit(x_train, y_train)
                     y_pred = best['classifier'].predict_proba(x_test)
 
-                    result_max_rule, result_prod_rule, result_sum_rule = calculate_test(fold, n_labels, y_pred, y_test,
-                                                                                        n_patch=int(n_patch))
+                    # result_max_rule, result_prod_rule, result_sum_rule = calculate_test(fold, n_labels, y_pred, y_test,
+                    #                                                                     n_patch=int(n_patch))
+
+                    result_prod_rule, result_sum_rule = calculate_test(fold, n_labels, y_pred, y_test, n_patch=int(n_patch))
+
                     end_time_train_valid = time.time()
                     time_train_valid = end_time_train_valid - start_time_train_valid
 
-                    list_result_fold.append(result_max_rule)
+                    # list_result_fold.append(result_max_rule)
                     list_result_fold.append(result_prod_rule)
                     list_result_fold.append(result_sum_rule)
                     list_time.append({

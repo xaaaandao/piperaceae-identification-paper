@@ -14,7 +14,7 @@ from non_handcraft import non_handcraft
 
 def main():
     cfg = {
-        'fold': 2,
+        'fold': 5,
         'n_jobs': -1,
         'seed': 1234,
         'dir_input': '../dataset/features',
@@ -33,24 +33,25 @@ def main():
     current_datetime = datetime.datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
     kf = sklearn.model_selection.KFold(n_splits=cfg['fold'], shuffle=True, random_state=cfg['seed'])
     list_data_input = [
-        '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/256/mobilenetv2/horizontal/patch=3/genus',
-        '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/400/mobilenetv2/horizontal/patch=3/genus',
-        '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/512/mobilenetv2/horizontal/patch=3/genus',
-        '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/256/resnet50v2/horizontal/patch=3/genus',
-        '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/400/resnet50v2/horizontal/patch=3/genus',
-        '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/512/resnet50v2/horizontal/patch=3/genus',
-        '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/256/vgg16/horizontal/patch=3/genus',
-        '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/400/vgg16/horizontal/patch=3/genus',
-        '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/512/vgg16/horizontal/patch=3/genus',
-        '../dataset_gimp/imagens_george/features/RGB/segmented_unet/256/mobilenetv2/horizontal/patch=3/genus',
-        '../dataset_gimp/imagens_george/features/RGB/segmented_unet/400/mobilenetv2/horizontal/patch=3/genus',
-        '../dataset_gimp/imagens_george/features/RGB/segmented_unet/512/mobilenetv2/horizontal/patch=3/genus',
-        '../dataset_gimp/imagens_george/features/RGB/segmented_unet/256/resnet50v2/horizontal/patch=3/genus',
-        '../dataset_gimp/imagens_george/features/RGB/segmented_unet/400/resnet50v2/horizontal/patch=3/genus',
-        '../dataset_gimp/imagens_george/features/RGB/segmented_unet/512/resnet50v2/horizontal/patch=3/genus',
-        '../dataset_gimp/imagens_george/features/RGB/segmented_unet/256/vgg16/horizontal/patch=3/genus',
-        '../dataset_gimp/imagens_george/features/RGB/segmented_unet/400/vgg16/horizontal/patch=3/genus',
-        '../dataset_gimp/imagens_george/features/RGB/segmented_unet/512/vgg16/horizontal/patch=3/genus',
+        '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/256/mobilenetv2/horizontal/patch=3'
+        # '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/256/mobilenetv2/horizontal/patch=3/genus',
+        # '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/400/mobilenetv2/horizontal/patch=3/genus',
+        # '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/512/mobilenetv2/horizontal/patch=3/genus',
+        # '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/256/resnet50v2/horizontal/patch=3/genus',
+        # '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/400/resnet50v2/horizontal/patch=3/genus',
+        # '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/512/resnet50v2/horizontal/patch=3/genus',
+        # '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/256/vgg16/horizontal/patch=3/genus',
+        # '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/400/vgg16/horizontal/patch=3/genus',
+        # '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/512/vgg16/horizontal/patch=3/genus',
+        # '../dataset_gimp/imagens_george/features/RGB/segmented_unet/256/mobilenetv2/horizontal/patch=3/genus',
+        # '../dataset_gimp/imagens_george/features/RGB/segmented_unet/400/mobilenetv2/horizontal/patch=3/genus',
+        # '../dataset_gimp/imagens_george/features/RGB/segmented_unet/512/mobilenetv2/horizontal/patch=3/genus',
+        # '../dataset_gimp/imagens_george/features/RGB/segmented_unet/256/resnet50v2/horizontal/patch=3/genus',
+        # '../dataset_gimp/imagens_george/features/RGB/segmented_unet/400/resnet50v2/horizontal/patch=3/genus',
+        # '../dataset_gimp/imagens_george/features/RGB/segmented_unet/512/resnet50v2/horizontal/patch=3/genus',
+        # '../dataset_gimp/imagens_george/features/RGB/segmented_unet/256/vgg16/horizontal/patch=3/genus',
+        # '../dataset_gimp/imagens_george/features/RGB/segmented_unet/400/vgg16/horizontal/patch=3/genus',
+        # '../dataset_gimp/imagens_george/features/RGB/segmented_unet/512/vgg16/horizontal/patch=3/genus',
     ]
 
     handcraft(cfg, current_datetime, kf, list_data_input, list_extractor)
