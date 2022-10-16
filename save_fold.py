@@ -90,7 +90,7 @@ def confusion_matrix_by_fold(classifier_name, dataset, list_fold, path_fold):
 def save_confusion_matrix(classifier_name, dataset, path, result):
     filename = f'confusion_matrix_{result["rule"]}.png'
     # cinco labels -> IWSSIP
-    labels = ['$\it{Manekia}$', '$\it{Ottonia}$', '$\it{Peperomia}$', '$\it{Piper}$', '$\it{Pothomorphe}$']
+    # labels = ['$\it{Manekia}$', '$\it{Ottonia}$', '$\it{Peperomia}$', '$\it{Piper}$', '$\it{Pothomorphe}$']
 
     # acima de cinco labels -> dataset George
     # labels =
@@ -102,7 +102,7 @@ def save_confusion_matrix(classifier_name, dataset, path, result):
     # labels =
 
     # duas labels -> dataset George
-    # labels = ['$\it{Peperomia}$', '$\it{Piper}$']
+    labels = ['$\it{Peperomia}$', '$\it{Piper}$']
 
     confusion_matrix = sklearn.metrics.ConfusionMatrixDisplay(result['confusion_matrix'])
     confusion_matrix.plot(cmap='Reds')

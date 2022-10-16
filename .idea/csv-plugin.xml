@@ -3,349 +3,6 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
-        <entry key="/out/15-10-2022-19-47-31/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/0/accuracy.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-19-47-31/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/0/f1.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-19-47-31/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/0/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-19-47-31/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/1/accuracy.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-19-47-31/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/1/f1.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-19-47-31/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/1/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-19-47-31/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/2/accuracy.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-19-47-31/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/2/f1.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-19-47-31/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/2/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-19-47-31/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/3/accuracy.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-19-47-31/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/3/f1.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-19-47-31/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/3/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-19-47-31/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/4/accuracy.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-19-47-31/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/4/f1.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-19-47-31/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/4/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-21-34/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/0/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-21-34/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/1/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-21-34/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/2/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-21-34/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/3/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-21-34/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/4/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-24-12/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/0/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-24-12/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/1/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-24-12/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/2/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-24-12/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/3/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-24-12/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/4/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-25-19/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/0/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-25-19/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/1/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-25-19/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/2/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-25-19/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/3/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-25-19/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/4/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-27-25/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/0/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-27-25/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/1/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-27-25/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/2/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-27-25/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/3/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-27-25/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/4/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-27-46/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/0/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-27-46/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/1/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-27-46/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/2/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-27-46/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/3/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-27-46/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/4/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-30-27/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/0/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-30-27/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/1/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-30-27/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/2/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-30-27/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/3/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-30-27/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/4/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-35-29/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/0/info_by_fold.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-44-24/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/info.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-44-24/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/info.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/out/15-10-2022-20-47-51/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/best.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
         <entry key="/out/15-10-2022-20-51-30/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/0/accuracy.csv">
           <value>
             <Attribute>
@@ -514,6 +171,384 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/0/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/0/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/0/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/1/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/1/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/1/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/2/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/2/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/2/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/3/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/3/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/3/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/4/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/4/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/4/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/best.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/info.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/mean.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/0/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/0/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/0/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/1/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/1/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/1/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/2/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/2/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/2/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/3/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/3/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/3/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/4/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/4/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/4/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/best.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/info.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/mean.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/MLPClassifier/patch=3/128/0/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/MLPClassifier/patch=3/128/0/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/MLPClassifier/patch=3/128/0/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/MLPClassifier/patch=3/128/1/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/MLPClassifier/patch=3/128/1/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/MLPClassifier/patch=3/128/1/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/MLPClassifier/patch=3/128/2/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/MLPClassifier/patch=3/128/2/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/MLPClassifier/patch=3/128/2/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/MLPClassifier/patch=3/128/3/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/MLPClassifier/patch=3/128/3/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/MLPClassifier/patch=3/128/3/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/MLPClassifier/patch=3/128/4/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/MLPClassifier/patch=3/128/4/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/MLPClassifier/patch=3/128/4/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/MLPClassifier/patch=3/128/best.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/MLPClassifier/patch=3/128/info.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/MLPClassifier/patch=3/128/mean.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/resultados/13-10-2022-13-18-51/imagens_sp/segmented_unet/grayscale/256/vgg16/SVC/patch=3/128/0/accuracy_by_rule.csv">
           <value>
             <Attribute>
@@ -612,8 +647,6 @@
             </Attribute>
           </value>
         </entry>
-        <entry />
-        <entry />
       </map>
     </option>
   </component>
