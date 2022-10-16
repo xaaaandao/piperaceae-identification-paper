@@ -83,7 +83,8 @@ def get_values_by_fold_and_metric(list_fold, metric):
 def confusion_matrix_by_fold(classifier_name, dataset, list_fold, path_fold):
     for rule in ['max', 'prod', 'sum']:
         result = list(filter(lambda x: x['rule'] == rule, list_fold))
-        save_confusion_matrix(classifier_name, dataset, path_fold, result[0])
+        if len(result) > 0:
+            save_confusion_matrix(classifier_name, dataset, path_fold, result[0])
 
 
 def save_confusion_matrix(classifier_name, dataset, path, result):
