@@ -32,7 +32,7 @@ def main():
     }
 
     current_datetime = datetime.datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
-    kf = sklearn.model_selection.KFold(n_splits=cfg['fold'], shuffle=True, random_state=cfg['seed'])
+    kf = sklearn.model_selection.KFold(n_splits=cfg['fold'], shuffle=True, random_state=cfg['seed'], )
     list_data_input = [
         # '../dataset_gimp/imagens_sp/features/grayscale/segmented_manual/256/mobilenetv2/horizontal/patch=3'
         '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/256/mobilenetv2/horizontal/patch=3/genus',
