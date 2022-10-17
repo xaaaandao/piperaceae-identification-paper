@@ -63,8 +63,36 @@ def get_top_k_by_rule(list_fold, path_fold):
         result = list(filter(lambda x: x['rule'] == rule, list_fold))
         if len(result) > 0:
             top_k = result[0]['top_k']
+            fold = result[0]['fold']
+            max_top_k = result[0]['max_top_k']
+            min_top_k = result[0]['min_top_k']
             df = pd.DataFrame(top_k)
             df.to_excel(os.path.join(path_fold, f'top_k_{rule}.xlsx'), na_rep='', engine='xlsxwriter', index=False)
+            save_plot_top_k(fold, max_top_k, min_top_k, path_fold, rule, top_k)
+
+
+def save_plot_top_k(fold, max_top_k, min_top_k, path_fold, rule, top_k):
+    x = []
+    y = []
+    for k in top_k:
+        x.append(k['k'])
+        y.append(k['top_k_accuracy'])
+
+    background_color = 'white'
+
+    plt.plot(x, y, marker='o', color='green')
+    plt.title(f'top_k_accuracy, rule: {rule}, fold: {fold},\n max_top_k: {max_top_k}, min_top_k: {min_top_k}',
+              fontsize=14, pad=20)
+    plt.xlabel('k', fontsize=14)
+    plt.ylabel('Número de acertos', fontsize=14)
+    plt.grid(True)
+    plt.gcf().subplots_adjust(bottom=0.15, left=0.25)
+    plt.rcParams['figure.facecolor'] = background_color
+    plt.tight_layout()
+    plt.savefig(os.path.join(path_fold, f'top_k_{rule}.png'))
+    plt.cla()
+    plt.clf()
+    plt.close()
 
 
 def get_values_by_fold_and_metric(list_fold, metric):

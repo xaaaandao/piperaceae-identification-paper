@@ -79,9 +79,6 @@ def create_result(fold, n_labels, rule, y_pred_prob, y_pred, y_test):
     list_top_k_accuracy = []
     if n_labels > 2:
         for k in range(3, n_labels):
-            print(y_test.shape, y_pred_prob.shape)
-            print(np.unique(y_test), np.unique(y_pred_prob))
-            print(y_test, y_pred_prob)
             top_k_accuracy = sklearn.metrics.top_k_accuracy_score(y_true=y_test, y_score=y_pred_prob, normalize=False,
                                                                   k=k, labels=np.arange(1, n_labels+1))
             list_top_k_accuracy.append({'k': k, 'top_k_accuracy': top_k_accuracy})

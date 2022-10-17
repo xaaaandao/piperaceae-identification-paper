@@ -15,9 +15,5 @@ lresultados/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/KNeighborsCl
 lresultados/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/KNeighborsClassifier/patch=3/128/mean.csv,1/2/124c4b04df23181ea12e142e26229a83ea7361ff
 ž
 nresultados/15-10-2022-20-59-15/sp/manual/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/info.csv,6/b/6b899bda565b2f88926fe57989cd9ddeab553d87
-A
-read_result.ipynb,d/e/de2c5fe303145e1e732f3c8c004c5bd6937702f1
-<
-save_best.py,a/4/a42f8ff2936dc2088d9e91503375dd8696ba6d8d
-™
-iout/15-10-2022-22-54-19/george/unet/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/mean.csv,a/e/ae887722cc4a405e638892f8e65f459b96bb4e7c
+7
+data.py,7/2/724b1af384039fb78ce97d10160f394e8b8785a7

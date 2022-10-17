@@ -1,6 +1,7 @@
 import collections
 import os
 import pathlib
+import joblib
 import time
 
 import numpy as np
@@ -28,7 +29,7 @@ def non_handcraft(cfg, current_datetime, kf, list_data_input, list_extractor):
         n_labels = len(np.unique(y))
 
         print(dataset, color_mode, segmented, dim, extractor)
-        print(n_samples, n_features, n_labels, collections.Counter(y))
+        print(int(n_samples) / int(n_patch), n_samples, n_features, n_labels, collections.Counter(y))
 
         x_normalized = sklearn.preprocessing.StandardScaler().fit_transform(x)
         list_data_pca = data_with_pca(cfg, extractor, list_extractor, x_normalized, y)
@@ -56,19 +57,22 @@ def non_handcraft(cfg, current_datetime, kf, list_data_input, list_extractor):
                     all_labels = collections.Counter(y)
 
                     for key, value in collections.Counter(y_train).items():
-                        print('train', key, value, round((value * 100) / all_labels[key], 2))
+                        print(f'classe: {key}, count: {value}, (train %): {round((value * 100) / all_labels[key], 2)}')
 
                     for key, value in collections.Counter(y_test).items():
-                        print('test', key, value, round((value * 100) / all_labels[key], 2))
+                        print(f'classe: {key}, count: {value}, (test %): {round((value * 100) / all_labels[key], 2)}')
 
                     start_time_train_valid = time.time()
                     best['classifier'].fit(x_train, y_train)
                     y_pred = best['classifier'].predict_proba(x_test)
 
+                    print(f'save {os.path.join(path, "best_model.joblib")}')
+                    pathlib.Path(os.path.join(path, str(fold))).mkdir(parents=True, exist_ok=True)
+                    joblib.dump(best['classifier'], os.path.join(path, str(fold), 'best_model.joblib'))
+
                     result_max_rule, result_prod_rule, result_sum_rule = calculate_test(fold, n_labels, y_pred, y_test,
                                                                                         n_patch=int(n_patch))
 
-                    # result_prod_rule, result_sum_rule = calculate_test(fold, n_labels, y_pred, y_test, n_patch=int(n_patch))
 
                     end_time_train_valid = time.time()
                     time_train_valid = end_time_train_valid - start_time_train_valid
