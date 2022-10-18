@@ -13,7 +13,6 @@ def save_fold(cfg, classifier_name, dataset, list_result_fold, list_time, path):
     list_files = []
     for fold in range(0, cfg['fold']):
         list_fold = list(filter(lambda x: x['fold'] == fold, list_result_fold))
-        # print(len(list_fold))
         time_fold = list(filter(lambda x: x['fold'] == fold, list_time))
 
         path_fold = os.path.join(path, str(fold))
@@ -23,7 +22,6 @@ def save_fold(cfg, classifier_name, dataset, list_result_fold, list_time, path):
 
         index, values = get_values_by_fold_and_metric(list_fold, 'accuracy')
         list_files.append({'filename': 'accuracy', 'index': index, 'path': path_fold, 'values': values})
-        # create_file_xlsx_and_csv('accuracy', index, path_fold, values)
 
         index, values = get_values_by_fold_and_metric(list_fold, 'f1_score')
         list_files.append({'filename': 'f1', 'index': index, 'path': path_fold, 'values': values})
@@ -43,7 +41,7 @@ def info_by_fold(list_fold, time):
              'time_train_valid', 'time_search_best_params']
     best_rule_accuracy = max(list_fold, key=lambda x: x['accuracy'])
     best_rule_f1 = max(list_fold, key=lambda x: x['f1_score'])
-    # best_rule_top_k = max(list_fold, key=lambda x: x['top_k'])
+
     time_train_valid = time[0]['time_train_valid']
     time_search_best_params = time[0]['time_search_best_params']
 
@@ -51,7 +49,6 @@ def info_by_fold(list_fold, time):
         [best_rule_accuracy['rule']],
         [best_rule_accuracy['accuracy'], round(best_rule_accuracy['accuracy'] * 100, ROUND_VALUE)],
         [best_rule_f1['rule']], [best_rule_f1['f1_score'], round(best_rule_f1['f1_score'] * 100, ROUND_VALUE)],
-        # [best_rule_top_k['rule']], [best_rule_top_k['top_k'], round(best_rule_top_k['top_k'] * 100, ROUND_VALUE)],
         [time_train_valid, round(time_train_valid, ROUND_VALUE)],
         [time_search_best_params, round(time_search_best_params, ROUND_VALUE)]
     ]
@@ -66,12 +63,28 @@ def get_top_k_by_rule(list_fold, path_fold):
             fold = result[0]['fold']
             max_top_k = result[0]['max_top_k']
             min_top_k = result[0]['min_top_k']
+            y_test = result[0]['y_true']
+            index = ['rule', 'min_top_k', 'max_top_k', 'total']
+            values = [rule, min_top_k, max_top_k, len(y_test)]
             df = pd.DataFrame(top_k)
-            df.to_excel(os.path.join(path_fold, f'top_k_{rule}.xlsx'), na_rep='', engine='xlsxwriter', index=False)
-            save_plot_top_k(fold, max_top_k, min_top_k, path_fold, rule, top_k)
+            df_info = pd.DataFrame(values, index)
+
+            path_top_k_rule = os.path.join(path_fold, 'top_k', rule)
+            pathlib.Path(path_top_k_rule).mkdir(exist_ok=True, parents=True)
+            save_plot_top_k(fold, max_top_k, min_top_k, path_top_k_rule, rule, top_k, y_test)
+
+            df.to_csv(os.path.join(path_top_k_rule, f'top_k_{rule}.csv'), na_rep='', index=False)
+            df_info.to_csv(os.path.join(path_top_k_rule, f'info_top_k_{rule}.csv'), na_rep='', header=False)
+
+            path_top_k_rule_xlsx = os.path.join(path_top_k_rule, 'xlsx')
+            pathlib.Path(path_top_k_rule_xlsx).mkdir(exist_ok=True, parents=True)
+            df.to_excel(os.path.join(path_top_k_rule_xlsx, f'top_k_{rule}.xlsx'), na_rep='', engine='xlsxwriter',
+                      index=False)
+            df_info.to_excel(os.path.join(path_top_k_rule_xlsx, f'info_top_k_{rule}.xlsx'), na_rep='',
+                           engine='xlsxwriter', header=False)
 
 
-def save_plot_top_k(fold, max_top_k, min_top_k, path_fold, rule, top_k):
+def save_plot_top_k(fold, max_top_k, min_top_k, path_fold, rule, top_k, y_test):
     x = []
     y = []
     for k in top_k:
@@ -81,7 +94,7 @@ def save_plot_top_k(fold, max_top_k, min_top_k, path_fold, rule, top_k):
     background_color = 'white'
 
     plt.plot(x, y, marker='o', color='green')
-    plt.title(f'top_k_accuracy, rule: {rule}, fold: {fold},\n max_top_k: {max_top_k}, min_top_k: {min_top_k}',
+    plt.title(f'top_k_accuracy, rule: {rule}, fold: {fold},\n max_top_k: {max_top_k}, min_top_k: {min_top_k}, count test: {len(y_test)}',
               fontsize=14, pad=20)
     plt.xlabel('k', fontsize=14)
     plt.ylabel('Número de acertos', fontsize=14)
@@ -154,7 +167,11 @@ def save_confusion_matrix(classifier_name, dataset, path, result):
     plt.gcf().subplots_adjust(bottom=0.15, left=0.25)
     plt.rcParams['figure.facecolor'] = background_color
     plt.tight_layout()
-    plt.savefig(os.path.join(path, filename), bbox_inches='tight')
+
+    path_confusion_matrix=os.path.join(path, 'confusion_matrix')
+    pathlib.Path(path_confusion_matrix).mkdir(exist_ok=True, parents=True)
+
+    plt.savefig(os.path.join(path_confusion_matrix, filename), bbox_inches='tight', dpi=300)
     plt.cla()
     plt.clf()
     plt.close()

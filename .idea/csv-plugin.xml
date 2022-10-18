@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CsvFileAttributes">
+    <option name="attributeMap">
+      <map>
+        <entry key="/out/17-10-2022-21-23-26/george/unet/grayscale/256/resnet50v2/DecisionTreeClassifier/patch=3/128/3/top_k/max/info_top_k_max.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/17-10-2022-21-23-26/george/unet/grayscale/256/resnet50v2/DecisionTreeClassifier/patch=3/128/3/top_k/max/top_k_max.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/resultados/17-10-2022-09-55-27/george/unet/grayscale/256/mobilenetv2/RandomForestClassifier/patch=3/128/best.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/resultados/17-10-2022-09-55-27/george/unet/grayscale/256/mobilenetv2/RandomForestClassifier/patch=3/128/mean.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/resultados/17-10-2022-09-55-27/george/unet/grayscale/256/resnet50v2/DecisionTreeClassifier/patch=3/1024/4/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/resultados/17-10-2022-09-55-27/george/unet/grayscale/256/resnet50v2/DecisionTreeClassifier/patch=3/1024/4/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/resultados/17-10-2022-09-55-27/george/unet/grayscale/256/resnet50v2/DecisionTreeClassifier/patch=3/1024/4/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
