@@ -66,9 +66,9 @@ def non_handcraft(cfg, current_datetime, kf, list_data_input, list_extractor):
                     best['classifier'].fit(x_train, y_train)
                     y_pred = best['classifier'].predict_proba(x_test)
 
-                    print(f'save {os.path.join(path, "best_model.joblib")}')
-                    pathlib.Path(os.path.join(path, str(fold))).mkdir(parents=True, exist_ok=True)
-                    joblib.dump(best['classifier'], os.path.join(path, str(fold), 'best_model.joblib'))
+                    # print(f'save {os.path.join(path, "best_model.joblib")}')
+                    # pathlib.Path(os.path.join(path, str(fold))).mkdir(parents=True, exist_ok=True)
+                    # joblib.dump(best['classifier'], os.path.join(path, str(fold), 'best_model.joblib'))
 
                     result_max_rule, result_prod_rule, result_sum_rule = calculate_test(fold, n_labels, y_pred, y_test,
                                                                                         n_patch=int(n_patch))
