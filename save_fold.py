@@ -88,6 +88,31 @@ def get_top_k_by_rule(list_fold, path_fold):
 
 
 def save_plot_top_k(fold, max_top_k, min_top_k, path_fold, rule, top_k, y_test):
+    for v in [3, 5]:
+        a = list(filter(lambda x: x['k'] <= v, top_k))
+
+        x = []
+        y = []
+        for k in a:
+            x.append(k['k'])
+            y.append(k['top_k_accuracy'])
+
+        background_color = 'white'
+
+        plt.plot(x, y, marker='o', color='green')
+        plt.title(f'Top k accuracy, Rule: {rule}, k: {v}, Fold: {fold},\n Min. top k: {min_top_k}, Máx. top k: {max_top_k}, Número de testes: {len(y_test)}',
+                  fontsize=14, pad=20)
+        plt.xlabel('k', fontsize=14)
+        plt.ylabel('Número de acertos', fontsize=14)
+        plt.grid(True)
+        plt.gcf().subplots_adjust(bottom=0.15, left=0.25)
+        plt.rcParams['figure.facecolor'] = background_color
+        plt.tight_layout()
+        plt.savefig(os.path.join(path_fold, f'top_k_{rule}_k={v}.png'))
+        plt.cla()
+        plt.clf()
+        plt.close()
+
     x = []
     y = []
     for k in top_k:
@@ -97,8 +122,9 @@ def save_plot_top_k(fold, max_top_k, min_top_k, path_fold, rule, top_k, y_test):
     background_color = 'white'
 
     plt.plot(x, y, marker='o', color='green')
-    plt.title(f'top_k_accuracy, rule: {rule}, fold: {fold},\n max_top_k: {max_top_k}, min_top_k: {min_top_k}, count test: {len(y_test)}',
-              fontsize=14, pad=20)
+    plt.title(
+        f'Top k accuracy, Rule: {rule}, k: Todos, Fold: {fold},\n Min. top k: {min_top_k}, Máx. top k: {max_top_k}, Número de testes: {len(y_test)}',
+        fontsize=14, pad=20)
     plt.xlabel('k', fontsize=14)
     plt.ylabel('Número de acertos', fontsize=14)
     plt.grid(True)

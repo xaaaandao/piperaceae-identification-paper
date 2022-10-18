@@ -1,8 +1,8 @@
 import collections
 import os
 import pathlib
-import joblib
 import pickle
+import tarfile
 import time
 
 import numpy as np
@@ -67,12 +67,7 @@ def non_handcraft(cfg, current_datetime, kf, list_data_input, list_extractor):
                     best['classifier'].fit(x_train, y_train)
                     y_pred = best['classifier'].predict_proba(x_test)
 
-                    print(f'save {os.path.join(path, "best_model.pkl")}')
-                    pathlib.Path(os.path.join(path, str(fold))).mkdir(parents=True, exist_ok=True)
-                    filename_model = os.path.join(path, str(fold), 'best_model.pkl')
-                    with open(filename_model, 'wb') as f:
-                        pickle.dump(best['classifier'], f)
-
+                    save_best_model(best['classifier'], fold, path)
 
                     result_max_rule, result_prod_rule, result_sum_rule = calculate_test(fold, n_labels, y_pred, y_test,
                                                                                         n_patch=int(n_patch))
@@ -92,6 +87,24 @@ def non_handcraft(cfg, current_datetime, kf, list_data_input, list_extractor):
 
                 save(best['params'], cfg, classifier_name, color_mode, data, dataset, dim, extractor, dir,
                      list_result_fold, list_time, n_patch, path, slice_patch)
+
+
+def save_best_model(classifier, fold, path):
+    print(f'save {os.path.join(path, "best_model.pkl")}')
+
+    pathlib.Path(os.path.join(path, str(fold))).mkdir(parents=True, exist_ok=True)
+    filename_model = os.path.join(path, str(fold), 'best_model.pkl')
+
+    with open(filename_model, 'wb') as file:
+        pickle.dump(classifier, file)
+    file.close()
+
+    tar_filename = os.path.join(path, str(fold), 'best_model.tar.gz')
+    with tarfile.open(tar_filename, 'w:gz') as tar_file:
+        tar_file.add(filename_model)
+    tar_file.close()
+
+    os.remove(filename_model)
 
 
 def create_path_base(cfg, classifier_name, color_mode, current_datetime, data, dataset, dim, extractor, n_patch,
