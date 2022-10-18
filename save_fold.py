@@ -1,3 +1,4 @@
+import csv
 import os
 import pathlib
 
@@ -73,8 +74,10 @@ def get_top_k_by_rule(list_fold, path_fold):
             pathlib.Path(path_top_k_rule).mkdir(exist_ok=True, parents=True)
             save_plot_top_k(fold, max_top_k, min_top_k, path_top_k_rule, rule, top_k, y_test)
 
-            df.to_csv(os.path.join(path_top_k_rule, f'top_k_{rule}.csv'), na_rep='', index=False)
-            df_info.to_csv(os.path.join(path_top_k_rule, f'info_top_k_{rule}.csv'), na_rep='', header=False)
+            df.to_csv(os.path.join(path_top_k_rule, f'top_k_{rule}.csv'), na_rep='', sep=';', index=False,
+                  quoting=csv.QUOTE_ALL)
+            df_info.to_csv(os.path.join(path_top_k_rule, f'info_top_k_{rule}.csv'), na_rep='', sep=';', header=False,
+                  quoting=csv.QUOTE_ALL)
 
             path_top_k_rule_xlsx = os.path.join(path_top_k_rule, 'xlsx')
             pathlib.Path(path_top_k_rule_xlsx).mkdir(exist_ok=True, parents=True)
