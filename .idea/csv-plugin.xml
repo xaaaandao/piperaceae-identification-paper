@@ -3,13 +3,6 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
-        <entry key="/out/18-10-2022-10-00-43/george/unet/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/0/top_k/max/top_k_max.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
         <entry key="/resultados/17-10-2022-21-46-22/george/unet/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/0/top_k/sum/top_k_sum.csv">
           <value>
             <Attribute>
