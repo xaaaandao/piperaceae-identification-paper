@@ -5,7 +5,9 @@ import numpy as np
 import sklearn.decomposition
 
 
-def merge_all_files(dir, list_data, n_patch):
+def merge_all_files(dir):
+    list_data = []
+    n_patch = -1
     for file in sorted(pathlib.Path(dir).rglob('*.npy')):
         data = np.load(str(file))
         fold, patch = re.split('_', str(file.stem))
@@ -14,7 +16,7 @@ def merge_all_files(dir, list_data, n_patch):
 
         for d in data:
             list_data.append(np.append(d, int(n_fold)))
-    return n_patch
+    return list_data, n_patch
 
 
 def data_with_pca(cfg, extractor, list_extractor, x_normalized, y):

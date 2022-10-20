@@ -17,12 +17,8 @@ from save import save
 def non_handcraft(cfg, current_datetime, kf, list_data_input, list_extractor):
     list_only_dir = [dir for dir in list_data_input if os.path.isdir(dir) and len(os.listdir(dir)) > 0]
     for dir in list_only_dir:
-
-        n_patch = -1
         dataset, color_mode, segmented, dim, extractor, slice_patch = get_info(dir)
-
-        list_data = []
-        n_patch = merge_all_files(dir, list_data, n_patch)
+        list_data, n_patch = merge_all_files(dir)
 
         new_data = np.array(list_data)
         n_samples, n_features = new_data.shape
