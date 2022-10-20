@@ -13,5 +13,3 @@ C
 save_mean.py,a/1/a1884564cb64e1960bfbe1993e2671c20948cbf0
 <
 save_best.py,a/4/a42f8ff2936dc2088d9e91503375dd8696ba6d8d
-²
-resultados/17-10-2022-21-46-22/george/unet/grayscale/256/mobilenetv2/DecisionTreeClassifier/patch=3/128/0/top_k/sum/top_k_sum.csv,2/0/20976a593afd15ad6f3edcd7c2f6df69125340d1
