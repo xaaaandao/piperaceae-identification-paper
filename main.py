@@ -36,7 +36,7 @@ def main():
     list_data_input = [
         '../dataset_gimp/imagens_george/features/RGB/segmented_unet/256/mobilenetv2/horizontal/patch=3/deep_feature/genus',
         '../dataset_gimp/imagens_george/features/RGB/segmented_unet/256/resnet50v2/horizontal/patch=3/deep_feature/genus',
-        '../dataset_gimp/imagens_george/features/RGB/segmented_unet/256/vgg16/horizontal/patch=3/deep_feature/genus',
+        '../dataset_gimp/imagens_george/features/RGB/segmented_unet/256/vgg16/horizontal/patch=3/deep_feature/genus'
     ]
     for data in list_data_input:
         if len(os.listdir(data)) == 0:

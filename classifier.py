@@ -36,10 +36,10 @@ list_params = {
 }
 
 list_classifiers = [
-    # sklearn.tree.DecisionTreeClassifier(random_state=cfg_classifier['seed']),
-    # sklearn.neighbors.KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
-    # sklearn.neural_network.MLPClassifier(random_state=cfg_classifier['seed']),
-    # sklearn.ensemble.RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs']),
+    sklearn.tree.DecisionTreeClassifier(random_state=cfg_classifier['seed']),
+    sklearn.neighbors.KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
+    sklearn.neural_network.MLPClassifier(random_state=cfg_classifier['seed']),
+    sklearn.ensemble.RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs']),
     sklearn.svm.SVC(random_state=cfg_classifier['seed'], probability=True)
 ]
 
