@@ -169,30 +169,41 @@ def save_confusion_matrix(classifier_name, dataset, path, result):
     # labels = ['$\it{aduncum}$', '$\it{alata}$', '$\it{amalago}$', '$\it{arboreum}$', '$\it{barbarana}$', '$\it{blanda}$', '$\it{caldense}$', '$\it{catharinae}$', '$\it{cernuum}$', '$\it{corcovadensis}$', '$\it{crassinervium}$', '$\it{dilatatum}$', '$\it{gaudichaudianum}$', '$\it{glabella}$', '$\it{glabratum}$', '$\it{hispidula}$', '$\it{hispidum}$', '$\it{malacophyllum}$', '$\it{martiana}$', '$\it{mikanianum}$', '$\it{miquelianum}$', '$\it{mollicomum}$', '$\it{nitida}$', '$\it{pereskiaefolia}$', '$\it{pseudoestrellensis}$', '$\it{regnellii}$', '$\it{reitzii}$', '$\it{rotundifolia}$', '$\it{solmsianum}$', '$\it{tetraphylla}$', '$\it{trineura}$', '$\it{urocarpa}$', '$\it{viminifolium}$', '$\it{xylosteoides}$']
 
     # acima de cinco vinte -> dataset George
-    # labels = ['$\it{aduncum}$', $\it{amalago}$', $\it{arboreum}$', $\it{blanda}$', $\it{caldense}$', $\it{catharinae}$', $\it{corcovadensis}$', $\it{crassinervium}$', $\it{gaudichaudianum}$', $\it{glabella}$', $\it{glabratum}$', $\it{hispidum}$', $\it{martiana}$', $\it{mikanianum}$', $\it{miquelianum}$', $\it{rotundifolia}$', $\it{solmsianum}$', $\it{tetraphylla}$', $\it{urocarpa}$', $\it{xylosteoides}$']
+    labels = ['$\it{aduncum}$', '$\it{amalago}$', '$\it{arboreum}$', '$\it{blanda}$', '$\it{caldense}$', '$\it{catharinae}$', '$\it{corcovadensis}$', '$\it{crassinervium}$', '$\it{gaudichaudianum}$', '$\it{glabella}$', '$\it{glabratum}$', '$\it{hispidum}$', '$\it{martiana}$', '$\it{mikanianum}$', '$\it{miquelianum}$', '$\it{rotundifolia}$', '$\it{solmsianum}$', '$\it{tetraphylla}$', '$\it{urocarpa}$', '$\it{xylosteoides}$']
 
     # todas as labels -> dataset George
     # labels = ['$\it{abutiloides}$', '$\it{aduncum}$', '$\it{aequale}$', '$\it{alata}$', '$\it{alnoides}$', '$\it{amalago}$', '$\it{amplum}$', '$\it{arboreum}$', '$\it{arifolia}$', '$\it{balansana}$', '$\it{barbarana}$', '$\it{blanda}$', '$\it{brasiliensis}$', '$\it{caldasianum}$', '$\it{caldense}$', '$\it{callosum}$', '$\it{calophylla}$', '$\it{catharinae}$', '$\it{caulibarbis}$', '$\it{cernuum}$', '$\it{circinnata}$', '$\it{clivicola}$', '$\it{concinnatoris}$', '$\it{corcovadensis}$', '$\it{crassinervium}$', '$\it{crinicaulis}$', '$\it{delicatula}$', '$\it{diaphanodies}$', '$\it{diaphanoides}$', '$\it{dilatatum}$', '$\it{diospyrifolium}$', '$\it{elongata}$', '$\it{emarginella}$', '$\it{flavicans}$', '$\it{fuligineum}$', '$\it{galioides}$', '$\it{gaudichaudianum}$', '$\it{glabella}$', '$\it{glabratum}$', '$\it{glaziovi}$', '$\it{glaziovii}$', '$\it{gracilicaulis}$', '$\it{hatschbachii}$', '$\it{hayneanum}$', '$\it{hemmandorfii}$', '$\it{hemmendorffii}$', '$\it{hemmendorfii}$', '$\it{hernandiifolia}$', '$\it{hilariana}$', '$\it{hispidula}$', '$\it{hispidum}$', '$\it{hydrocotyloides}$', '$\it{ibiramana}$', '$\it{lanceolato-peltata}$', '$\it{lanceolatopeltata}$', '$\it{lepturum}$', '$\it{leucaenum}$', '$\it{leucanthum}$', '$\it{lhotzkianum}$', '$\it{lhotzkyanum}$', '$\it{lindbergii}$', '$\it{lucaeanum}$', '$\it{lyman-smithii}$', '$\it{macedoi}$', '$\it{magnoliifolia}$', '$\it{malacophyllum}$', '$\it{mandiocana}$', '$\it{mandioccana}$', '$\it{martiana}$', '$\it{michelianum}$', '$\it{mikanianium}$', '$\it{mikanianum}$', '$\it{miquelianum}$', '$\it{mollicomum}$', '$\it{mosenii}$', '$\it{nitida}$', '$\it{nudifolia}$', '$\it{obtusa}$', '$\it{obtusifolia}$', '$\it{ouabianae}$', '$\it{ovatum}$', '$\it{pellucida}$', '$\it{pereirae}$', '$\it{pereskiaefolia}$', '$\it{pereskiifolia}$', '$\it{perlongicaulis}$', '$\it{permucronatum}$', '$\it{piritubanum}$', '$\it{pseudoestrellensis}$', '$\it{pseudolanceolatum}$', '$\it{psilostachya}$', '$\it{punicea}$', '$\it{quadrifolia}$', '$\it{radicosa}$', '$\it{reflexa}$', '$\it{regenelli}$', '$\it{regnellii}$', '$\it{reitzii}$', '$\it{renifolia}$', '$\it{retivenulosa}$', '$\it{rhombea}$', '$\it{rivinoides}$', '$\it{rizzinii}$', '$\it{rotundifolia}$', '$\it{rubricaulis}$', '$\it{rupestris}$', '$\it{sandersii}$', '$\it{schwackei}$', '$\it{solmsianum}$', '$\it{stroemfeltii}$', '$\it{subcinereum}$', '$\it{subemarginata}$', '$\it{subretusa}$', '$\it{subrubrispica}$', '$\it{subternifolia}$', '$\it{tenuissima}$', '$\it{tetraphylla}$', '$\it{trichocarpa}$', '$\it{trineura}$', '$\it{trineuroides}$', '$\it{tuberculatum}$', '$\it{umbellata}$', '$\it{umbellatum}$', '$\it{urocarpa}$', '$\it{vicosanum}$', '$\it{viminifolium}$', '$\it{warmingii}$', '$\it{xylosteoides}$', '$\it{xylosteroides}$']
 
     # duas labels -> dataset George
-    labels = ['$\it{Peperomia}$', '$\it{Piper}$']
+    # labels = ['$\it{Peperomia}$', '$\it{Piper}$']
 
-    confusion_matrix = sklearn.metrics.ConfusionMatrixDisplay(result['confusion_matrix'])
-    confusion_matrix.plot(cmap='Reds')
+    confusion_matrix = sklearn.metrics.ConfusionMatrixDisplay(result['confusion_matrix'], display_labels=labels)
+    # confusion_matrix.plot(cmap='Reds')
 
     title = f'Confusion Matrix\ndataset: {dataset}, classifier: {classifier_name}\naccuracy: {round(result["accuracy"], ROUND_VALUE)}, rule: {result["rule"]}'
-    fontsize_title = 12
+    fontsize_title = 18
     pad_title = 20
 
-    fontsize_labels = 8
+    fontsize_labels = 14
 
     background_color = 'white'
+    # plt.ioff()
+    # plt.title(title, fontsize=fontsize_title, pad=pad_title)
+
+    # rotation = 45
+    rotation = 90
+
+    figure, axis = plt.subplots(figsize=(10, 10))
+
+    confusion_matrix.plot(ax=axis, cmap='Reds')
+
+    axis.set_title(title, fontsize=fontsize_title, pad=pad_title)
+    axis.set_xlabel('y_true', fontsize=fontsize_labels)
+    axis.set_ylabel('y_pred', fontsize=fontsize_labels)
+
     plt.ioff()
-    plt.title(title, fontsize=fontsize_title, pad=pad_title)
-    plt.xticks(np.arange(len(labels)), labels, rotation=45, fontsize=fontsize_labels)
-    plt.yticks(np.arange(len(labels)), labels, fontsize=fontsize_labels)
-    plt.ylabel('y_test', fontsize=fontsize_labels)
-    plt.xlabel('y_pred', fontsize=fontsize_labels)
+    plt.xticks(np.arange(len(labels)), rotation=rotation, fontsize=fontsize_labels)
+    plt.yticks(np.arange(len(labels)), fontsize=fontsize_labels)
     plt.gcf().subplots_adjust(bottom=0.15, left=0.25)
     plt.rcParams['figure.facecolor'] = background_color
     plt.tight_layout()
