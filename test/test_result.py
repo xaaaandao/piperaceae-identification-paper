@@ -3,7 +3,7 @@ from unittest import TestCase
 import numpy
 
 from cp.result import get_index_max_value, next_sequence, y_test_with_patch, prod_all_prob, sum_all_prob, \
-    convert_prob_to_label, Result, sum_all_results, prod_all_results, max_all_results
+    convert_prob_to_label, Result
 
 
 class TestResult(TestCase):
@@ -42,21 +42,6 @@ class TestResult(TestCase):
 
     def test_convert_prob_to_label(self):
         self.assertTrue((convert_prob_to_label(self.array_twod_one) == numpy.array([5, 5])).all())
-
-    def test_sum_all_results(self):
-        self.create_list_result_sum()
-        result = sum_all_results(self.list_result_sum)
-        self.assertTrue((result == numpy.array([[10, 12, 14, 16, 18], [20, 22, 24, 26, 28]])).all())
-
-    def test_prod_all_results(self):
-        self.create_list_result_prod()
-        result = prod_all_results(self.list_result_prod)
-        self.assertTrue((result == numpy.array([[0, 11, 24, 39, 56], [75, 96, 119, 144, 171]])).all())
-
-    def test_max_all_results(self):
-        self.create_list_result_max()
-        result = max_all_results(self.list_result_max)
-        self.assertTrue((result == self.array_oned_three).all())
 
     def create_list_result_sum(self):
         self.list_result_sum.append(Result(None, None, "sum", self.array_twod_one, numpy.zeros(shape=(1, )), numpy.zeros(shape=(1, ))))

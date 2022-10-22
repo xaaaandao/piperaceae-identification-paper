@@ -13,8 +13,8 @@ ROUND_VALUE = 2
 def save_fold(cfg, classifier_name, dataset, list_result_fold, list_time, path):
     list_files = []
     for fold in range(0, cfg['fold']):
-        list_fold = list(filter(lambda x: x['fold'] == fold, list_result_fold))
-        time_fold = list(filter(lambda x: x['fold'] == fold, list_time))
+        list_fold = list(filter(lambda x, fold=fold: x['fold'] == fold, list_result_fold))
+        time_fold = list(filter(lambda x, fold=fold: x['fold'] == fold, list_time))
 
         path_fold = os.path.join(path, str(fold))
         pathlib.Path(path_fold).mkdir(parents=True, exist_ok=True)
@@ -58,7 +58,7 @@ def info_by_fold(list_fold, time):
 
 def get_top_k_by_rule(list_fold, path_fold):
     for rule in ['max', 'prod', 'sum']:
-        result = list(filter(lambda x: x['rule'] == rule, list_fold))
+        result = list(filter(lambda x, rule=rule: x['rule'] == rule, list_fold))
         if len(result) > 0:
             top_k = result[0]['top_k']
             fold = result[0]['fold']
@@ -87,61 +87,42 @@ def get_top_k_by_rule(list_fold, path_fold):
                            engine='xlsxwriter', header=False)
 
 
-def save_plot_top_k(fold, max_top_k, min_top_k, path_fold, rule, top_k, y_test):
-    for v in [3, 5]:
-        a = list(filter(lambda x: x['k'] <= v, top_k))
+def save_plot_top_k(fold, max_top_k, min_top_k, path_fold, rule, top_k, y_true):
+    for k in [3, 5]:
+        result_top_k = list(filter(lambda x, k=k: x['k'] <= k, top_k))
+        filename = os.path.join(path_fold, f'top_k_{rule}_k={k}.png')
+        plot_top_k(filename, fold, k, result_top_k, max_top_k, min_top_k, rule, y_true)
 
-        x = []
-        y = []
-        for k in a:
-            x.append(k['k'])
-            y.append(k['top_k_accuracy'])
+    filename = os.path.join(path_fold, f'top_k_{rule}.png')
+    plot_top_k(filename, fold, 'Todos', top_k, max_top_k, min_top_k, rule, y_true)
 
-        background_color = 'white'
 
-        plt.plot(x, y, marker='o', color='green')
-        plt.title(f'Top k accuracy, Rule: {rule}, k: {v}, Fold: {fold},\n Min. top k: {min_top_k}, Máx. top k: {max_top_k}, Número de testes: {len(y_test)}',
-                  fontsize=14, pad=20)
-        plt.xlabel('k', fontsize=14)
-        plt.ylabel('Número de acertos', fontsize=14)
-        plt.grid(True)
-        plt.gcf().subplots_adjust(bottom=0.15, left=0.25)
-        plt.rcParams['figure.facecolor'] = background_color
-        plt.tight_layout()
-        plt.savefig(os.path.join(path_fold, f'top_k_{rule}_k={v}.png'))
-        plt.cla()
-        plt.clf()
-        plt.close()
-
+def plot_top_k(filename, fold, k, list_top_k, max_top_k, min_top_k, rule, y_test):
     x = []
     y = []
-    for k in top_k:
-        x.append(k['k'])
-        y.append(k['top_k_accuracy'])
+    for top_k in list_top_k:
+        x.append(top_k['k'])
+        y.append(top_k['top_k_accuracy'])
 
-    background_color = 'white'
+    fontsize_title = 14
+    pad_title = 20
+    fontsize_label = 14
 
     plt.plot(x, y, marker='o', color='green')
-    plt.title(
-        f'Top k accuracy, Rule: {rule}, k: Todos, Fold: {fold},\n Min. top k: {min_top_k}, Máx. top k: {max_top_k}, Número de testes: {len(y_test)}',
-        fontsize=14, pad=20)
-    plt.xlabel('k', fontsize=14)
-    plt.ylabel('Número de acertos', fontsize=14)
+    plt.title(f'Top k accuracy, Rule: {rule}, k: {k}, Fold: {fold},\n Min. top k: {min_top_k}, Máx. top k: {max_top_k}, Número de testes: {len(y_test)}',
+        fontsize=fontsize_title, pad=pad_title)
+    plt.xlabel('k', fontsize=fontsize_label)
+    plt.ylabel('Número de acertos', fontsize=fontsize_label)
     plt.grid(True)
     plt.gcf().subplots_adjust(bottom=0.15, left=0.25)
-    plt.rcParams['figure.facecolor'] = background_color
-    plt.tight_layout()
-    plt.savefig(os.path.join(path_fold, f'top_k_{rule}.png'))
-    plt.cla()
-    plt.clf()
-    plt.close()
+    cfg_plot(filename, plt)
 
 
 def get_values_by_fold_and_metric(list_fold, metric):
     index = []
     values = []
     for rule in ['max', 'prod', 'sum']:
-        result = list(filter(lambda x: x['rule'] == rule, list_fold))
+        result = list(filter(lambda x, rule=rule: x['rule'] == rule, list_fold))
         if len(result) > 0:
             index.append(rule)
             value_metric = result[0][metric]
@@ -152,66 +133,80 @@ def get_values_by_fold_and_metric(list_fold, metric):
 
 def confusion_matrix_by_fold(classifier_name, dataset, list_fold, path_fold):
     for rule in ['max', 'prod', 'sum']:
-        result = list(filter(lambda x: x['rule'] == rule, list_fold))
+        result = list(filter(lambda x, rule=rule: x['rule'] == rule, list_fold))
         if len(result) > 0:
             save_confusion_matrix(classifier_name, dataset, path_fold, result[0])
 
 
 def save_confusion_matrix(classifier_name, dataset, path, result):
     filename = f'confusion_matrix_{result["rule"]}.png'
+
     # cinco labels -> IWSSIP
-    # labels = ['$\it{Manekia}$', '$\it{Ottonia}$', '$\it{Peperomia}$', '$\it{Piper}$', '$\it{Pothomorphe}$']
+    # labels = get_list_label('txt/iwssip.txt')
 
     # acima de cinco labels -> dataset George -> ok
-    # labels = ['$\it{aduncum}', '$\it{alata}', '$\it{amalago}', '$\it{arboreum}', '$\it{arifolia}', '$\it{barbarana}', '$\it{blanda}', '$\it{caldasianum}', '$\it{caldense}', '$\it{catharinae}', '$\it{cernuum}', '$\it{circinnata}', '$\it{corcovadensis}', '$\it{crassinervium}', '$\it{dilatatum}', '$\it{diospyrifolium}', '$\it{emarginella}', '$\it{galioides}', '$\it{gaudichaudianum}', '$\it{glabella}', '$\it{glabratum}', '$\it{hatschbachii}', '$\it{hayneanum}', '$\it{hilariana}', '$\it{hispidula}', '$\it{hispidum}', '$\it{hydrocotyloides}', '$\it{lhotzkianum}', '$\it{macedoi}', '$\it{malacophyllum}', '$\it{martiana}', '$\it{mikanianum}', '$\it{miquelianum}', '$\it{mollicomum}', '$\it{mosenii}', '$\it{nitida}', '$\it{obtusa}', '$\it{pereirae}', '$\it{pereskiaefolia}', '$\it{pereskiifolia}', '$\it{pseudoestrellensis}', '$\it{regnellii}', '$\it{reitzii}', '$\it{rhombea}', '$\it{rotundifolia}', '$\it{rupestris}', '$\it{solmsianum}', '$\it{subretusa}', '$\it{tetraphylla}', '$\it{trineura}', '$\it{trineuroides}', '$\it{umbellatum}', '$\it{urocarpa}', '$\it{viminifolium}', '$\it{xylosteoides}']
+    # labels = get_list_label('txt/acima-5.txt')
 
     # acima de cinco dez -> dataset George -> ok
-    # labels = ['$\it{aduncum}', '$\it{alata}', '$\it{amalago}', '$\it{arboreum}', '$\it{barbarana}', '$\it{blanda}', '$\it{caldense}', '$\it{catharinae}', '$\it{cernuum}', '$\it{corcovadensis}', '$\it{crassinervium}', '$\it{dilatatum}', '$\it{gaudichaudianum}', '$\it{glabella}', '$\it{glabratum}', '$\it{hispidula}', '$\it{hispidum}', '$\it{malacophyllum}', '$\it{martiana}', '$\it{mikanianum}', '$\it{miquelianum}', '$\it{mollicomum}', '$\it{nitida}', '$\it{pereskiaefolia}', '$\it{pseudoestrellensis}', '$\it{regnellii}', '$\it{reitzii}', '$\it{rotundifolia}', '$\it{solmsianum}', '$\it{tetraphylla}', '$\it{trineura}', '$\it{urocarpa}', '$\it{viminifolium}', '$\it{xylosteoides}']
+    # labels = get_list_label('txt/acima-10.txt')
 
     # acima de cinco vinte -> dataset George -> ok
-    labels = ['$\it{aduncum}$', '$\it{amalago}$', '$\it{arboreum}$', '$\it{blanda}$', '$\it{caldense}$', '$\it{catharinae}$', '$\it{corcovadensis}$', '$\it{crassinervium}$', '$\it{gaudichaudianum}$', '$\it{glabella}$', '$\it{glabratum}$', '$\it{hispidum}$', '$\it{martiana}$', '$\it{mikanianum}$', '$\it{miquelianum}$', '$\it{rotundifolia}$', '$\it{solmsianum}$', '$\it{tetraphylla}$', '$\it{urocarpa}$', '$\it{xylosteoides}$']
+    # labels = get_list_label('txt/acima-20.txt')
 
     # todas as labels -> dataset George
-    # labels = ['$\it{abutiloides}', '$\it{aduncum}', '$\it{aequale}', '$\it{alata}', '$\it{alnoides}', '$\it{amalago}', '$\it{amplum}', '$\it{arboreum}', '$\it{arifolia}', '$\it{balansana}', '$\it{barbarana}', '$\it{blanda}', '$\it{brasiliensis}', '$\it{caldasianum}', '$\it{caldense}', '$\it{callosum}', '$\it{calophylla}', '$\it{catharinae}', '$\it{caulibarbis}', '$\it{cernuum}', '$\it{circinnata}', '$\it{clivicola}', '$\it{concinnatoris}', '$\it{corcovadensis}', '$\it{crassinervium}', '$\it{crinicaulis}', '$\it{delicatula}', '$\it{diaphanodies}', '$\it{diaphanoides}', '$\it{dilatatum}', '$\it{diospyrifolium}', '$\it{elongata}', '$\it{emarginella}', '$\it{flavicans}', '$\it{fuligineum}', '$\it{galioides}', '$\it{gaudichaudianum}', '$\it{glabella}', '$\it{glabratum}', '$\it{glaziovi}', '$\it{glaziovii}', '$\it{gracilicaulis}', '$\it{hatschbachii}', '$\it{hayneanum}', '$\it{hemmandorfii}', '$\it{hemmendorffii}', '$\it{hemmendorfii}', '$\it{hernandiifolia}', '$\it{hilariana}', '$\it{hispidula}', '$\it{hispidum}', '$\it{hydrocotyloides}', '$\it{ibiramana}', '$\it{lanceolato-peltata}', '$\it{lanceolatopeltata}', '$\it{lepturum}', '$\it{leucaenum}', '$\it{leucanthum}', '$\it{lhotzkianum}', '$\it{lhotzkyanum}', '$\it{lindbergii}', '$\it{lucaeanum}', '$\it{lyman-smithii}', '$\it{macedoi}', '$\it{magnoliifolia}', '$\it{malacophyllum}', '$\it{mandiocana}', '$\it{mandioccana}', '$\it{martiana}', '$\it{michelianum}', '$\it{mikanianium}', '$\it{mikanianum}', '$\it{miquelianum}', '$\it{mollicomum}', '$\it{mosenii}', '$\it{}', '$\it{nitida}', '$\it{nudifolia}', '$\it{obtusa}', '$\it{obtusifolia}', '$\it{ouabianae}', '$\it{ovatum}', '$\it{pellucida}', '$\it{pereirae}', '$\it{pereskiaefolia}', '$\it{pereskiifolia}', '$\it{perlongicaulis}', '$\it{permucronatum}', '$\it{piritubanum}', '$\it{pseudoestrellensis}', '$\it{pseudolanceolatum}', '$\it{psilostachya}', '$\it{punicea}', '$\it{quadrifolia}', '$\it{radicosa}', '$\it{reflexa}', '$\it{regenelli}', '$\it{regnellii}', '$\it{reitzii}', '$\it{renifolia}', '$\it{retivenulosa}', '$\it{rhombea}', '$\it{rivinoides}', '$\it{rizzinii}', '$\it{rotundifolia}', '$\it{rubricaulis}', '$\it{rupestris}', '$\it{sandersii}', '$\it{schwackei}', '$\it{solmsianum}', '$\it{stroemfeltii}', '$\it{subcinereum}', '$\it{subemarginata}', '$\it{subretusa}', '$\it{subrubrispica}', '$\it{subternifolia}', '$\it{tenuissima}', '$\it{tetraphylla}', '$\it{trichocarpa}', '$\it{trineura}', '$\it{trineuroides}', '$\it{tuberculatum}', '$\it{umbellata}', '$\it{umbellatum}', '$\it{urocarpa}', '$\it{vicosanum}', '$\it{viminifolium}', '$\it{warmingii}', '$\it{xylosteoides}', '$\it{xylosteroides}']
+    # labels = get_list_label('txt/todos.txt')
 
     # duas labels -> dataset George
-    # labels = ['$\it{Peperomia}$', '$\it{Piper}$']
+    labels = get_list_label('txt/labels.txt')
 
     confusion_matrix = sklearn.metrics.ConfusionMatrixDisplay(result['confusion_matrix'], display_labels=labels)
-    # confusion_matrix.plot(cmap='Reds')
-
     title = f'Confusion Matrix\ndataset: {dataset}, classifier: {classifier_name}\naccuracy: {round(result["accuracy"], ROUND_VALUE)}, rule: {result["rule"]}'
     fontsize_title = 18
     pad_title = 20
-
     fontsize_labels = 14
+    if len(labels) > 5:
+        rotation = 90
+    else:
+        rotation = 45
+    plot_size = (10, 10)
 
-    background_color = 'white'
-    # plt.ioff()
-    # plt.title(title, fontsize=fontsize_title, pad=pad_title)
-
-    # rotation = 45
-    rotation = 90
-
-    figure, axis = plt.subplots(figsize=(10, 10))
-
+    figure, axis = plt.subplots(figsize=plot_size)
     confusion_matrix.plot(ax=axis, cmap='Reds')
-
     axis.set_title(title, fontsize=fontsize_title, pad=pad_title)
     axis.set_xlabel('y_true', fontsize=fontsize_labels)
     axis.set_ylabel('y_pred', fontsize=fontsize_labels)
 
-    plt.ioff()
     plt.xticks(np.arange(len(labels)), rotation=rotation, fontsize=fontsize_labels)
     plt.yticks(np.arange(len(labels)), fontsize=fontsize_labels)
     plt.gcf().subplots_adjust(bottom=0.15, left=0.25)
-    plt.rcParams['figure.facecolor'] = background_color
-    plt.tight_layout()
 
-    path_confusion_matrix=os.path.join(path, 'confusion_matrix')
+    path_confusion_matrix = os.path.join(path, 'confusion_matrix')
     pathlib.Path(path_confusion_matrix).mkdir(exist_ok=True, parents=True)
 
-    plt.savefig(os.path.join(path_confusion_matrix, filename), bbox_inches='tight', dpi=300)
+    cfg_plot(os.path.join(path_confusion_matrix, filename), plt)
+
+
+def cfg_plot(filename, plt):
+    plt.ioff()
+    plt.rcParams['figure.facecolor'] = 'white'
+    plt.tight_layout()
+    plt.savefig(filename, bbox_inches='tight', dpi=300)
     plt.cla()
     plt.clf()
     plt.close()
+
+
+def italic_string_plot(string):
+    return f'$\\it{{{string}}}$'
+
+
+def get_list_label(filename):
+    try:
+        with open(filename) as file:
+            lines = file.readlines()
+            file.close()
+    except FileNotFoundError:
+        print(f'file {filename} not found')
+
+    lines = list(filter(lambda x: len(x) > 0, lines))
+    return [italic_string_plot(l.split('->')[1].replace('\n', '')) for l in lines if len(l.split('->')) > 0]

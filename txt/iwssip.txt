@@ -1,0 +1,5 @@
+f1->Manekia
+f2->Ottonia
+f3->Peperomia
+f4->Piper
+f5->Pothomorphe
