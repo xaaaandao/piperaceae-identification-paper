@@ -60,13 +60,11 @@ def non_handcraft(cfg, current_datetime, filename_labels, list_data_input, list_
                 x_train, y_train = get_samples_with_patch(data['x'], data['y'], index_train, data['n_patch'])
                 x_test, y_test = get_samples_with_patch(data['x'], data['y'], index_test, data['n_patch'])
 
-                all_labels = collections.Counter(data['y'])
-
-                for key, value in collections.Counter(y_train).items():
-                    print(f'classe: {key}, count: {value}, (train %): {round((value * 100) / all_labels[key], 2)}')
-
-                for key, value in collections.Counter(y_test).items():
-                    print(f'classe: {key}, count: {value}, (test %): {round((value * 100) / all_labels[key], 2)}')
+                print(fold, classifier_name, x_train.shape, x_test.shape)
+                print('train')
+                print(sorted(list(collections.Counter(y_train).items())))
+                print('test')
+                print(sorted(list(collections.Counter(y_test).items())))
 
                 start_time_train_valid = time.time()
                 best['classifier'].fit(x_train, y_train)

@@ -140,25 +140,8 @@ def confusion_matrix_by_fold(classifier_name, dataset, filename_labels, list_fol
 
 def save_confusion_matrix(classifier_name, dataset, filename_labels, path, result):
     filename = f'confusion_matrix_{result["rule"]}.png'
-
-    # cinco labels -> IWSSIP
-    # labels = get_list_label('txt/iwssip.txt')
-
-    # acima de cinco labels -> dataset George -> ok
-    # labels = get_list_label('txt/acima-5.txt')
-
-    # acima de cinco dez -> dataset George -> ok
-    # labels = get_list_label('txt/acima-10.txt')
-
-    # acima de cinco vinte -> dataset George -> ok
     labels = get_list_label(filename_labels)
 
-    # todas as labels -> dataset George
-    # labels = get_list_label('txt/todos.txt')
-
-    # duas labels -> dataset George
-    # labels = get_list_label('txt/labels.txt')
-    # print
     confusion_matrix = sklearn.metrics.ConfusionMatrixDisplay(result['confusion_matrix'], display_labels=labels)
     title = f'Confusion Matrix\ndataset: {dataset}, classifier: {classifier_name}\naccuracy: {round(result["accuracy"], ROUND_VALUE)}, rule: {result["rule"]}'
     fontsize_title = 18
@@ -173,10 +156,11 @@ def save_confusion_matrix(classifier_name, dataset, filename_labels, path, resul
     figure, axis = plt.subplots(figsize=plot_size)
     confusion_matrix.plot(ax=axis, cmap='Reds')
     axis.set_title(title, fontsize=fontsize_title, pad=pad_title)
-    axis.set_xlabel('y_true', fontsize=fontsize_labels, rotation=rotation)
+    axis.set_xlabel('y_true', fontsize=fontsize_labels)
     axis.set_ylabel('y_pred', fontsize=fontsize_labels)
-    axis.set_xticklabels(labels)
-    axis.set_yticklabels(labels)
+
+    plt.xticks(np.arange(len(labels)), rotation=rotation, fontsize=fontsize_labels)
+    plt.yticks(np.arange(len(labels)), fontsize=fontsize_labels)
 
     plt.gcf().subplots_adjust(bottom=0.15, left=0.25)
 
