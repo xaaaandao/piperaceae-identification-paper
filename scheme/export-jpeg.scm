@@ -11,7 +11,7 @@
                 (gimp-message filename)
                 (gimp-layer-set-visible layer FALSE)
                 (let 
-                    ((nfilename (string-append only_filename ".jpeg")))
+                    ((nfilename (string-append only_filename ".bmp")))
                     (gimp-file-save RUN-NONINTERACTIVE image drawable nfilename nfilename)
                 )
                 (gimp-image-delete image)

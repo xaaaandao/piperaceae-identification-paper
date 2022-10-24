@@ -1,6 +1,11 @@
 import time
 
+import sklearn.ensemble
 import sklearn.model_selection
+import sklearn.neighbors
+import sklearn.neural_network
+import sklearn.svm
+import sklearn.tree
 
 cfg_classifier = {
     'n_jobs': -1,

@@ -1,6 +1,6 @@
 function get_features()
-    path_in = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/grayscale/segmented_unet/512/jpeg/w_pred_mask";
-    path_out = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/features/grayscale/segmented_unet/512";
+    path_in = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/imagens/grayscale/segmented_unet/512/matlab/specific_epithet/todos";
+    path_out = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/features/grayscale/segmented_unet/512/patch=1/specific_epithet/todos";
     delete_file_exists();
     list_dir = sort_by_name(dir(path_in));
     
@@ -9,21 +9,25 @@ function get_features()
         e o terceiro valor eh o nome das pastas ou arquivo
     %}
     for i=1:height(list_dir)
-        path_img = append(list_dir.folder(i), "/", list_dir.name(i));
-        img = imread(path_img);
-        label = get_label(list_dir.name(i));
-        
-        feature = lbp(img);
-        filename_lbp = append(path_out, "/" , "lbp.txt");
-        fileout(filename_lbp, feature, string(label));
-
-        feature = surf(img, 64);
-        filename_surf = append(path_out, "/" , "surf64.txt");
-        fileout(filename_surf, feature, string(label));
-        
-        feature = surf(img, 128);
-        filename_surf = append(path_out, "/", "surf128.txt");
-        fileout(filename_surf, feature, string(label));
+        filename = list_dir.name(i);
+        if contains(list_dir.name(i), "jpeg", "IgnoreCase", true) && filename{1}(1) ~= "_"
+            path_img = append(list_dir.folder(i), "/", filename);
+            disp(path_img);            
+            img = imread(path_img, "jpeg");
+            label = get_label(filename);
+            
+            feature = lbp(img);
+            filename_lbp = append(path_out, "/" , "lbp.txt");
+            fileout(filename_lbp, feature, string(label));
+    
+            feature = surf(img, 64);
+            filename_surf = append(path_out, "/" , "surf64.txt");
+            fileout(filename_surf, feature, string(label));
+            
+            feature = surf(img, 128);
+            filename_surf = append(path_out, "/", "surf128.txt");
+            fileout(filename_surf, feature, string(label));
+        end
     end
 end
 
@@ -41,7 +45,20 @@ function delete_file_exists()
 end
 
 function i = get_label(filename)
-    list_label = ["manekia", "ottonia", "peperomia", "piper", "pothomorphe"];
+%     iwssip
+%     list_label = ["manekia", "ottonia", "peperomia", "piper", "pothomorphe"];
+%     genus/peperomia-piper
+%     list_label = ["peperomia", "piper"];
+%     genus/todos
+%     list_label = ["manekia", "peperomia", "piper", "pothomorphe", "sarcorhachis"];
+%     especies/todos
+    list_label = ["abutiloides", "aduncum", "aequale", "alata", "alnoides", "amalago", "amplum", "arboreum", "arifolia", "balansana", "barbarana", "blanda", "brasiliensis", "caldasianum", "caldense", "callosum", "calophylla", "catharinae", "caulibarbis", "cernuum", "circinnata", "clivicola", "concinnatoris", "corcovadensis", "crassinervium", "crinicaulis", "delicatula", "diaphanodies", "diaphanoides", "dilatatum", "diospyrifolium", "elongata", "emarginella", "flavicans", "fuligineum", "galioides", "gaudichaudianum", "glabella", "glabratum", "glaziovi", "glaziovii", "gracilicaulis", "hatschbachii", "hayneanum", "hemmandorfii", "hemmendorffii", "hemmendorfii", "hernandiifolia", "hilariana", "hispidula", "hispidum", "hydrocotyloides", "ibiramana", "lanceolat", "lanceolatopeltata", "lepturum", "leucaenum", "leucanthum", "lhotzkianum", "lhotzkyanum", "lindbergii", "lucaeanum", "lyma", "macedoi", "magnoliifolia", "malacophyllum", "mandiocana", "mandioccana", "martiana", "michelianum", "mikanianium", "mikanianum", "miquelianum", "mollicomum", "mosenii", "nitida", "nudifolia", "obtusa", "obtusifolia", "ouabianae", "ovatum", "pellucida", "pereirae", "pereskiaefolia", "pereskiifolia", "perlongicaulis", "permucronatum", "piritubanum", "pseudoestrellensis", "pseudolanceolatum", "psilostachya", "punicea", "quadrifolia", "radicosa", "reflexa", "regenelli", "regnellii", "reitzii", "renifolia", "retivenulosa", "rhombea", "rivinoides", "rizzinii", "rotundifolia", "rubricaulis", "rupestris", "sandersii", "schwackei", "solmsianum", "stroemfeltii", "subcinereum", "subemarginata", "subretusa", "subrubrispica", "subternifolia", "tenuissima", "tetraphylla", "trichocarpa", "trineura", "trineuroides", "tuberculatum", "umbellata", "umbellatum", "urocarpa", "vicosanum", "viminifolium", "warmingii", "xylosteoides", "xylosteroides"];
+%     acima-5 
+%     list_label=["aduncum", "alata", "amalago", "arboreum", "arifolia", "barbarana", "blanda", "caldasianum", "caldense", "catharinae", "cernuum", "circinnata", "corcovadensis", "crassinervium", "dilatatum", "diospyrifolium", "emarginella", "galioides", "gaudichaudianum", "glabella", "glabratum", "hatschbachii", "hayneanum", "hilariana", "hispidula", "hispidum", "hydrocotyloides", "lhotzkianum", "macedoi", "malacophyllum", "martiana", "mikanianum", "miquelianum", "mollicomum", "mosenii", "nitida", "obtusa", "pereirae", "pereskiaefolia", "pereskiifolia", "pseudoestrellensis", "regnellii", "reitzii", "rhombea", "rotundifolia", "rupestris", "solmsianum", "subretusa", "tetraphylla", "trineura", "trineuroides", "umbellatum", "urocarpa", "viminifolium", "xylosteoides"];
+%     acima-10
+%     list_label=["aduncum", "alata", "amalago", "arboreum", "barbarana", "blanda", "caldense", "catharinae", "cernuum", "corcovadensis", "crassinervium", "dilatatum", "gaudichaudianum", "glabella", "glabratum", "hispidula", "hispidum", "malacophyllum", "martiana", "mikanianum", "miquelianum", "mollicomum", "nitida", "pereskiaefolia", "pseudoestrellensis", "regnellii", "reitzii", "rotundifolia", "solmsianum", "tetraphylla", "trineura", "urocarpa", "viminifolium", "xylosteoides"];
+%     acima-20
+%     list_label=["aduncum", "amalago", "arboreum", "blanda", "caldense", "catharinae", "corcovadensis", "crassinervium", "gaudichaudianum", "glabella", "glabratum", "hispidum", "martiana", "mikanianum", "miquelianum", "rubricaulis", "stroemfeltii", "trichocarpa", "vicosanum", "xylosteroides"];
     for i=1:length(list_label)
         if contains(filename, list_label(i), "IgnoreCase", true)
             return;

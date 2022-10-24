@@ -18,8 +18,9 @@
                 (gimp-selection-none image)
                 (gimp-layer-set-opacity layer_mask 100)
                 (gimp-image-insert-layer image new-layer 0 1)
+                ; (gimp-image-convert-indexed image CONVERT-DITHER-FS CONVERT-PALETTE-MONO 0 0 1 "a")
                 (let (
-                    (drawable (car (gimp-image-merge-down image layer_mask EXPAND-AS-NECESSARY)))
+                    (drawable (car (gimp-image-merge-down image layer_mask CLIP-TO-IMAGE)))
                     )
                     (gimp-drawable-threshold drawable HISTOGRAM-VALUE 0.5 1)
                     (gimp-xcf-save RUN-NONINTERACTIVE image drawable filename filename)

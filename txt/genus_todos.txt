@@ -1,0 +1,5 @@
+f1->obtusa
+f2->blanda
+f3->miquelianum
+f4->umbellata
+f5->obtusa

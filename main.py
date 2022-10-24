@@ -1,19 +1,15 @@
-import datetime
 import os
 
-import sklearn.ensemble
-import sklearn.model_selection
-import sklearn.neighbors
-import sklearn.neural_network
-import sklearn.preprocessing
-import sklearn.svm
-import sklearn.tree
+import click
+import datetime
 
-# from handcraft import handcraft
+from handcraft import handcraft
 from non_handcraft import non_handcraft
 
 
-def main():
+@click.command()
+@click.option('-i', '--input', multiple=True)
+def main(input):
     cfg = {
         'fold': 5,
         'n_jobs': -1,
@@ -33,7 +29,7 @@ def main():
 
     current_datetime = datetime.datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
     list_data_input = [
-        '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/256/mobilenetv2/horizontal/patch=3/deep_feature/specific_epithet/acima-20',
+        # '/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/features/RGB/segmented_unet/256/mobilenetv2/patch=3/horizontal/genus/peperomia-piper',
         # '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/256/resnet50v2/horizontal/patch=3/deep_feature/specific_epithet/acima-20',
         # '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/256/vgg16/horizontal/patch=3/deep_feature/specific_epithet/acima-20',
         # '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/400/mobilenetv2/horizontal/patch=3/deep_feature/specific_epithet/acima-20',
@@ -44,11 +40,16 @@ def main():
         # '../dataset_gimp/imagens_george/features/grayscale/segmented_unet/512/vgg16/horizontal/patch=3/deep_feature/specific_epithet/acima-20',
 
     ]
-    # for data in list_data_input:
-    #     if len(os.listdir(data)) == 0:
-    #         raise ValueError(f'has not data input {data}')
+    if len(input) == 0 and len(list_data_input) == 0:
+        raise ValueError(f'list data input is empty')
 
-    # handcraft(cfg, current_datetime, kf, list_data_input, list_extractor)
+    list_data_input = list_data_input + input
+
+    for data in list_data_input:
+        if len(os.listdir(data)) == 0:
+            raise ValueError(f'has not data input {data}')
+
+    handcraft(cfg, current_datetime, list_data_input, list_extractor)
 
     non_handcraft(cfg, current_datetime, list_data_input, list_extractor)
 

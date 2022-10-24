@@ -13,8 +13,8 @@ f12->hispidum
 f13->martiana
 f14->mikanianum
 f15->miquelianum
-f16->rotundifolia
-f17->solmsianum
-f18->tetraphylla
-f19->urocarpa
-f20->xylosteoides
+f16->rubricaulis
+f17->stroemfeltii
+f18->trichocarpa
+f19->vicosanum
+f20->xylosteroides

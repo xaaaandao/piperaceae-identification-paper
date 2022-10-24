@@ -1,4 +1,4 @@
-(define (rescale value)
+(define (redimensionamento value)
 	(let* ((filelist (cadr (file-glob "*.xcf" 1))))
 		(while (not (null? filelist))
             (let* (
@@ -11,7 +11,7 @@
                 )
                 (gimp-message filename)
                 (gimp-image-scale-full image value value INTERPOLATION-NONE)
-                ; (gimp-image-convert-grayscale image)
+                (gimp-image-convert-grayscale image)
                 (gimp-xcf-save RUN-NONINTERACTIVE image drawable filename filename)
                 (gimp-file-save RUN-NONINTERACTIVE image drawable nfilename nfilename)                    
                 (gimp-image-delete image)
