@@ -10,7 +10,7 @@ from matplotlib import pyplot as plt
 ROUND_VALUE = 2
 
 
-def save_fold(cfg, classifier_name, dataset, list_result_fold, list_time, path):
+def save_fold(cfg, classifier_name, dataset, filename_labels, list_result_fold, list_time, path):
     list_files = []
     for fold in range(0, cfg['fold']):
         list_fold = list(filter(lambda x, fold=fold: x['fold'] == fold, list_result_fold))
@@ -19,7 +19,7 @@ def save_fold(cfg, classifier_name, dataset, list_result_fold, list_time, path):
         path_fold = os.path.join(path, str(fold))
         pathlib.Path(path_fold).mkdir(parents=True, exist_ok=True)
 
-        confusion_matrix_by_fold(classifier_name, dataset, list_fold, path_fold)
+        confusion_matrix_by_fold(classifier_name, dataset, filename_labels, list_fold, path_fold)
 
         index, values = get_values_by_fold_and_metric(list_fold, 'accuracy')
         list_files.append({'filename': 'accuracy', 'index': index, 'path': path_fold, 'values': values})
@@ -131,14 +131,14 @@ def get_values_by_fold_and_metric(list_fold, metric):
     return index, values
 
 
-def confusion_matrix_by_fold(classifier_name, dataset, list_fold, path_fold):
+def confusion_matrix_by_fold(classifier_name, dataset, filename_labels, list_fold, path_fold):
     for rule in ['max', 'prod', 'sum']:
         result = list(filter(lambda x, rule=rule: x['rule'] == rule, list_fold))
         if len(result) > 0:
-            save_confusion_matrix(classifier_name, dataset, path_fold, result[0])
+            save_confusion_matrix(classifier_name, dataset, filename_labels, path_fold, result[0])
 
 
-def save_confusion_matrix(classifier_name, dataset, path, result):
+def save_confusion_matrix(classifier_name, dataset, filename_labels, path, result):
     filename = f'confusion_matrix_{result["rule"]}.png'
 
     # cinco labels -> IWSSIP
@@ -151,14 +151,14 @@ def save_confusion_matrix(classifier_name, dataset, path, result):
     # labels = get_list_label('txt/acima-10.txt')
 
     # acima de cinco vinte -> dataset George -> ok
-    # labels = get_list_label('txt/acima-20.txt')
+    labels = get_list_label(filename_labels)
 
     # todas as labels -> dataset George
     # labels = get_list_label('txt/todos.txt')
 
     # duas labels -> dataset George
-    labels = get_list_label('txt/labels.txt')
-
+    # labels = get_list_label('txt/labels.txt')
+    # print
     confusion_matrix = sklearn.metrics.ConfusionMatrixDisplay(result['confusion_matrix'], display_labels=labels)
     title = f'Confusion Matrix\ndataset: {dataset}, classifier: {classifier_name}\naccuracy: {round(result["accuracy"], ROUND_VALUE)}, rule: {result["rule"]}'
     fontsize_title = 18
@@ -173,11 +173,11 @@ def save_confusion_matrix(classifier_name, dataset, path, result):
     figure, axis = plt.subplots(figsize=plot_size)
     confusion_matrix.plot(ax=axis, cmap='Reds')
     axis.set_title(title, fontsize=fontsize_title, pad=pad_title)
-    axis.set_xlabel('y_true', fontsize=fontsize_labels)
+    axis.set_xlabel('y_true', fontsize=fontsize_labels, rotation=rotation)
     axis.set_ylabel('y_pred', fontsize=fontsize_labels)
+    axis.set_xticklabels(labels)
+    axis.set_yticklabels(labels)
 
-    plt.xticks(np.arange(len(labels)), rotation=rotation, fontsize=fontsize_labels)
-    plt.yticks(np.arange(len(labels)), fontsize=fontsize_labels)
     plt.gcf().subplots_adjust(bottom=0.15, left=0.25)
 
     path_confusion_matrix = os.path.join(path, 'confusion_matrix')
@@ -201,12 +201,9 @@ def italic_string_plot(string):
 
 
 def get_list_label(filename):
-    try:
-        with open(filename) as file:
-            lines = file.readlines()
-            file.close()
-    except FileNotFoundError:
-        print(f'file {filename} not found')
+    with open(filename) as file:
+        lines = file.readlines()
+        file.close()
 
-    lines = list(filter(lambda x: len(x) > 0, lines))
-    return [italic_string_plot(l.split('->')[1].replace('\n', '')) for l in lines if len(l.split('->')) > 0]
+        lines = list(filter(lambda x: len(x) > 0, lines))
+        return [italic_string_plot(l.split('->')[1].replace('\n', '')) for l in lines if len(l.split('->')) > 0]

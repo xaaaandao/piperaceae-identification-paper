@@ -26,8 +26,8 @@ def save_info_dataset(data, path):
     return [{'filename': 'info', 'index': index, 'path': path, 'values': values}]
 
 
-def save(best_params, cfg, classifier_name, data, list_result_fold, list_time, path):
-    list_files_fold = save_fold(cfg, classifier_name, data['dataset'], list_result_fold, list_time, path)
+def save(best_params, cfg, classifier_name, data, filename_labels, list_result_fold, list_time, path):
+    list_files_fold = save_fold(cfg, classifier_name, data['dataset'], filename_labels, list_result_fold, list_time, path)
     list_mean_accuracy, list_mean_f1, list_files_mean = save_mean(list_result_fold, list_time, path)
     list_files_best = save_best(best_params, list_mean_accuracy, list_mean_f1, list_result_fold, path)
     list_file_info = save_info_dataset(data, path)

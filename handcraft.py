@@ -14,7 +14,7 @@ from save import save, create_path_base
 from save_model import save_best_model
 
 
-def handcraft(cfg, current_datetime, list_data_input, list_extractor):
+def handcraft(cfg, current_datetime, filename_labels, list_data_input, list_extractor):
     n_patch=None
     list_data = []
     list_only_file = [file for file in list_data_input if os.path.isfile(file)]
@@ -92,4 +92,4 @@ def handcraft(cfg, current_datetime, list_data_input, list_extractor):
                     "time_train_valid": time_train_valid,
                     "time_search_best_params": time_search_best_params
                 })
-            save(best['params'], cfg, classifier_name, data, list_result_fold, list_time, path)
+            save(best['params'], cfg, classifier_name, data, filename_labels, list_result_fold, list_time, path)

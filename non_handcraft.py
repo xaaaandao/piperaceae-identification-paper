@@ -12,7 +12,7 @@ from save import save, create_path_base
 from save_model import save_best_model
 
 
-def non_handcraft(cfg, current_datetime, list_data_input, list_extractor):
+def non_handcraft(cfg, current_datetime, filename_labels, list_data_input, list_extractor):
     list_only_dir = [d for d in list_data_input if os.path.isdir(d)]
     list_only_dir = [d for d in list_only_dir if len(os.listdir(d)) > 0]
 
@@ -89,7 +89,7 @@ def non_handcraft(cfg, current_datetime, list_data_input, list_extractor):
                     'time_search_best_params': time_find_best_params
                 })
 
-            save(best['params'], cfg, classifier_name, data, list_result_fold, list_time, path)
+            save(best['params'], cfg, classifier_name, data, filename_labels, list_result_fold, list_time, path)
 
 
 def data_with_pca(cfg, color_mode, d, dataset, extractor, image_size, list_data, list_extractor, n_features, n_labels,

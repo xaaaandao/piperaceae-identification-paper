@@ -9,7 +9,8 @@ from non_handcraft import non_handcraft
 
 @click.command()
 @click.option('-i', '--input', multiple=True)
-def main(input):
+@click.option('-l', '--filename_labels')
+def main(input, filename_labels):
     cfg = {
         'fold': 5,
         'n_jobs': -1,
@@ -38,9 +39,8 @@ def main(input):
             list_data_input.append(i)
 
     print(f'quantidade {len(list_data_input)}')
-    handcraft(cfg, current_datetime, list_data_input, list_extractor)
-
-    non_handcraft(cfg, current_datetime, list_data_input, list_extractor)
+    handcraft(cfg, current_datetime, filename_labels, list_data_input, list_extractor)
+    non_handcraft(cfg, current_datetime, filename_labels, list_data_input, list_extractor)
 
 
 if __name__ == '__main__':
