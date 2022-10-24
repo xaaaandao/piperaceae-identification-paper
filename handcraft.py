@@ -56,7 +56,6 @@ def handcraft(cfg, current_datetime, list_data_input, list_extractor):
             list_time = []
 
             path = create_path_base(cfg, classifier_name, current_datetime, data)
-            # pathlib.Path(path).mkdir(parents=True, exist_ok=True)
 
             print(f'classifier: {classifier}')
             print(f'path: {path}')
@@ -67,6 +66,13 @@ def handcraft(cfg, current_datetime, list_data_input, list_extractor):
             for fold, (index_train, index_test) in enumerate(split):
                 x_train, y_train = x[index_train], y[index_train]
                 x_test, y_test = x[index_test], y[index_test]
+
+                all_labels = collections.Counter(data['y'])
+                for key, value in collections.Counter(y_train).items():
+                    print(f'classe: {key}, count: {value}, (train %): {round((value * 100) / all_labels[key], 2)}')
+
+                for key, value in collections.Counter(y_test).items():
+                    print(f'classe: {key}, count: {value}, (test %): {round((value * 100) / all_labels[key], 2)}')
 
                 start_time_train_valid = time.time()
                 best['classifier'].fit(x_train, y_train)
@@ -87,52 +93,3 @@ def handcraft(cfg, current_datetime, list_data_input, list_extractor):
                     "time_search_best_params": time_search_best_params
                 })
             save(best['params'], cfg, classifier_name, data, list_result_fold, list_time, path)
-    #
-    # # old
-    #     if not np.isnan(x).any():
-    #
-    #         x_normalized = sklearn.preprocessing.StandardScaler().fit_transform(x)
-    #
-    #         list_data_pca = data_with_pca(cfg, extractor, list_extractor, x_normalized, y)
-    #
-    #         for data in list_data_pca:
-    #             for classifier in list_classifiers:
-    #                 classifier_name = classifier.__class__.__name__
-    #
-    #                 best, time_search_best_params = find_best_classifier_and_params(
-    #                     cfg,
-    #                     classifier,
-    #                     classifier_name,
-    #                     data)
-    #
-    #                 list_result_fold = []
-    #                 list_time = []
-    #
-    #                 path = os.path.join(cfg['dir_output'], current_datetime, dataset, segmented, color_mode, dim,
-    #                                     extractor, classifier_name,
-    #                                     'patch=' + str(n_patch),
-    #                                     str(data['pca']))
-    #                 pathlib.Path(path).mkdir(parents=True, exist_ok=True)
-    #
-    #                 for fold, (index_train, index_test) in enumerate(kf.split(np.random.rand(n_samples, ))):
-    #                     x_train, y_train = x[index_train], y[index_train]
-    #                     x_test, y_test = x[index_test], y[index_test]
-    #
-    #                     start_time_train_valid = time.time()
-    #                     best['classifier'].fit(x_train, y_train)
-    #                     y_pred = best['classifier'].predict_proba(x_test)
-    #                     result_max_rule, result_prod_rule, result_sum_rule = calculate_test(fold, n_labels, y_pred, y_test)
-    #                     end_time_train_valid = time.time()
-    #                     time_train_valid = end_time_train_valid - start_time_train_valid
-    #
-    #                     list_result_fold.append(result_max_rule)
-    #                     list_result_fold.append(result_prod_rule)
-    #                     list_result_fold.append(result_sum_rule)
-    #                     list_time.append({
-    #                         "fold": fold,
-    #                         "time_train_valid": time_train_valid,
-    #                         "time_search_best_params": time_search_best_params
-    #                     })
-    #
-    #                 save(best['params'], cfg, classifier_name, color_mode, data, dataset, dim, extractor, file,
-    #                      list_result_fold, list_time, n_patch, path, patch_slice)

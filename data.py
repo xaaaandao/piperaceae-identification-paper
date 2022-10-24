@@ -34,22 +34,9 @@ def get_samples_with_patch(x, y, list_index, n_patch):
 
 
 def get_cv(cfg, data):
-    samples_per_label = [v for _, v in collections.Counter(data['y']).items()]
-    return dataset_is_balanced(cfg, data) if all(e == samples_per_label[0] for e in samples_per_label) \
-        else dataset_is_unbalanced(cfg, data)
-
-
-def dataset_is_unbalanced(cfg, data):
-    print('unbalanced dataset')
     k = sklearn.model_selection.StratifiedKFold(n_splits=cfg['fold'], shuffle=True,
                                                 random_state=cfg['seed'])
     return k.split(data['x'], data['y'])
-
-
-def dataset_is_balanced(cfg, data):
-    print('balanced dataset')
-    k = sklearn.model_selection.KFold(n_splits=cfg['fold'], shuffle=True, random_state=cfg['seed'])
-    return k.split(data['x'])
 
 
 def add_data(color_mode, dataset, dir, extractor, image_size, n_features, n_labels, n_patch, n_samples, segmented,
@@ -62,7 +49,7 @@ def add_data(color_mode, dataset, dir, extractor, image_size, n_features, n_labe
         'image_size': int(image_size),
         'n_labels': n_labels,
         'n_features': n_features,
-        'n_patch': int(n_patch),
+        'n_patch': int(n_patch) if n_patch else -1,
         'n_samples': n_samples,
         'segmented': segmented,
         'slice_patch': slice_patch,
