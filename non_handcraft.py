@@ -36,14 +36,15 @@ def non_handcraft(cfg, current_datetime, filename_labels, list_data_input, list_
         data_with_pca(cfg, color_mode, d, dataset, extractor, image_size, list_data, list_extractor, n_features,
                       n_labels, n_patch, n_samples, segmented, slice_patch, x_normalized, y)
 
-    for data in list_data:
-        print(f'dataset: {data["dataset"]} color_mode: {data["color_mode"]}')
-        print(f'segmented: {data["segmented"]} image_size: {data["image_size"]} extractor: {data["extractor"]}')
-        print(f'n_samples/patch: {int(data["n_samples"]) / int(data["n_patch"])}')
-        print(f'n_samples: {data["n_samples"]} n_features: {data["n_features"]}')
-        print(f'n_labels: {data["n_labels"]} samples_per_labels: {collections.Counter(data["y"])}')
+    # for data in list_data:
+    #     print(f'dataset: {data["dataset"]} color_mode: {data["color_mode"]}')
+    #     print(f'segmented: {data["segmented"]} image_size: {data["image_size"]} extractor: {data["extractor"]}')
+    #     print(f'n_samples/patch: {int(data["n_samples"]) / int(data["n_patch"])}')
+    #     print(f'n_samples: {data["n_samples"]} n_features: {data["n_features"]}')
+    #     print(f'n_labels: {data["n_labels"]} samples_per_labels: {collections.Counter(data["y"])}')
 
-        for classifier in list_classifiers:
+    for classifier in list_classifiers:
+        for data in list_data:
             classifier_name = classifier.__class__.__name__
             best, time_find_best_params = find_best_classifier_and_params(cfg, classifier, classifier_name, data)
             list_result_fold = []
