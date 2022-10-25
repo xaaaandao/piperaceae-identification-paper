@@ -1,3 +1,4 @@
+import multiprocessing
 import time
 
 from sklearn.ensemble import RandomForestClassifier
@@ -51,10 +52,12 @@ list_classifiers = [
 
 
 def find_best_classifier_and_params(cfg, classifier, classifier_name, data):
+    n_cpu = multiprocessing.cpu_count()
     classifier_best_params = GridSearchCV(classifier, list_params[classifier_name],
-                                                                  scoring=['accuracy', 'top_k_accuracy', 'f1_weighted'],
+                                                                  scoring=cfg['score'],
                                                                   cv=cfg['fold'],
-                                                                  verbose=42, n_jobs=cfg['n_jobs'])
+                                                                pre_dispatch=n_cpu/2,
+                                                                  verbose=42)#, n_jobs=cfg['n_jobs'])
     start_search_best_params = time.time()
     classifier_best_params.fit(data['x'], data['y'])
     end_search_best_params = time.time()

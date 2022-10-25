@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CsvFileAttributes">
+    <option name="attributeMap">
+      <map>
+        <entry key="/out/25-10-2022-19-39-38/george/unet/rgb/256/mobilenetv2/DecisionTreeClassifier/patch=3/1280/mean_top_k_sum.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/25-10-2022-19-45-24/george/unet/rgb/256/mobilenetv2/DecisionTreeClassifier/patch=3/1280/mean_top_k/mean_top_k_sum.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry />
+      </map>
+    </option>
+  </component>
+</project>

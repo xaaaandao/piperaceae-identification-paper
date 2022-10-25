@@ -18,8 +18,4 @@ A
 C
 txt/genus_todos.txt,c/c/cce98f654a1ecb71b6e9c9a0058ec0dbcb95c45f
 @
-requirements.txt,1/9/19359a61ae2446b51b549167b014da2fcf265768
-@
 txt/acima-20.txt,b/d/bdd3cb5b07d3bf5e49e5fcc2f7aadfc3805a1435
-A
-read_result.ipynb,d/e/de2c5fe303145e1e732f3c8c004c5bd6937702f1

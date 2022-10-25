@@ -1,4 +1,4 @@
 extractor/
-out/
+out/*
 resultados/
-old/out
+__pycache__/

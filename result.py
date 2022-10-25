@@ -62,11 +62,11 @@ def calculate_test(fold, n_labels, y_pred, y_test, n_patch=1):
 
 def create_result(fold, n_labels, rule, y_pred_prob, y_pred, y_test):
     accuracy = accuracy_score(y_pred=y_pred, y_true=y_test)
-    confusion_matrix = confusion_matrix(y_pred=y_pred, y_true=y_test)
+    cm = confusion_matrix(y_pred=y_pred, y_true=y_test)
 
-    f1_score = 0
+    f1 = 0
     if min(list(collections.Counter(y_test).values())) != max(list(collections.Counter(y_test).values())):
-        f1_score = f1_score(y_pred=y_pred, y_true=y_test, average='weighted')
+        f1 = f1_score(y_pred=y_pred, y_true=y_test, average='weighted')
 
     list_top_k_accuracy = []
     if n_labels > 2:
@@ -83,10 +83,10 @@ def create_result(fold, n_labels, rule, y_pred_prob, y_pred, y_test):
         'y_pred': y_pred,
         'y_true': y_test,
         'accuracy': accuracy,
-        'f1_score': f1_score,
+        'f1_score': f1,
         'top_k': list_top_k_accuracy,
         'max_top_k': max(list_top_k_accuracy, key=lambda x: x['top_k_accuracy'])['top_k_accuracy'] if len(list_top_k_accuracy) > 0 else 0,
         'min_top_k': min(list_top_k_accuracy, key=lambda x: x['top_k_accuracy'])['top_k_accuracy'] if len(list_top_k_accuracy) > 0 else 0,
-        'confusion_matrix': confusion_matrix
+        'confusion_matrix': cm
     }
 

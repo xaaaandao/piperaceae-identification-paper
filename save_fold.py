@@ -10,18 +10,18 @@ from matplotlib import pyplot as plt
 ROUND_VALUE = 2
 
 
-def save_fold(cfg, classifier_name, dataset, filename_labels, list_result_fold, list_time, path):
+def save_fold(cfg, classifier_name, dataset, labels, list_result_fold, list_time, path):
     list_files = []
     for fold in range(0, cfg['fold']):
         # list_fold = list(filter(lambda x, fold=fold: x['fold'] == fold, list_result_fold))
-        list_fold = [x['fold'] == fold for x in list_result_fold]
-        time_fold = [x['fold'] == fold for x in list_time]
+        list_fold = [x for x in list_result_fold if x['fold'] == fold]
+        time_fold = [x for x in list_time if x['fold'] == fold]
         # time_fold = list(filter(lambda x, fold=fold: x['fold'] == fold, list_time))
 
         path_fold = os.path.join(path, str(fold))
         pathlib.Path(path_fold).mkdir(parents=True, exist_ok=True)
 
-        confusion_matrix_by_fold(classifier_name, dataset, filename_labels, list_fold, path_fold)
+        confusion_matrix_by_fold(classifier_name, dataset, labels, list_fold, path_fold)
 
         index, values = get_values_by_fold_and_metric(list_fold, 'accuracy')
         list_files.append({'filename': 'accuracy', 'index': index, 'path': path_fold, 'values': values})
@@ -101,20 +101,20 @@ def save_plot_top_k(fold, max_top_k, min_top_k, path_fold, rule, top_k, y_true):
 
 
 def plot_top_k(filename, fold, k, list_top_k, max_top_k, min_top_k, rule, y_test):
-    x = []
-    y = []
-    for top_k in list_top_k:
-        x.append(top_k['k'])
-        y.append(top_k['top_k_accuracy'])
+    x = [top_k['k'] for top_k in list_top_k]
+    y = [top_k['top_k_accuracy'] for top_k in list_top_k]
+    # :
+    #     x.append(top_k['k'])
+    #     y.append(top_k['top_k_accuracy'])
 
     fontsize_title = 14
     pad_title = 20
     fontsize_label = 14
 
     plt.plot(x, y, marker='o', color='green')
-    plt.title(f'Top k accuracy, Rule: {rule}, k: {k}, Fold: {fold},\n Min. top k: {min_top_k}, Máx. top k: {max_top_k}, Número de testes: {len(y_test)}',
+    plt.title(f'Top $k$ accuracy, Rule: {rule}, $k$: {k}, Fold: {fold},\n Min. top $k$: {min_top_k}, Máx. top $k$: {max_top_k}, Número de testes: {len(y_test)}',
         fontsize=fontsize_title, pad=pad_title)
-    plt.xlabel('k', fontsize=fontsize_label)
+    plt.xlabel('$k$', fontsize=fontsize_label)
     plt.ylabel('Número de acertos', fontsize=fontsize_label)
     plt.grid(True)
     plt.gcf().subplots_adjust(bottom=0.15, left=0.25)
@@ -135,17 +135,17 @@ def get_values_by_fold_and_metric(list_fold, metric):
     return index, values
 
 
-def confusion_matrix_by_fold(classifier_name, dataset, filename_labels, list_fold, path_fold):
+def confusion_matrix_by_fold(classifier_name, dataset, list_labels, list_fold, path_fold):
     for rule in ['max', 'prod', 'sum']:
         # result = list(filter(lambda x, rule=rule: x['rule'] == rule, list_fold))
         result = [x for x in list_fold if x['rule'] == rule]
         if len(result) > 0:
-            save_confusion_matrix(classifier_name, dataset, filename_labels, path_fold, result[0])
+            save_confusion_matrix(classifier_name, dataset, list_labels, path_fold, result[0])
 
 
-def save_confusion_matrix(classifier_name, dataset, filename_labels, path, result):
+def save_confusion_matrix(classifier_name, dataset, labels, path, result):
     filename = f'confusion_matrix_{result["rule"]}.png'
-    labels = get_list_label(filename_labels)
+    # labels = get_list_label(filename_labels)
 
     confusion_matrix = ConfusionMatrixDisplay(result['confusion_matrix'], display_labels=labels)
     title = f'Confusion Matrix\ndataset: {dataset}, classifier: {classifier_name}\naccuracy: {round(result["accuracy"], ROUND_VALUE)}, rule: {result["rule"]}'
@@ -194,5 +194,7 @@ def get_list_label(filename):
         lines = file.readlines()
         file.close()
 
+        # lines = list(filter(lambda x: len(x) > 0, ))
+        # lines = list(filter(lambda x: len(x) > 0, lines))
         lines = [l for l in lines if len(l) > 0]
         return [italic_string_plot(l.split('->')[1].replace('\n', '')) for l in lines if len(l.split('->')) > 0]

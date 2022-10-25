@@ -7,14 +7,14 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 
 from classifier import find_best_classifier_and_params, list_classifiers
-from data import get_info, add_data, get_cv
+from data import get_info, add_data, get_cv, show_info_data
 from non_handcraft import data_with_pca
 from result import calculate_test
 from save import save, create_path_base
 from save_model import save_best_model
 
 
-def handcraft(cfg, current_datetime, filename_labels, list_data_input, list_extractor):
+def handcraft(cfg, current_datetime, labels, list_data_input, list_extractor):
     n_patch = None
     list_data = []
     list_only_file = [file for file in list_data_input if os.path.isfile(file)]
@@ -37,11 +37,7 @@ def handcraft(cfg, current_datetime, filename_labels, list_data_input, list_extr
                       n_labels, n_patch, n_samples, segmented, slice_patch, x_normalized, y)
 
     for data in list_data:
-        print(f'dataset: {data["dataset"]} color_mode: {data["color_mode"]}')
-        print(f'segmented: {data["segmented"]} image_size: {data["image_size"]} extractor: {data["extractor"]}')
-        print(f'n_samples/patch: {int(data["n_samples"]) / int(data["n_patch"])}')
-        print(f'n_samples: {data["n_samples"]} n_features: {data["n_features"]}')
-        print(f'n_labels: {data["n_labels"]} samples_per_labels: {collections.Counter(data["y"])}')
+        show_info_data(data)
 
         for classifier in list_classifiers:
             classifier_name = classifier.__class__.__name__
@@ -91,4 +87,4 @@ def handcraft(cfg, current_datetime, filename_labels, list_data_input, list_extr
                     'time_train_valid': time_train_valid,
                     'time_search_best_params': time_search_best_params
                 })
-            save(best['params'], cfg, classifier_name, data, filename_labels, list_result_fold, list_time, path)
+            save(best['params'], cfg, classifier_name, data, labels, list_result_fold, list_time, path)

@@ -73,3 +73,11 @@ def get_info(path):
     slice_patch = search_info(['horizontal', 'vertical', 'h+v'], str(path))
 
     return dataset, color_mode, segmented, dim, extractor, slice_patch
+
+
+def show_info_data(data):
+    print(f'dataset: {data["dataset"]} color_mode: {data["color_mode"]}')
+    print(f'segmented: {data["segmented"]} image_size: {data["image_size"]} extractor: {data["extractor"]}')
+    print(f'n_samples/patch: {int(data["n_samples"]) / int(data["n_patch"])}')
+    print(f'n_samples: {data["n_samples"]} n_features: {data["n_features"]}')
+    print(f'n_labels: {data["n_labels"]} samples_per_labels: {collections.Counter(data["y"])}')

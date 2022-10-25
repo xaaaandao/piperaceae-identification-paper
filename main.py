@@ -5,6 +5,7 @@ import datetime
 
 from handcraft import handcraft
 from non_handcraft import non_handcraft
+from save_fold import get_list_label
 
 
 @click.command()
@@ -16,7 +17,8 @@ def main(input, filename_labels):
         'n_jobs': -1,
         'seed': 1234,
         'dir_input': '../dataset/features',
-        'dir_output': 'out'
+        'dir_output': 'out',
+        'score': 'f1_weighted'
     }
 
     list_extractor = {
@@ -29,16 +31,17 @@ def main(input, filename_labels):
     }
 
     current_datetime = datetime.datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
-    list_data_input = [
-    ]
+    list_data_input = ['../dataset_gimp/imagens_george/features/RGB/segmented_unet/256/patch=3/specific_epithet/acima-20/mobilenetv2/horizontal']
     if len(input) == 0 and len(list_data_input) == 0:
         raise ValueError(f'list data input is empty')
 
     list_data_input = list_data_input + [i for i in list(input) if i not in list_data_input]
 
     print(f'quantidade {len(list_data_input)}')
-    handcraft(cfg, current_datetime, filename_labels, list_data_input, list_extractor)
-    non_handcraft(cfg, current_datetime, filename_labels, list_data_input, list_extractor)
+    filename_labels = 'txt/acima-20.txt'
+    labels = get_list_label(filename_labels)
+    handcraft(cfg, current_datetime, labels, list_data_input, list_extractor)
+    non_handcraft(cfg, current_datetime, labels, list_data_input, list_extractor)
 
 
 if __name__ == '__main__':
