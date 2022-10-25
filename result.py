@@ -90,3 +90,14 @@ def create_result(fold, n_labels, rule, y_pred_prob, y_pred, y_test):
         'confusion_matrix': cm
     }
 
+
+def insert_result_fold_and_time(end_time_train_valid, fold, list_result_fold, list_time, result_max_rule, result_prod_rule, result_sum_rule,
+                                start_time_train_valid, time_find_best_params):
+    list_result_fold.append(result_max_rule)
+    list_result_fold.append(result_prod_rule)
+    list_result_fold.append(result_sum_rule)
+    list_time.append({
+        'fold': fold,
+        'time_train_valid': end_time_train_valid - start_time_train_valid,
+        'time_search_best_params': time_find_best_params
+    })

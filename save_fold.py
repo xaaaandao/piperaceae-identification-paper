@@ -125,7 +125,6 @@ def get_values_by_fold_and_metric(list_fold, metric):
     index = []
     values = []
     for rule in ['max', 'prod', 'sum']:
-        # result = list(filter(lambda x, rule=rule: x['rule'] == rule, list_fold))
         result = [x for x in list_fold if x['rule'] == rule]
         if len(result) > 0:
             index.append(rule)
@@ -137,18 +136,17 @@ def get_values_by_fold_and_metric(list_fold, metric):
 
 def confusion_matrix_by_fold(classifier_name, dataset, list_labels, list_fold, path_fold):
     for rule in ['max', 'prod', 'sum']:
-        # result = list(filter(lambda x, rule=rule: x['rule'] == rule, list_fold))
         result = [x for x in list_fold if x['rule'] == rule]
         if len(result) > 0:
             save_confusion_matrix(classifier_name, dataset, list_labels, path_fold, result[0])
 
 
 def save_confusion_matrix(classifier_name, dataset, labels, path, result):
-    filename = f'confusion_matrix_{result["rule"]}.png'
-    # labels = get_list_label(filename_labels)
-
+    rule = result['rule']
+    filename = f'ConfusionMatrix_{rule}.png'
     confusion_matrix = ConfusionMatrixDisplay(result['confusion_matrix'], display_labels=labels)
-    title = f'Confusion Matrix\ndataset: {dataset}, classifier: {classifier_name}\naccuracy: {round(result["accuracy"], ROUND_VALUE)}, rule: {result["rule"]}'
+
+    title = f'Confusion Matrix\nDataset: {dataset}, Classifier: {classifier_name}\nRule: {rule}'
     fontsize_title = 18
     pad_title = 20
     fontsize_labels = 14
@@ -194,7 +192,5 @@ def get_list_label(filename):
         lines = file.readlines()
         file.close()
 
-        # lines = list(filter(lambda x: len(x) > 0, ))
-        # lines = list(filter(lambda x: len(x) > 0, lines))
         lines = [l for l in lines if len(l) > 0]
         return [italic_string_plot(l.split('->')[1].replace('\n', '')) for l in lines if len(l.split('->')) > 0]

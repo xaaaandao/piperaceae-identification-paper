@@ -3,6 +3,8 @@ import collections
 import numpy as np
 import pathlib
 import re
+
+import sklearn.decomposition
 import sklearn.model_selection
 
 
@@ -81,3 +83,20 @@ def show_info_data(data):
     print(f'n_samples/patch: {int(data["n_samples"]) / int(data["n_patch"])}')
     print(f'n_samples: {data["n_samples"]} n_features: {data["n_features"]}')
     print(f'n_labels: {data["n_labels"]} samples_per_labels: {collections.Counter(data["y"])}')
+
+
+def show_info_data_train_test(classifier_name, fold, x_test, x_train, y_test, y_train):
+    print(fold, classifier_name, x_train.shape, x_test.shape)
+    print('train')
+    print(sorted(list(collections.Counter(y_train).items())))
+    print('test')
+    print(sorted(list(collections.Counter(y_test).items())))
+
+
+def data_with_pca(cfg, color_mode, d, dataset, extractor, image_size, list_data, list_extractor, n_features, n_labels, n_patch, n_samples, segmented, slice_patch, x_normalized, y):
+    for pca in list_extractor[extractor]:
+        if pca < n_features - 1:
+            x = sklearn.decomposition.PCA(n_components=pca, random_state=cfg['seed']).fit_transform(x_normalized)
+            list_data.append(
+                add_data(color_mode, dataset, d, extractor, image_size, x.shape[1], n_labels, n_patch, n_samples,
+                         segmented, slice_patch, x, y))
