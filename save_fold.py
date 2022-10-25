@@ -4,7 +4,7 @@ import pathlib
 
 import numpy as np
 import pandas as pd
-import sklearn.metrics
+from sklearn.metrics import ConfusionMatrixDisplay
 from matplotlib import pyplot as plt
 
 ROUND_VALUE = 2
@@ -13,8 +13,10 @@ ROUND_VALUE = 2
 def save_fold(cfg, classifier_name, dataset, filename_labels, list_result_fold, list_time, path):
     list_files = []
     for fold in range(0, cfg['fold']):
-        list_fold = list(filter(lambda x, fold=fold: x['fold'] == fold, list_result_fold))
-        time_fold = list(filter(lambda x, fold=fold: x['fold'] == fold, list_time))
+        # list_fold = list(filter(lambda x, fold=fold: x['fold'] == fold, list_result_fold))
+        list_fold = [x['fold'] == fold for x in list_result_fold]
+        time_fold = [x['fold'] == fold for x in list_time]
+        # time_fold = list(filter(lambda x, fold=fold: x['fold'] == fold, list_time))
 
         path_fold = os.path.join(path, str(fold))
         pathlib.Path(path_fold).mkdir(parents=True, exist_ok=True)
@@ -58,7 +60,8 @@ def info_by_fold(list_fold, time):
 
 def get_top_k_by_rule(list_fold, path_fold):
     for rule in ['max', 'prod', 'sum']:
-        result = list(filter(lambda x, rule=rule: x['rule'] == rule, list_fold))
+        # result = list(filter(lambda x, rule=rule: x['rule'] == rule, list_fold))
+        result = [x for x in list_fold if x['rule'] == rule]
         if len(result) > 0:
             top_k = result[0]['top_k']
             fold = result[0]['fold']
@@ -122,7 +125,8 @@ def get_values_by_fold_and_metric(list_fold, metric):
     index = []
     values = []
     for rule in ['max', 'prod', 'sum']:
-        result = list(filter(lambda x, rule=rule: x['rule'] == rule, list_fold))
+        # result = list(filter(lambda x, rule=rule: x['rule'] == rule, list_fold))
+        result = [x for x in list_fold if x['rule'] == rule]
         if len(result) > 0:
             index.append(rule)
             value_metric = result[0][metric]
@@ -133,7 +137,8 @@ def get_values_by_fold_and_metric(list_fold, metric):
 
 def confusion_matrix_by_fold(classifier_name, dataset, filename_labels, list_fold, path_fold):
     for rule in ['max', 'prod', 'sum']:
-        result = list(filter(lambda x, rule=rule: x['rule'] == rule, list_fold))
+        # result = list(filter(lambda x, rule=rule: x['rule'] == rule, list_fold))
+        result = [x for x in list_fold if x['rule'] == rule]
         if len(result) > 0:
             save_confusion_matrix(classifier_name, dataset, filename_labels, path_fold, result[0])
 
@@ -142,7 +147,7 @@ def save_confusion_matrix(classifier_name, dataset, filename_labels, path, resul
     filename = f'confusion_matrix_{result["rule"]}.png'
     labels = get_list_label(filename_labels)
 
-    confusion_matrix = sklearn.metrics.ConfusionMatrixDisplay(result['confusion_matrix'], display_labels=labels)
+    confusion_matrix = ConfusionMatrixDisplay(result['confusion_matrix'], display_labels=labels)
     title = f'Confusion Matrix\ndataset: {dataset}, classifier: {classifier_name}\naccuracy: {round(result["accuracy"], ROUND_VALUE)}, rule: {result["rule"]}'
     fontsize_title = 18
     pad_title = 20
@@ -189,5 +194,5 @@ def get_list_label(filename):
         lines = file.readlines()
         file.close()
 
-        lines = list(filter(lambda x: len(x) > 0, lines))
+        lines = [l for l in lines if len(l) > 0]
         return [italic_string_plot(l.split('->')[1].replace('\n', '')) for l in lines if len(l.split('->')) > 0]

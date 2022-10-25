@@ -59,7 +59,8 @@ def add_data(color_mode, dataset, dir, extractor, image_size, n_features, n_labe
 
 
 def search_info(list_info, info):
-    result = list(filter(lambda x: x in str(info).lower(), list_info))
+    # result = list(filter(lambda x: x in str(info).lower(), list_info))
+    result = [i for i in list_info if i in str(info).lower()]
     return None if len(result) == 0 else result[0]
 
 

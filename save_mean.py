@@ -30,15 +30,18 @@ def save_mean(list_result_fold, list_time, path):
 
 
 def get_mean_metric(list_mean_metric):
-    metric_max = list(filter(lambda x: x['rule'] == 'max', list_mean_metric))
+    # metric_max = list(filter(lambda x: x['rule'] == 'max', list_mean_metric))
+    metric_max = [m for m in list_mean_metric if m['rule'] == 'max']
     mean_metric_max = metric_max[0]['mean']
     std_metric_max = metric_max[0]['std']
 
-    metric_sum = list(filter(lambda x: x['rule'] == 'sum', list_mean_metric))
+    # metric_sum = list(filter(lambda x: x['rule'] == 'sum', list_mean_metric))
+    metric_sum = [m for m in list_mean_metric if m['rule'] == 'sum']
     mean_metric_sum = metric_sum[0]['mean']
     std_metric_sum = metric_sum[0]['std']
 
-    metric_prod = list(filter(lambda x: x['rule'] == 'prod', list_mean_metric))
+    # metric_prod = list(filter(lambda x: x['rule'] == 'prod', list_mean_metric))
+    metric_prod = [m for m in list_mean_metric if m['rule'] == 'prod']
     mean_metric_prod = metric_prod[0]['mean']
     std_metric_prod = metric_prod[0]['std']
 
@@ -54,9 +57,10 @@ def get_list_all_rule(list_result_fold, metric):
 
 
 def calculate_mean_by_metric_and_rule(list_result_fold, metric, rule):
+    list_rule = [x for x in list_result_fold if x['rule'] == rule]
     return {
-        'mean': np.mean([r[metric] for r in list(filter(lambda x: x['rule'] == rule, list_result_fold))]),
-        'std': np.std([r[metric] for r in list(filter(lambda x: x['rule'] == rule, list_result_fold))]),
+        'mean': np.mean([r[metric] for r in list_rule]),
+        'std': np.std([r[metric] for r in list_rule]),
         'rule': rule,
         'metric': metric
     }

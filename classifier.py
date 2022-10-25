@@ -1,11 +1,12 @@
 import time
 
-import sklearn.ensemble
-import sklearn.model_selection
-import sklearn.neighbors
-import sklearn.neural_network
-import sklearn.svm
-import sklearn.tree
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+
 
 cfg_classifier = {
     'n_jobs': -1,
@@ -41,17 +42,18 @@ list_params = {
 }
 
 list_classifiers = [
-    sklearn.tree.DecisionTreeClassifier(random_state=cfg_classifier['seed']),
-    sklearn.neighbors.KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
-    sklearn.neural_network.MLPClassifier(random_state=cfg_classifier['seed']),
-    sklearn.ensemble.RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs']),
-    sklearn.svm.SVC(random_state=cfg_classifier['seed'], probability=True)
+    DecisionTreeClassifier(random_state=cfg_classifier['seed']),
+    KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
+    MLPClassifier(random_state=cfg_classifier['seed']),
+    RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs']),
+    SVC(random_state=cfg_classifier['seed'], probability=True)
 ]
 
 
 def find_best_classifier_and_params(cfg, classifier, classifier_name, data):
-    classifier_best_params = sklearn.model_selection.GridSearchCV(classifier, list_params[classifier_name],
-                                                                  scoring='accuracy', cv=cfg['fold'],
+    classifier_best_params = GridSearchCV(classifier, list_params[classifier_name],
+                                                                  scoring=['accuracy', 'top_k_accuracy', 'f1_weighted'],
+                                                                  cv=cfg['fold'],
                                                                   verbose=42, n_jobs=cfg['n_jobs'])
     start_search_best_params = time.time()
     classifier_best_params.fit(data['x'], data['y'])

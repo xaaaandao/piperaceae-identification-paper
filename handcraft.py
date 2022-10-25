@@ -4,7 +4,7 @@ import pathlib
 import time
 
 import numpy as np
-import sklearn.preprocessing
+from sklearn.preprocessing import StandardScaler
 
 from classifier import find_best_classifier_and_params, list_classifiers
 from data import get_info, add_data, get_cv
@@ -15,7 +15,7 @@ from save_model import save_best_model
 
 
 def handcraft(cfg, current_datetime, filename_labels, list_data_input, list_extractor):
-    n_patch=None
+    n_patch = None
     list_data = []
     list_only_file = [file for file in list_data_input if os.path.isfile(file)]
     for file in list_only_file:
@@ -29,7 +29,7 @@ def handcraft(cfg, current_datetime, filename_labels, list_data_input, list_extr
         if np.isnan(x).any():
             raise ValueError(f'{file} contain is nan')
 
-        x_normalized = sklearn.preprocessing.StandardScaler().fit_transform(x)
+        x_normalized = StandardScaler().fit_transform(x)
         list_data.append(add_data(color_mode, dataset, file, extractor, image_size, n_features - 1, n_labels, n_patch,
                                   n_samples, segmented, slice_patch, x_normalized, y))
 
@@ -79,7 +79,7 @@ def handcraft(cfg, current_datetime, filename_labels, list_data_input, list_extr
 
                 save_best_model(best['classifier'], fold, path)
 
-                result_max_rule, result_prod_rule, result_sum_rule = calculate_test(fold, n_labels, y_pred, y_test)
+                result_max_rule, result_prod_rule, result_sum_rule = calculate_test(fold, data['n_labels'], y_pred, y_test)
                 end_time_train_valid = time.time()
                 time_train_valid = end_time_train_valid - start_time_train_valid
 
@@ -87,8 +87,8 @@ def handcraft(cfg, current_datetime, filename_labels, list_data_input, list_extr
                 list_result_fold.append(result_prod_rule)
                 list_result_fold.append(result_sum_rule)
                 list_time.append({
-                    "fold": fold,
-                    "time_train_valid": time_train_valid,
-                    "time_search_best_params": time_search_best_params
+                    'fold': fold,
+                    'time_train_valid': time_train_valid,
+                    'time_search_best_params': time_search_best_params
                 })
             save(best['params'], cfg, classifier_name, data, filename_labels, list_result_fold, list_time, path)

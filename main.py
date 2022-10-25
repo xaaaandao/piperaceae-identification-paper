@@ -34,9 +34,7 @@ def main(input, filename_labels):
     if len(input) == 0 and len(list_data_input) == 0:
         raise ValueError(f'list data input is empty')
 
-    for i in list(input):
-        if i not in list_data_input:
-            list_data_input.append(i)
+    list_data_input = list_data_input + [i for i in list(input) if i not in list_data_input]
 
     print(f'quantidade {len(list_data_input)}')
     handcraft(cfg, current_datetime, filename_labels, list_data_input, list_extractor)
