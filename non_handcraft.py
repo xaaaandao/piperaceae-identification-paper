@@ -6,7 +6,7 @@ import numpy as np
 from classifier import find_best_classifier_and_params, list_classifiers
 from data import merge_all_files_of_dir, get_samples_with_patch, get_info, get_cv, show_info_data, \
     show_info_data_train_test
-from handcraft import get_x_y
+from data import get_x_y
 from result import calculate_test, insert_result_fold_and_time
 from save import save, create_path_base
 from save_model import save_best_model

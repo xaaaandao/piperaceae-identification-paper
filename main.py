@@ -38,6 +38,7 @@ def main(list_user_input, filename_labels):
 
     list_data_input = list_data_input + [i for i in list(list_user_input) if i not in list_data_input]
     print(f'quantidade de entradas: {len(list_data_input)}, filname labels: {filename_labels}')
+    # filename_labels = 'txt/acima-20.txt'
     labels = get_list_label(filename_labels)
 
     handcraft(cfg, current_datetime, labels, list_data_input, list_extractor)

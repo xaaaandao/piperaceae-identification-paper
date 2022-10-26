@@ -4,8 +4,9 @@ import numpy as np
 import pathlib
 import re
 
-import sklearn.decomposition
-import sklearn.model_selection
+from sklearn.decomposition import PCA
+from sklearn.model_selection import StratifiedKFold
+from sklearn.preprocessing import StandardScaler
 
 
 def merge_all_files_of_dir(dir):
@@ -36,7 +37,7 @@ def get_samples_with_patch(x, y, list_index, n_patch):
 
 
 def get_cv(cfg, data):
-    k = sklearn.model_selection.StratifiedKFold(n_splits=cfg['fold'], shuffle=True,
+    k = StratifiedKFold(n_splits=cfg['fold'], shuffle=True,
                                                 random_state=cfg['seed'])
     return k.split(data['x'], data['y'])
 
@@ -96,7 +97,21 @@ def show_info_data_train_test(classifier_name, fold, x_test, x_train, y_test, y_
 def data_with_pca(cfg, color_mode, d, dataset, extractor, image_size, list_data, list_extractor, n_features, n_labels, n_patch, n_samples, segmented, slice_patch, x_normalized, y):
     for pca in list_extractor[extractor]:
         if pca < n_features - 1:
-            x = sklearn.decomposition.PCA(n_components=pca, random_state=cfg['seed']).fit_transform(x_normalized)
+            x = PCA(n_components=pca, random_state=cfg['seed']).fit_transform(x_normalized)
             list_data.append(
                 add_data(color_mode, dataset, d, extractor, image_size, x.shape[1], n_labels, n_patch, n_samples,
                          segmented, slice_patch, x, y))
+
+
+def get_x_y(cfg, color_mode, data, dataset, extractor, file, image_size, list_data, list_extractor, n_patch, segmented,
+            slice_patch):
+    n_samples, n_features = data.shape
+    x, y = data[0:, 0:n_features - 1], data[:, n_features - 1]
+    if np.isnan(x).any():
+        raise ValueError(f'data contain nan')
+    n_labels = len(np.unique(y))
+    x_normalized = StandardScaler().fit_transform(x)
+    list_data.append(add_data(color_mode, dataset, file, extractor, image_size, n_features - 1, n_labels, n_patch,
+                              n_samples, segmented, slice_patch, x_normalized, y))
+    data_with_pca(cfg, color_mode, file, dataset, extractor, image_size, list_data, list_extractor, n_features,
+                  n_labels, n_patch, n_samples, segmented, slice_patch, x_normalized, y)

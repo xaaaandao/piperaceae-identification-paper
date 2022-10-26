@@ -1,8 +1,7 @@
 import csv
 import os
-import pathlib
-
 import pandas as pd
+import pathlib
 
 from save_best import save_best
 from save_fold import save_fold
@@ -14,6 +13,10 @@ def create_file_xlsx_and_csv(list_files):
         df = pd.DataFrame(file['values'], file['index'])
         p = os.path.join(file['path'], 'xlsx')
         pathlib.Path(p).mkdir(exist_ok=True, parents=True)
+        filename = file['filename']
+        df.to_excel(os.path.join(p, f'{filename}.xlsx'), na_rep='', engine='xlsxwriter', header=False)
+        df.to_csv(os.path.join(file['path'], f'{filename}.csv'), sep=';', na_rep='', header=False,
+                  quoting=csv.QUOTE_ALL)
         df.to_excel(os.path.join(p, f'{file["filename"]}.xlsx'), na_rep='', engine='xlsxwriter', header=False)
         df.to_csv(os.path.join(file['path'], f'{file["filename"]}.csv'), sep=';', na_rep='', header=False,
                   quoting=csv.QUOTE_ALL)
@@ -22,7 +25,8 @@ def create_file_xlsx_and_csv(list_files):
 def save_info_dataset(data, path):
     index = ['color_mode', 'data_n_features', 'data_n_samples', 'dataset', 'dim_image', 'dir_input', 'extractor',
              'n_patch', 'slice']
-    values = [data['color_mode'], data['n_features'], data['n_samples'], data['dataset'], data['image_size'], data['dir'], data['extractor'], data['n_patch'], data['slice_patch']]
+    values = [data['color_mode'], data['n_features'], data['n_samples'], data['dataset'], data['image_size'],
+              data['dir'], data['extractor'], data['n_patch'], data['slice_patch']]
     return [{'filename': 'info', 'index': index, 'path': path, 'values': values}]
 
 

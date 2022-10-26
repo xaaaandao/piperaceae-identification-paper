@@ -1,31 +1,14 @@
-import collections
 import os
-import pathlib
 import time
 
 import numpy as np
-from sklearn.preprocessing import StandardScaler
 
 from classifier import find_best_classifier_and_params, list_classifiers
-from data import get_info, add_data, get_cv, show_info_data, show_info_data_train_test, data_with_pca
+from data import get_info, get_cv, show_info_data, show_info_data_train_test
 from non_handcraft import get_x_y
 from result import calculate_test, insert_result_fold_and_time
 from save import save, create_path_base
 from save_model import save_best_model
-
-
-def get_x_y(cfg, color_mode, data, dataset, extractor, file, image_size, list_data, list_extractor, n_patch, segmented,
-            slice_patch):
-    n_samples, n_features = data.shape
-    x, y = data[0:, 0:n_features - 1], data[:, n_features - 1]
-    if np.isnan(x).any():
-        raise ValueError(f'data contain nan')
-    n_labels = len(np.unique(y))
-    x_normalized = StandardScaler().fit_transform(x)
-    list_data.append(add_data(color_mode, dataset, file, extractor, image_size, n_features - 1, n_labels, n_patch,
-                              n_samples, segmented, slice_patch, x_normalized, y))
-    data_with_pca(cfg, color_mode, file, dataset, extractor, image_size, list_data, list_extractor, n_features,
-                  n_labels, n_patch, n_samples, segmented, slice_patch, x_normalized, y)
 
 
 def handcraft(cfg, current_datetime, labels, list_data_input, list_extractor):

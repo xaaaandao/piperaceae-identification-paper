@@ -24,6 +24,111 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/out/25-10-2022-22-30-24/george/unet/rgb/256/mobilenetv2/DecisionTreeClassifier/patch=3/1280/best.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/25-10-2022-22-30-24/george/unet/rgb/256/mobilenetv2/DecisionTreeClassifier/patch=3/1280/info.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/25-10-2022-22-30-24/george/unet/rgb/256/mobilenetv2/DecisionTreeClassifier/patch=3/1280/mean.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/25-10-2022-22-43-04/george/unet/rgb/256/mobilenetv2/KNeighborsClassifier/patch=3/1280/0/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/25-10-2022-22-43-04/george/unet/rgb/256/mobilenetv2/KNeighborsClassifier/patch=3/1280/0/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/25-10-2022-22-43-04/george/unet/rgb/256/mobilenetv2/KNeighborsClassifier/patch=3/1280/0/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/25-10-2022-22-43-04/george/unet/rgb/256/mobilenetv2/KNeighborsClassifier/patch=3/1280/0/top_k/max/info_top_k_max.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/25-10-2022-22-43-04/george/unet/rgb/256/mobilenetv2/KNeighborsClassifier/patch=3/1280/0/top_k/max/top_k_max.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/25-10-2022-22-49-38/george/unet/rgb/256/mobilenetv2/DecisionTreeClassifier/patch=3/1280/best.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/25-10-2022-22-49-38/george/unet/rgb/256/mobilenetv2/DecisionTreeClassifier/patch=3/1280/info.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/25-10-2022-22-49-38/george/unet/rgb/256/mobilenetv2/DecisionTreeClassifier/patch=3/1280/mean.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/25-10-2022-22-49-38/george/unet/rgb/256/mobilenetv2/DecisionTreeClassifier/patch=3/1280/mean_top_k/mean_top_k_max.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/25-10-2022-22-57-32/george/unet/rgb/256/mobilenetv2/DecisionTreeClassifier/patch=3/1280/0/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/25-10-2022-22-57-32/george/unet/rgb/256/mobilenetv2/DecisionTreeClassifier/patch=3/1280/0/top_k/max/info_top_k_max.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/25-10-2022-22-57-32/george/unet/rgb/256/mobilenetv2/DecisionTreeClassifier/patch=3/1280/0/top_k/max/top_k_max.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry />
       </map>
     </option>
