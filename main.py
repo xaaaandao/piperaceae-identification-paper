@@ -32,7 +32,7 @@ def main(list_user_input, filename_labels):
     }
 
     current_datetime = datetime.datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
-    list_data_input = ['../dataset_gimp/imagens_george/features/RGB/segmented_unet/256/patch=3/specific_epithet/acima-20/mobilenetv2/horizontal']
+    list_data_input = []
     if len(list_user_input) == 0 and len(list_data_input) == 0:
         raise ValueError(f'list data input is empty')
 
