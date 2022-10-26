@@ -1,4 +1,4 @@
-py=~/miniconda3/bin/python3.9
+py=~/miniconda3/bin/python
 threshold=acima-20
 extractor=resnet50v2
 
