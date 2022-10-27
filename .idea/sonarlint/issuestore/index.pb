@@ -21,8 +21,6 @@ C
 txt/acima-20.txt,b/d/bdd3cb5b07d3bf5e49e5fcc2f7aadfc3805a1435
 <
 save_best.py,a/4/a42f8ff2936dc2088d9e91503375dd8696ba6d8d
-A
-read_result.ipynb,d/e/de2c5fe303145e1e732f3c8c004c5bd6937702f1
 :
 
 .gitignore,a/5/a5cc2925ca8258af241be7e5b0381edf30266302

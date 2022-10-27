@@ -33,6 +33,7 @@ def get_top_k_by_rule(list_fold, path_fold):
             path_top_k = os.path.join(path_fold, 'top_k', rule)
             pathlib.Path(path_top_k).mkdir(exist_ok=True, parents=True)
 
+            save_plot_top_k(fold, max_top_k, min_top_k, path_top_k, rule, top_k, y_test)
             path_xlsx = os.path.join(path_top_k, 'xlsx')
             pathlib.Path(path_xlsx).mkdir(exist_ok=True, parents=True)
             create_dataframe_info_top_k(index, path_top_k, path_xlsx, rule, values)

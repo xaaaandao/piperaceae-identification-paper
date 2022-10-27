@@ -33,6 +33,7 @@ def main(list_user_input, filename_labels):
 
     current_datetime = datetime.datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
     list_data_input = []
+    # list_data_input = ['/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/features/grayscale/segmented_unet/256/patch=1/specific_epithet/acima-5/lbp.txt']
     if len(list_user_input) == 0 and len(list_data_input) == 0:
         raise ValueError(f'list data input is empty')
 
