@@ -5,7 +5,9 @@ import pathlib
 
 import numpy as np
 import pandas as pd
+
 from matplotlib import pyplot as plt
+from matplotlib import ticker
 
 
 def create_dataframe_info_top_k(index, path_csv, path_xlsx, rule, values):
@@ -71,12 +73,20 @@ def plot_top_k(filename, key, list_top_k, max_top_k, min_top_k, title, y_test):
     pad_title = 20
     fontsize_label = 14
 
+    plot_size = (10, 10)
+    figure, axis = plt.subplots(figsize=plot_size)
     plt.plot(x, y, marker='o', color='green')
-    plt.title(title, fontsize=fontsize_title, pad=pad_title)
-    plt.xlabel('$k$', fontsize=fontsize_label)
-    plt.ylabel('Count of labels in top $k$', fontsize=fontsize_label)
+
+    axis.set_title(title, fontsize=fontsize_title, pad=pad_title)
+    axis.set_xlabel('$k$', fontsize=fontsize_label)
+    axis.set_ylabel('Count of labels in top $k$', fontsize=fontsize_label)
+
     plt.grid(True)
     plt.gcf().subplots_adjust(bottom=0.15, left=0.25)
+
+    # Be sure to only pick integer tick locations.
+    for axis in [axis.xaxis, axis.yaxis]:
+        axis.set_major_locator(ticker.MaxNLocator(integer=True))
 
     plt.ioff()
     plt.rcParams['figure.facecolor'] = 'white'
