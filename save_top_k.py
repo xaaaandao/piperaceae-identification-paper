@@ -54,17 +54,17 @@ def save_plot_top_k(fold, max_top_k, min_top_k, path_fold, rule, top_k, y_true):
         result_top_k = [x for x in top_k if x['k'] <= k]
         filename = os.path.join(path_fold, f'top_k_{rule}_k={k}.png')
         title = f'Top $k$\nRule: {rule}, $k$: {k}, Fold: {fold},\n'
-        plot_top_k(filename, result_top_k, max_top_k, min_top_k, title, y_true)
+        plot_top_k(filename, 'top_k_accuracy', result_top_k, max_top_k, min_top_k, title, y_true)
 
     filename = os.path.join(path_fold, f'top_k_{rule}.png')
     title = f'All top $k$'
-    plot_top_k(filename, top_k, max_top_k, min_top_k, title, y_true)
+    plot_top_k(filename, 'top_k_accuracy', result_top_k, max_top_k, min_top_k, title, y_true)
 
 
 # def plot_top_k(filename, fold, k, list_top_k, max_top_k, min_top_k, rule, y_test):
-def plot_top_k(filename, list_top_k, max_top_k, min_top_k, title, y_test):
+def plot_top_k(filename, key, list_top_k, max_top_k, min_top_k, title, y_test):
     x = [top_k['k'] for top_k in list_top_k]
-    y = [top_k['top_k'] for top_k in list_top_k]
+    y = [top_k[key] for top_k in list_top_k]
 
     title = title + f'Minimum value top $k$: {min_top_k},\nMaximum value top $k$: {max_top_k},\nCount of tests: {len(y_test)}'
     fontsize_title = 14
@@ -113,7 +113,7 @@ def mean_top_k(list_result_fold, path):
         title = 'Mean of top $k$\n'
         min_top_k = min(list_each_k, key=lambda x: x['top_k'])['top_k']
         max_top_k = max(list_each_k, key=lambda x: x['top_k'])['top_k']
-        plot_top_k(os.path.join(p, f'mean_top_k_{rule}.png'), list_each_k, min_top_k, max_top_k, title, list_each_k)
+        plot_top_k(os.path.join(p, f'mean_top_k_{rule}.png'), 'top_k', list_each_k, min_top_k, max_top_k, title, list_each_k)
         #
         # axis_x = [k['k'] for k in list_each_k]
         # axis_y = [k['mean'] for k in list_each_k]
