@@ -1,3 +1,4 @@
+import collections
 import csv
 import os
 import pandas as pd
@@ -44,3 +45,14 @@ def create_path_base(cfg, classifier_name, current_datetime, data):
                         data['extractor'], classifier_name, 'patch=' + str(data['n_patch']), str(data['n_features']))
     pathlib.Path(path).mkdir(parents=True, exist_ok=True)
     return path
+
+def save_info_samples(fold, path, y_train, y_test):
+    pathlib.Path(os.path.join(path, str(fold))).mkdir(parents=True, exist_ok=True)
+
+    l = []
+    for k, v in collections.Counter(y_train).items():
+        result = {'value': v2 for k2, v2 in collections.Counter(y_train).items() if k2 == k}
+        l.append({'label': k, 'samples_train': v, 'samples_test': result['value']})
+
+    df = pd.DataFrame(l)
+    df.to_csv(os.path.join(path, str(fold), 'samples_fold.csv'), sep=';', na_rep='', index=False,quoting=csv.QUOTE_ALL)

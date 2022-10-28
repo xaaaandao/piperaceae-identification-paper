@@ -7,7 +7,7 @@ from classifier import find_best_classifier_and_params, list_classifiers
 from data import get_info, get_cv, show_info_data, show_info_data_train_test
 from non_handcraft import get_x_y
 from result import calculate_test, insert_result_fold_and_time
-from save import save, create_path_base
+from save import save, create_path_base, save_info_samples
 from save_model import save_best_model
 
 
@@ -43,6 +43,7 @@ def handcraft(cfg, current_datetime, labels, list_data_input, list_extractor):
                 best['classifier'].fit(x_train, y_train)
                 y_pred = best['classifier'].predict_proba(x_test)
 
+                save_info_samples(fold, path, y_train, y_test)
                 save_best_model(best['classifier'], fold, path)
 
                 result_max_rule, result_prod_rule, result_sum_rule = calculate_test(fold, data['n_labels'], y_pred, y_test)

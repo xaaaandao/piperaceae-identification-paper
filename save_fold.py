@@ -116,6 +116,7 @@ def save_confusion_matrix(classifier_name, dataset, labels, path, result):
 
 
 def italic_string_plot(string):
+    string = string.replace("\"", "")
     return f'$\\it{{{string}}}$'
 
 
@@ -126,6 +127,6 @@ def get_list_label(filename):
             file.close()
 
         lines = [l for l in lines if len(l) > 0]
-        return [italic_string_plot(l.split('->')[1].replace('\n', '')) for l in lines if len(l.split('->')) > 0]
+        return [italic_string_plot(l.split(';')[0].replace('\n', '')) for l in lines if len(l.split(';')) > 0]
     except FileNotFoundError:
         print(f'{filename} not exits exists')
