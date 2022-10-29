@@ -1,13 +1,26 @@
+import csv
 import os
 import numpy as np
 import pathlib
 
+import pandas as pd
 from sklearn.metrics import ConfusionMatrixDisplay
 from matplotlib import pyplot as plt
 
 from save_top_k import get_top_k_by_rule
 
 ROUND_VALUE = 2
+
+
+def result_per_label(list_fold, path):
+    p = os.path.join(path, 'result_per_label')
+    pathlib.Path(p).mkdir(exist_ok=True, parents=True)
+    for f in list_fold:
+        df = pd.DataFrame(f['classification_report'])
+        df = df.transpose()
+        filename = f'result_per_label={f["rule"]}'
+        df.to_csv(os.path.join(p, f'{filename}.csv'), sep=';', na_rep='', quoting=csv.QUOTE_ALL)
+        df.to_excel(os.path.join(p, f'{filename}.xlsx'), na_rep='', engine='xlsxwriter')
 
 
 def save_fold(cfg, classifier_name, dataset, labels, list_result_fold, list_time, path):
@@ -31,6 +44,8 @@ def save_fold(cfg, classifier_name, dataset, labels, list_result_fold, list_time
 
         index, values = info_by_fold(list_fold, time_fold)
         list_files.append({'filename': 'info_by_fold', 'index': index, 'path': path_fold, 'values': values})
+
+        result_per_label(list_fold, path_fold)
 
     return list_files
 

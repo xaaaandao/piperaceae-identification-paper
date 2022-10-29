@@ -1,4 +1,5 @@
 import collections
+import math
 
 import numpy as np
 import pathlib
@@ -7,6 +8,8 @@ import re
 from sklearn.decomposition import PCA
 from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler
+
+from result import y_test_with_patch
 
 
 def merge_all_files_of_dir(dir):
@@ -23,11 +26,11 @@ def merge_all_files_of_dir(dir):
     return list_data, n_patch
 
 
-def get_samples_with_patch(x, y, list_index, n_patch):
-    new_x = np.zeros(shape=(0, x.shape[1]))
-    new_y = np.zeros(shape=(0,))
+def get_samples_with_patch(x, y, index_train_test, n_patch):
+    new_x = np.empty(shape=(0, x.shape[1]))
+    new_y = np.empty(shape=(0,))
 
-    for index in list_index:
+    for index in index_train_test:
         start = (index * n_patch)
         end = start + n_patch
         new_x = np.concatenate([new_x, x[start:end]])
@@ -37,9 +40,10 @@ def get_samples_with_patch(x, y, list_index, n_patch):
 
 
 def get_cv(cfg, data):
-    k = StratifiedKFold(n_splits=cfg['fold'], shuffle=True,
-                                                random_state=cfg['seed'])
-    return k.split(data['x'], data['y'])
+    k = StratifiedKFold(n_splits=cfg['fold'], shuffle=True, random_state=cfg['seed'])
+    x_split = np.random.rand(int(data['n_samples']/data['n_patch']), data['n_features'])
+    y_split = y_test_with_patch(data['n_patch'], data['y'])
+    return k.split(x_split, y_split)
 
 
 def add_data(color_mode, dataset, dir, extractor, image_size, n_features, n_labels, n_patch, n_samples, segmented,

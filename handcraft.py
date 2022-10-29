@@ -11,7 +11,7 @@ from save import save, create_path_base, save_info_samples
 from save_model import save_best_model
 
 
-def handcraft(cfg, current_datetime, labels, list_data_input, list_extractor):
+def handcraft(cfg, current_datetime, labels, list_data_input, list_extractor, metric):
     n_patch = None
     list_data = []
     list_only_file = [file for file in list_data_input if os.path.isfile(file)]
@@ -25,7 +25,7 @@ def handcraft(cfg, current_datetime, labels, list_data_input, list_extractor):
         show_info_data(data)
 
         for classifier in list_classifiers:
-            best, classifier_name, time_find_best_params = find_best_classifier_and_params(cfg, classifier, data)
+            best, classifier_name, time_find_best_params = find_best_classifier_and_params(cfg, classifier, data, metric)
             list_result_fold = []
             list_time = []
 
@@ -43,7 +43,7 @@ def handcraft(cfg, current_datetime, labels, list_data_input, list_extractor):
                 best['classifier'].fit(x_train, y_train)
                 y_pred = best['classifier'].predict_proba(x_test)
 
-                save_info_samples(fold, path, y_train, y_test)
+                save_info_samples(fold, labels, index_train, index_test, data['n_patch'], path, data['y'], y_train, y_test)
                 save_best_model(best['classifier'], fold, path)
 
                 result_max_rule, result_prod_rule, result_sum_rule = calculate_test(fold, data['n_labels'], y_pred, y_test)
@@ -51,7 +51,7 @@ def handcraft(cfg, current_datetime, labels, list_data_input, list_extractor):
                 end_time_train_valid = time.time()
                 insert_result_fold_and_time(end_time_train_valid, fold, list_result_fold, list_time, result_max_rule,
                                             result_prod_rule, result_sum_rule, start_time_train_valid, time_find_best_params)
-            save(best['params'], cfg, classifier_name, data, labels, list_result_fold, list_time, path)
+            save(best['params'], cfg, classifier_name, data, labels, list_result_fold, list_time, metric, path)
 
 
 

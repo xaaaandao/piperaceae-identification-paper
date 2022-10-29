@@ -51,12 +51,12 @@ list_classifiers = [
 ]
 
 
-def find_best_classifier_and_params(cfg, classifier, data):
+def find_best_classifier_and_params(cfg, classifier, data, metric):
     n_cpu = multiprocessing.cpu_count()
     classifier_name = classifier.__class__.__name__
 
     print(f'find best params of {classifier_name}')
-    classifier_best_params = GridSearchCV(classifier, list_params[classifier_name], scoring=cfg['score'], cv=cfg['fold'], pre_dispatch=n_cpu/2, verbose=cfg['verbose'])
+    classifier_best_params = GridSearchCV(classifier, list_params[classifier_name], scoring=metric, cv=cfg['fold'], pre_dispatch=n_cpu/2, verbose=cfg['verbose'])
     start_search_best_params = time.time()
     classifier_best_params.fit(data['x'], data['y'])
     end_search_best_params = time.time()

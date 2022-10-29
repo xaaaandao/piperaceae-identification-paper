@@ -1,6 +1,6 @@
 import collections
 import numpy as np
-from sklearn.metrics import accuracy_score, confusion_matrix, f1_score, top_k_accuracy_score
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score, top_k_accuracy_score
 
 
 def get_index_max_value(y):
@@ -76,6 +76,8 @@ def create_result(fold, n_labels, rule, y_pred_prob, y_pred, y_test):
                                                                        normalize=False,
                                                                        k=k, labels=np.arange(1, n_labels + 1))}
                                                                         for k in range(3, n_labels)]
+
+    cr = classification_report(y_pred=y_pred, y_true=y_test, labels=np.arange(1, n_labels + 1), zero_division=0, output_dict=True)
     return {
         'fold': fold,
         'rule': rule,
@@ -87,7 +89,8 @@ def create_result(fold, n_labels, rule, y_pred_prob, y_pred, y_test):
         'top_k': list_top_k_accuracy,
         'max_top_k': max(list_top_k_accuracy, key=lambda x: x['top_k_accuracy'])['top_k_accuracy'] if len(list_top_k_accuracy) > 0 else 0,
         'min_top_k': min(list_top_k_accuracy, key=lambda x: x['top_k_accuracy'])['top_k_accuracy'] if len(list_top_k_accuracy) > 0 else 0,
-        'confusion_matrix': cm
+        'confusion_matrix': cm,
+        'classification_report': cr,
     }
 
 

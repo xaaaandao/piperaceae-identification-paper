@@ -10,15 +10,16 @@ from save_fold import get_list_label
 
 @click.command()
 @click.option('-i', '--list_user_input', multiple=True)
-@click.option('-l', '--filename_labels')
-def main(list_user_input, filename_labels):
+@click.option('-l', '--labels', required=True)
+@click.option('-m', '--metric', type=click.Choice(['f1_weighted', 'accuracy']),
+    required=True)
+def main(list_user_input, labels, metric):
     cfg = {
         'fold': 5,
         'n_jobs': -1,
         'seed': 1234,
         'dir_input': '../dataset/features',
         'dir_output': './out',
-        'score': 'f1_weighted',
         'verbose': 42
     }
 
@@ -38,12 +39,13 @@ def main(list_user_input, filename_labels):
         raise ValueError(f'list data input is empty')
 
     list_data_input = list_data_input + [i for i in list(list_user_input) if i not in list_data_input]
-    print(f'quantidade de entradas: {len(list_data_input)}, filname labels: {filename_labels}')
+    print(f'quantidade de entradas: {len(list_data_input)}, filname labels: {labels}')
     # filename_labels = 'txt/acima-20.txt'
-    labels = get_list_label(filename_labels)
+    list_labels = get_list_label(labels)
 
-    handcraft(cfg, current_datetime, labels, list_data_input, list_extractor)
-    non_handcraft(cfg, current_datetime, labels, list_data_input, list_extractor)
+    # handcraft(cfg, current_datetime, list_labels, list_data_input, list_extractor)
+    handcraft(cfg, current_datetime, list_labels, list_data_input, list_extractor, metric)
+    non_handcraft(cfg, current_datetime, list_labels, list_data_input, list_extractor, metric)
 
 
 if __name__ == '__main__':
