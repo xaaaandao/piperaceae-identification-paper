@@ -23,11 +23,7 @@ C
 
 .gitignore,a/5/a5cc2925ca8258af241be7e5b0381edf30266302
 @
-requirements.txt,1/9/19359a61ae2446b51b549167b014da2fcf265768
-@
 txt/acima-20.txt,b/d/bdd3cb5b07d3bf5e49e5fcc2f7aadfc3805a1435
-=
-save_top_k.py,f/5/f5fe18d5be64863b39513ad401a655141c4f212e
 ?
 scheme/Makefile,3/e/3eac087817f191a82448bf401a6f53d437d070e7
 =
@@ -46,7 +42,3 @@ H
 non_handcraft.py,b/7/b715b46a45b8fd6806a34a2d50411db0d6666d05
 <
 handcraft.py,3/0/306cac00c27f870d7189390542e0e1ee2cf275c7
-7
-save.py,a/4/a4ab0ebcf0579eb7878e06e3c2c6a430fc5d8542
-<
-save_fold.py,9/f/9fd4ba0fbdc33348cf8c81470c03d74b1e6251c5
