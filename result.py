@@ -1,6 +1,7 @@
 import collections
 import numpy as np
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score, top_k_accuracy_score
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score, top_k_accuracy_score, \
+    multilabel_confusion_matrix
 
 
 def get_index_max_value(y):
@@ -59,10 +60,11 @@ def calculate_test(fold, n_labels, y_pred, y_test, n_patch=1):
     sum = create_result(fold, n_labels, 'sum', y_pred_prob_sum, y_pred_sum, y_test)
     return max, prod, sum
 
-
 def create_result(fold, n_labels, rule, y_pred_prob, y_pred, y_test):
     accuracy = accuracy_score(y_pred=y_pred, y_true=y_test)
     cm = confusion_matrix(y_pred=y_pred, y_true=y_test)
+    # cm_percentage = None
+    cm_normalized = confusion_matrix(y_pred=y_pred, y_true=y_test, normalize='true')
 
     f1 = 0
     if min(list(collections.Counter(y_test).values())) != max(list(collections.Counter(y_test).values())):
@@ -90,6 +92,8 @@ def create_result(fold, n_labels, rule, y_pred_prob, y_pred, y_test):
         'max_top_k': max(list_top_k_accuracy, key=lambda x: x['top_k_accuracy'])['top_k_accuracy'] if len(list_top_k_accuracy) > 0 else 0,
         'min_top_k': min(list_top_k_accuracy, key=lambda x: x['top_k_accuracy'])['top_k_accuracy'] if len(list_top_k_accuracy) > 0 else 0,
         'confusion_matrix': cm,
+        'confusion_matrix_normalized': cm_normalized,
+        # 'confusion_matrix_percentage': cm_percentage,
         'classification_report': cr,
     }
 
