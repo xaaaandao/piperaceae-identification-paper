@@ -87,24 +87,31 @@ def confusion_matrix_by_fold(classifier_name, dataset, list_labels, list_fold, p
     for rule in ['max', 'prod', 'sum']:
         result = [x for x in list_fold if x['rule'] == rule]
         if len(result) > 0:
+            print('plot confusion matrix')
+            path_confusion_matrix = os.path.join(path_fold, 'confusion_matrix', rule)
+            pathlib.Path(path_confusion_matrix).mkdir(exist_ok=True, parents=True)
+
             confusion_matrix = result[0]['confusion_matrix']
-            filename = f'ConfusionMatrix_{rule}.png'
-            save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, list_labels, path_fold, (10, 10), result[0]['rule'])
+            filename = os.path.join(path_confusion_matrix, f'ConfusionMatrix_{rule}.png')
+            save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, 18, list_labels, (10, 10), result[0]['rule'])
 
             confusion_matrix = result[0]['confusion_matrix_normalized']
-            filename = f'ConfusionMatrix_{rule}_normalized.png'
-            save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, list_labels, path_fold, (15, 15), result[0]['rule'])
+            filename = os.path.join(path_confusion_matrix, f'ConfusionMatrix_{rule}_normalized.png')
+            save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, 28, list_labels, (25, 25), result[0]['rule'])
+
+            for i, r in enumerate(result[0]['confusion_matrix_multilabel']):
+                p = os.path.join(path_confusion_matrix, 'multilabel')
+                pathlib.Path(p).mkdir(exist_ok=True, parents=True)
+                l = list_labels[i].replace('$\it{', '').replace('}$', '')
+                filename = os.path.join(p, f'ConfusionMatrix_{rule}_{l}.png')
+                save_confusion_matrix(classifier_name, r, dataset, filename, 18, ['', ''], (5, 5), result[0]['rule'])
 
 
-def save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, labels, path, plot_size, rule):
-    path_confusion_matrix = os.path.join(path, 'confusion_matrix', rule)
-    pathlib.Path(path_confusion_matrix).mkdir(exist_ok=True, parents=True)
-    filename = os.path.join(path_confusion_matrix, filename)
+def save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, fontsize_title, labels, plot_size, rule):
     confusion_matrix = ConfusionMatrixDisplay(confusion_matrix, display_labels=labels)
 
     title = f'Confusion Matrix\nDataset: {dataset}, Classifier: {classifier_name}\nRule: {rule}'
     color_map = 'Reds'
-    fontsize_title = 18
     pad_title = 20
     fontsize_labels = 14
 
@@ -127,7 +134,7 @@ def save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, 
     plt.rcParams['figure.facecolor'] = 'white'
 
     plt.tight_layout()
-    plt.savefig(filename, bbox_inches='tight', dpi=300)
+    plt.savefig(filename, bbox_inches='tight')
     plt.cla()
     plt.clf()
     plt.close()

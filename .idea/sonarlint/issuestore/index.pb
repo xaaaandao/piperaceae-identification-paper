@@ -26,17 +26,9 @@ C
 txt/acima-20.txt,b/d/bdd3cb5b07d3bf5e49e5fcc2f7aadfc3805a1435
 ?
 scheme/Makefile,3/e/3eac087817f191a82448bf401a6f53d437d070e7
-=
-save_model.py,2/f/2f6b76eb354202792149b3c90f3c406239ebf257
 <
 save_mean.py,a/1/a1884564cb64e1960bfbe1993e2671c20948cbf0
-7
-data.py,7/2/724b1af384039fb78ce97d10160f394e8b8785a7
 H
 extractor/get_features.m,8/c/8cf5fb3ecbbac0d0624546051018cdde55b31567
-7
-save.py,a/4/a4ab0ebcf0579eb7878e06e3c2c6a430fc5d8542
-@
-requirements.txt,1/9/19359a61ae2446b51b549167b014da2fcf265768
 =
 save_top_k.py,f/5/f5fe18d5be64863b39513ad401a655141c4f212e
