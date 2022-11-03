@@ -32,3 +32,27 @@ H
 extractor/get_features.m,8/c/8cf5fb3ecbbac0d0624546051018cdde55b31567
 =
 save_top_k.py,f/5/f5fe18d5be64863b39513ad401a655141c4f212e
+A
+read_result.ipynb,d/e/de2c5fe303145e1e732f3c8c004c5bd6937702f1
+=
+classifier.py,c/d/cd7ff97061ecc87fddd1aaae9ccd97779a5ebd11
+@
+requirements.txt,1/9/19359a61ae2446b51b549167b014da2fcf265768
+7
+save.py,a/4/a4ab0ebcf0579eb7878e06e3c2c6a430fc5d8542
+7
+main.py,f/1/f1bdda93d9a278e358509d498e17d97764c1fb29
+<
+save_fold.py,9/f/9fd4ba0fbdc33348cf8c81470c03d74b1e6251c5
+<
+handcraft.py,3/0/306cac00c27f870d7189390542e0e1ee2cf275c7
+=
+save_model.py,2/f/2f6b76eb354202792149b3c90f3c406239ebf257
+9
+	result.py,b/c/bc83f7151d84b53f50c6bb3593df4d19cd07b65d
+7
+data.py,7/2/724b1af384039fb78ce97d10160f394e8b8785a7
+@
+non_handcraft.py,b/7/b715b46a45b8fd6806a34a2d50411db0d6666d05
+9
+	script.sh,0/3/0329d79171f0f92caecdb36bd26a669696d1042b
