@@ -99,12 +99,6 @@ def confusion_matrix_by_fold(classifier_name, dataset, list_labels, list_fold, p
             filename = os.path.join(path_confusion_matrix, f'ConfusionMatrix_{rule}_normalized.png')
             save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, 44, list_labels, (30, 30), result[0]['rule'])
 
-            # for i, r in enumerate(result[0]['confusion_matrix_multilabel']):
-            #     p = os.path.join(path_confusion_matrix, 'multilabel')
-            #     pathlib.Path(p).mkdir(exist_ok=True, parents=True)
-            #     l = list_labels[i].replace('$\it{', '').replace('}$', '')
-            #     filename = os.path.join(p, f'ConfusionMatrix_{rule}_{l}.png')
-            #     save_confusion_matrix(classifier_name, r, dataset, filename, 18, ['', ''], (5, 5), result[0]['rule'])
 
 
 def save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, fontsize_title, labels, plot_size, rule):
@@ -134,8 +128,8 @@ def save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, 
     plt.rcParams['figure.facecolor'] = 'white'
 
     plt.tight_layout()
-    plt.savefig(filename, bbox_inches='tight')
     plt.cla()
+    figure.savefig(filename, bbox_inches='tight')
     plt.clf()
     plt.close()
 
