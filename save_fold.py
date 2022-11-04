@@ -1,10 +1,17 @@
 import csv
+import io
 import os
+import multiprocessing
+
+import matplotlib
 import numpy as np
 import pathlib
 import pandas as pd
+import PIL
 
+from PIL import Image
 from sklearn.metrics import ConfusionMatrixDisplay
+from sklearn.utils import parallel_backend
 from matplotlib import pyplot as plt
 
 from save_top_k import get_top_k_by_rule
@@ -87,18 +94,19 @@ def confusion_matrix_by_fold(classifier_name, dataset, list_labels, list_fold, p
     for rule in ['max', 'prod', 'sum']:
         result = [x for x in list_fold if x['rule'] == rule]
         if len(result) > 0:
-            print(f'plot confusion matrix {result[0]["fold"]} {result[0]["rule"]}')
+            # print(f'plot confusion matrix {result[0]["fold"]} {result[0]["rule"]}')
             path_confusion_matrix = os.path.join(path_fold, 'confusion_matrix', rule)
             pathlib.Path(path_confusion_matrix).mkdir(exist_ok=True, parents=True)
 
             confusion_matrix = result[0]['confusion_matrix']
             filename = os.path.join(path_confusion_matrix, f'ConfusionMatrix_{rule}.png')
-            save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, 18, list_labels, (10, 10), result[0]['rule'])
+            print(f'save {filename}')
+            save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, 18, list_labels, (15, 15), result[0]['rule'])
 
             confusion_matrix = result[0]['confusion_matrix_normalized']
             filename = os.path.join(path_confusion_matrix, f'ConfusionMatrix_{rule}_normalized.png')
-            save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, 44, list_labels, (30, 30), result[0]['rule'])
-
+            print(f'save {filename}')
+            save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, 44, list_labels, (35, 35), result[0]['rule'])
 
 
 def save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, fontsize_title, labels, plot_size, rule):
@@ -128,8 +136,8 @@ def save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, 
     plt.rcParams['figure.facecolor'] = 'white'
 
     plt.tight_layout()
+    plt.savefig(filename, bbox_inches='tight', format='png')
     plt.cla()
-    figure.savefig(filename, bbox_inches='tight')
     plt.clf()
     plt.close()
 

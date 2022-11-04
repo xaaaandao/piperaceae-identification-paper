@@ -1,13 +1,14 @@
 import multiprocessing
 import time
 
+import joblib
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
-
+from sklearn.utils import parallel_backend
 
 cfg_classifier = {
     'n_jobs': -1,
@@ -56,11 +57,14 @@ def find_best_classifier_and_params(cfg, classifier, data, metric):
     classifier_name = classifier.__class__.__name__
 
     print(f'find best params of {classifier_name}')
-    classifier_best_params = GridSearchCV(classifier, list_params[classifier_name], scoring=metric, cv=cfg['fold'], pre_dispatch=n_cpu/2, verbose=cfg['verbose'])
-    start_search_best_params = time.time()
-    classifier_best_params.fit(data['x'], data['y'])
-    end_search_best_params = time.time()
-    time_search_best_params = end_search_best_params - start_search_best_params
+
+    classifier_best_params = GridSearchCV(classifier, list_params[classifier_name], scoring=metric, cv=cfg['fold'], pre_dispatch=int(n_cpu/2), n_jobs=int(n_cpu/2), verbose=cfg['verbose'])
+
+    with parallel_backend('threading', n_jobs=int(n_cpu/2)):
+        start_search_best_params = time.time()
+        classifier_best_params.fit(data['x'], data['y'])
+        end_search_best_params = time.time()
+        time_search_best_params = end_search_best_params - start_search_best_params
 
     best_classifier = classifier_best_params.best_estimator_
     best_params = classifier_best_params.best_params_

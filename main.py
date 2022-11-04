@@ -10,9 +10,8 @@ from save_fold import get_list_label
 
 @click.command()
 @click.option('-i', '--list_user_input', multiple=True)
-@click.option('-l', '--labels', required=True)
-@click.option('-m', '--metric', type=click.Choice(['f1_weighted', 'accuracy']),
-    required=True)
+@click.option('-l', '--labels')
+@click.option('-m', '--metric', type=click.Choice(['f1_weighted', 'accuracy']), default='f1_weighted')
 def main(list_user_input, labels, metric):
     cfg = {
         'fold': 5,

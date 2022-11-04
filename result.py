@@ -63,7 +63,9 @@ def calculate_test(fold, n_labels, y_pred, y_test, n_patch=1):
 
 def create_result(fold, n_labels, rule, y_pred_prob, y_pred, y_true):
     accuracy = accuracy_score(y_pred=y_pred, y_true=y_true)
-    cm, cm_normalized, cm_multilabel = get_confusion_matrix(y_pred, y_true)
+    cm = confusion_matrix(y_pred=y_pred, y_true=y_true)
+    cm_normalized = confusion_matrix(y_pred=y_pred, y_true=y_true, normalize='true')
+    cm_multilabel = multilabel_confusion_matrix(y_pred=y_pred, y_true=y_true)
 
     f1 = 0
     if min(list(collections.Counter(y_true).values())) != max(list(collections.Counter(y_true).values())):
@@ -95,14 +97,6 @@ def create_result(fold, n_labels, rule, y_pred_prob, y_pred, y_true):
         'confusion_matrix_multilabel': cm_multilabel,
         'classification_report': cr,
     }
-
-
-def get_confusion_matrix(y_pred, y_true):
-    cm = confusion_matrix(y_pred=y_pred, y_true=y_true)
-    cm_normalized = confusion_matrix(y_pred=y_pred, y_true=y_true, normalize='true')
-    cm_multilabel = multilabel_confusion_matrix(y_pred=y_pred, y_true=y_true)
-    return cm, cm_normalized, cm_multilabel
-
 
 def get_max_top_k(list_top_k_accuracy):
     if len(list_top_k_accuracy) > 0:
