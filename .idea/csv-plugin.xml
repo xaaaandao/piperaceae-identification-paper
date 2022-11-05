@@ -3,13 +3,6 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
-        <entry key="/out/04-11-2022-19-35-24/george/unet/rgb/256/vgg16/DecisionTreeClassifier/patch=3/512/0/result_per_label/result_per_label=max.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
         <entry key="/out/planilha/grayscale.csv">
           <value>
             <Attribute>
