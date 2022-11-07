@@ -24,6 +24,20 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/test2/mean_RGB.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/test2/mean_time_RGB.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>
