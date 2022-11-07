@@ -117,10 +117,7 @@ def save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, 
     pad_title = 20
     fontsize_labels = 14
 
-    if len(labels) > 5:
-        rotation = 90
-    else:
-        rotation = 45
+    rotation = get_rotation(labels)
 
     figure, axis = plt.subplots(figsize=plot_size)
     confusion_matrix.plot(ax=axis, cmap=color_map)
@@ -140,6 +137,10 @@ def save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, 
     plt.cla()
     plt.clf()
     plt.close()
+
+
+def get_rotation(labels):
+    return 90 if len(labels) > 5 else 45
 
 
 def italic_string_plot(string):

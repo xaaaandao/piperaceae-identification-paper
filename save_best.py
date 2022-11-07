@@ -5,7 +5,6 @@ def save_best(best_params, list_mean_accuracy, list_mean_f1, list_result_fold, p
 
     best_mean_accuracy = max(list_mean_accuracy, key=lambda x: x['mean'])
     best_mean_f1 = max(list_mean_f1, key=lambda x: x['mean'])
-    # best_mean_top_k = max(list_mean_top_k, key=lambda x: x['mean'])
     best_fold_accuracy = max(list_result_fold, key=lambda x: x['accuracy'])
     best_fold_f1 = max(list_result_fold, key=lambda x: x['f1_score'])
     best_fold_top_k = max(list_result_fold, key=lambda x: x['max_top_k'])

@@ -1,8 +1,8 @@
 import joblib
 import os
 import pathlib
-import pickle
 import tarfile
+
 
 def save_best_model(classifier, fold, path):
     pathlib.Path(os.path.join(path, str(fold))).mkdir(parents=True, exist_ok=True)

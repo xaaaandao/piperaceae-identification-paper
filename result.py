@@ -55,10 +55,7 @@ def calculate_test(fold, n_labels, y_pred, y_test, n_patch=1):
     y_pred_prob_max, y_pred_max = max_rule(n_labels, n_patch, y_pred)
     y_pred_prob_prod, y_pred_prod = prod_all_prob(n_labels, n_patch, y_pred)
     y_pred_prob_sum, y_pred_sum = sum_all_prob(n_labels, n_patch, y_pred)
-    max = create_result(fold, n_labels, 'max', y_pred_prob_max, y_pred_max, y_test)
-    prod = create_result(fold, n_labels, 'prod', y_pred_prob_prod, y_pred_prod, y_test)
-    sum = create_result(fold, n_labels, 'sum', y_pred_prob_sum, y_pred_sum, y_test)
-    return max, prod, sum
+    return create_result(fold, n_labels, 'max', y_pred_prob_max, y_pred_max, y_test), create_result(fold, n_labels, 'prod', y_pred_prob_prod, y_pred_prod, y_test), create_result(fold, n_labels, 'sum', y_pred_prob_sum, y_pred_sum, y_test)
 
 
 def create_result(fold, n_labels, rule, y_pred_prob, y_pred, y_true):
@@ -68,17 +65,12 @@ def create_result(fold, n_labels, rule, y_pred_prob, y_pred, y_true):
     cm_multilabel = multilabel_confusion_matrix(y_pred=y_pred, y_true=y_true)
 
     f1 = 0
-    if min(list(collections.Counter(y_true).values())) != max(list(collections.Counter(y_true).values())):
+    if min(get_n_samples_per_label(y_true)) != max(get_n_samples_per_label(y_true)):
         f1 = f1_score(y_pred=y_pred, y_true=y_true, average='weighted')
 
     list_top_k_accuracy = []
     if n_labels > 2:
-        list_top_k_accuracy = [{'k': k,
-                                'top_k_accuracy': top_k_accuracy_score(y_true=y_true,
-                                                                       y_score=y_pred_prob,
-                                                                       normalize=False,
-                                                                       k=k, labels=np.arange(1, n_labels + 1))}
-                                                                        for k in range(3, n_labels)]
+        list_top_k_accuracy = get_list_top_k_accuracy(n_labels, y_pred_prob, y_true)
 
     cr = classification_report(y_pred=y_pred, y_true=y_true, labels=np.arange(1, n_labels + 1), zero_division=0, output_dict=True)
     return {
@@ -97,6 +89,18 @@ def create_result(fold, n_labels, rule, y_pred_prob, y_pred, y_true):
         'confusion_matrix_multilabel': cm_multilabel,
         'classification_report': cr,
     }
+
+
+def get_list_top_k_accuracy(n_labels, y_pred_prob, y_true):
+    return [{'k': k,
+             'top_k_accuracy': top_k_accuracy_score(y_true=y_true, y_score=y_pred_prob, normalize=False,
+                                                    k=k, labels=np.arange(1, n_labels + 1))}
+            for k in range(3, n_labels)]
+
+
+def get_n_samples_per_label(y):
+    return list(collections.Counter(y).values())
+
 
 def get_max_top_k(list_top_k_accuracy):
     if len(list_top_k_accuracy) > 0:
