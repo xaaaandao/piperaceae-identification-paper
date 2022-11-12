@@ -7,30 +7,29 @@ from handcraft import handcraft
 from non_handcraft import non_handcraft
 from save_fold import get_list_label
 
+cfg = {
+    'fold': 5,
+    'n_jobs': -1,
+    'seed': 1234,
+    'dir_input': '../dataset/features',
+    'dir_output': './out',
+    'verbose': 42
+}
+
+list_extractor = {
+    'lbp': [59],
+    'surf64': [128, 256, 257],
+    'surf128': [128, 256, 513],
+    'mobilenetv2': [128, 256, 512, 1024, 1280],
+    'resnet50v2': [128, 256, 512, 1024, 2048],
+    'vgg16': [128, 256, 512]
+}
 
 @click.command()
 @click.option('-i', '--list_user_input', multiple=True)
 @click.option('-l', '--labels')
 @click.option('-m', '--metric', type=click.Choice(['f1_weighted', 'accuracy']), default='f1_weighted')
 def main(list_user_input, labels, metric):
-    cfg = {
-        'fold': 5,
-        'n_jobs': -1,
-        'seed': 1234,
-        'dir_input': '../dataset/features',
-        'dir_output': './out',
-        'verbose': 42
-    }
-
-    list_extractor = {
-        'lbp': [59],
-        'surf64': [128, 256, 257],
-        'surf128': [128, 256, 513],
-        'mobilenetv2': [128, 256, 512, 1024, 1280],
-        'resnet50v2': [128, 256, 512, 1024, 2048],
-        'vgg16': [128, 256, 512]
-    }
-
     current_datetime = datetime.datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
     list_data_input = []
     # list_data_input = ['../dataset_gimp/imagens_george/features/RGB/segmented_unet/256/patch=3/specific_epithet/5/vgg16/horizontal']

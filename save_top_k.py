@@ -103,41 +103,26 @@ def mean_top_k(list_result_fold, path):
     pathlib.Path(p).mkdir(exist_ok=True, parents=True)
     for rule in ['max', 'prod', 'sum']:
         list_top_k = [x['top_k'] for x in list_result_fold if x['rule'] == rule]
-        list_top_k = list(itertools.chain.from_iterable(list_top_k))
+        # print(list_top_k[0])
+        if len(list_top_k) > 0:
+            list_top_k = list(itertools.chain.from_iterable(list_top_k))
 
-        min_k = min(list_top_k, key=lambda x: x['k'])['k']
-        max_k = max(list_top_k, key=lambda x: x['k'])['k']
-        # max =
+            min_k = min(list_top_k, key=lambda x: x['k'])['k']
+            max_k = max(list_top_k, key=lambda x: x['k'])['k']
+            # max =
 
-        list_each_k = []
-        for i in range(min_k, max_k + 1):
-            values_k = [k['top_k_accuracy'] for k in list_top_k if k['k'] == i]
-            list_each_k.append({'k': i, 'values': values_k, 'top_k': np.mean(values_k)})
+            list_each_k = []
+            for i in range(min_k, max_k + 1):
+                values_k = [k['top_k_accuracy'] for k in list_top_k if k['k'] == i]
+                list_each_k.append({'k': i, 'values': values_k, 'top_k': np.mean(values_k)})
 
-        df = pd.DataFrame(list_each_k)
+            df = pd.DataFrame(list_each_k)
 
-        filename = f'mean_top_k_{rule}'
-        df.to_csv(os.path.join(p, f'{filename}.csv'), sep=';', na_rep='', quoting=csv.QUOTE_ALL, index=False)
-        df.to_excel(os.path.join(p, f'{filename}.xlsx'), na_rep='', engine='xlsxwriter', index=False)
+            filename = f'mean_top_k_{rule}'
+            df.to_csv(os.path.join(p, f'{filename}.csv'), sep=';', na_rep='', quoting=csv.QUOTE_ALL, index=False)
+            df.to_excel(os.path.join(p, f'{filename}.xlsx'), na_rep='', engine='xlsxwriter', index=False)
 
-        title = 'Mean of top $k$\n'
-        min_top_k = min(list_each_k, key=lambda x: x['top_k'])['top_k']
-        max_top_k = max(list_each_k, key=lambda x: x['top_k'])['top_k']
-        plot_top_k(os.path.join(p, f'mean_top_k_{rule}.png'), 'top_k', list_each_k, min_top_k, max_top_k, title, list_each_k)
-        #
-        # axis_x = [k['k'] for k in list_each_k]
-        # axis_y = [k['mean'] for k in list_each_k]
-        # fontsize_title = 14
-        # pad_title = 20
-        # fontsize_label = 14
-        #
-        # plt.plot(axis_x, axis_y, marker='o', color='green')
-        # plt.title(
-        #     'test',
-        #     fontsize=fontsize_title, pad=pad_title)
-        # plt.xlabel('k', fontsize=fontsize_label)
-        # plt.ylabel('Número de acertos', fontsize=fontsize_label)
-        # plt.grid(True)
-        # plt.gcf().subplots_adjust(bottom=0.15, left=0.25)
-        # cfg_plot(os.path.join(p, f'{filename}.png'), plt)
-        # axis_y =
+            title = 'Mean of top $k$\n'
+            min_top_k = min(list_each_k, key=lambda x: x['top_k'])['top_k']
+            max_top_k = max(list_each_k, key=lambda x: x['top_k'])['top_k']
+            plot_top_k(os.path.join(p, f'mean_top_k_{rule}.png'), 'top_k', list_each_k, min_top_k, max_top_k, title, list_each_k)

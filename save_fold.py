@@ -1,3 +1,4 @@
+import collections
 import csv
 import io
 import os
@@ -7,6 +8,7 @@ import matplotlib
 import numpy as np
 import pathlib
 import pandas as pd
+import seaborn as sns
 import PIL
 
 from PIL import Image
@@ -30,7 +32,7 @@ def result_per_label(list_fold, path):
         df.to_excel(os.path.join(p, f'{filename}.xlsx'), na_rep='', engine='xlsxwriter')
 
 
-def save_fold(cfg, classifier_name, dataset, labels, list_result_fold, list_time, path):
+def save_fold(cfg, classifier_name, data, labels, list_result_fold, list_time, path):
     list_files = []
     for fold in range(0, cfg['fold']):
         list_fold = [x for x in list_result_fold if x['fold'] == fold]
@@ -39,7 +41,7 @@ def save_fold(cfg, classifier_name, dataset, labels, list_result_fold, list_time
         path_fold = os.path.join(path, str(fold))
         pathlib.Path(path_fold).mkdir(parents=True, exist_ok=True)
 
-        confusion_matrix_by_fold(classifier_name, dataset, labels, list_fold, path_fold)
+        confusion_matrix_by_fold(classifier_name, data, labels, list_fold, path_fold)
 
         index, values = get_values_by_fold_and_metric(list_fold, 'accuracy')
         list_files.append({'filename': 'accuracy', 'index': index, 'path': path_fold, 'values': values})
@@ -90,7 +92,7 @@ def get_values_by_fold_and_metric(list_fold, metric):
     return index, values
 
 
-def confusion_matrix_by_fold(classifier_name, dataset, list_labels, list_fold, path_fold):
+def confusion_matrix_by_fold(classifier_name, data, list_labels, list_fold, path_fold):
     for rule in ['max', 'prod', 'sum']:
         result = [x for x in list_fold if x['rule'] == rule]
         if len(result) > 0:
@@ -101,42 +103,45 @@ def confusion_matrix_by_fold(classifier_name, dataset, list_labels, list_fold, p
             confusion_matrix = result[0]['confusion_matrix']
             filename = os.path.join(path_confusion_matrix, f'ConfusionMatrix_{rule}.png')
             print(f'save {filename}')
-            save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, 18, list_labels, (15, 15), result[0]['rule'])
+            list_samples_per_label = dict(collections.Counter(result[0]['y_true']))
+            yticklabels = [label['taxon_italic'] + ' (' + str(int(list_samples_per_label[label['id']] / data['n_patch'])) + ')'
+                           for label in list_labels]
+            xticklabels = [label['taxon_italic'] for label in list_labels]
+            save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=(15, 15), fmt='.2g',
+                                  xticklabels=xticklabels, yticklabels=yticklabels, rotation_xtickslabels=90,
+                                  rotation_ytickslabels=0)
 
             confusion_matrix = result[0]['confusion_matrix_normalized']
             filename = os.path.join(path_confusion_matrix, f'ConfusionMatrix_{rule}_normalized.png')
             print(f'save {filename}')
-            save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, 44, list_labels, (35, 35), result[0]['rule'])
+            # save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, 44, (35, 35), result[0]['rule'], labels=list_labels)
+            save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=(35, 35), fmt='.2f',
+                                  xticklabels=xticklabels, yticklabels=yticklabels, rotation_xtickslabels=90,
+                                  rotation_ytickslabels=0)
 
 
-def save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, fontsize_title, labels, plot_size, rule):
-    confusion_matrix = ConfusionMatrixDisplay(confusion_matrix, display_labels=labels)
+def save_confusion_matrix(confusion_matrix, filename, title, figsize=(5, 5), fmt='.2g', xticklabels=None, yticklabels=None, rotation_xtickslabels=0, rotation_ytickslabels=90):
+    vmin = np.min(confusion_matrix)
+    vmax = np.max(confusion_matrix)
+    off_diag_mask = np.eye(*confusion_matrix.shape, dtype=bool)
 
-    title = f'Confusion Matrix\nDataset: {dataset}, Classifier: {classifier_name}\nRule: {rule}'
-    color_map = 'Reds'
-    pad_title = 20
-    fontsize_labels = 14
+    figure, axis = plt.subplots(figsize=figsize)
+    axis = sns.heatmap(confusion_matrix, annot=True, mask=~off_diag_mask, cmap='Reds', fmt=fmt, vmin=vmin, vmax=vmax, ax=axis, annot_kws={'fontweight':'bold', 'size': 12})
+    axis = sns.heatmap(confusion_matrix, annot=True, mask=off_diag_mask, cmap='Reds', fmt=fmt, vmin=vmin, vmax=vmax, cbar=False, ax=axis)
 
-    rotation = get_rotation(labels)
+    fontsize_ticklabels = 8
+    axis.set_xticklabels(xticklabels, fontsize=fontsize_ticklabels, rotation=rotation_xtickslabels)
+    axis.set_yticklabels(yticklabels, fontsize=fontsize_ticklabels, rotation=rotation_ytickslabels)
+    axis.set_xlabel('True label', fontsize=14)
+    axis.set_ylabel('Prediction label', fontsize=14)
+    axis.set_facecolor('white')
+    axis.set_title(title, fontsize=24, pad=32)
 
-    figure, axis = plt.subplots(figsize=plot_size)
-    confusion_matrix.plot(ax=axis, cmap=color_map)
-    axis.set_title(title, fontsize=fontsize_title, pad=pad_title)
-    axis.set_xlabel('y_true', fontsize=fontsize_labels)
-    axis.set_ylabel('y_pred', fontsize=fontsize_labels)
-
-    plt.xticks(np.arange(len(labels)), rotation=rotation, fontsize=fontsize_labels)
-    plt.yticks(np.arange(len(labels)), fontsize=fontsize_labels)
-
-    plt.gcf().subplots_adjust(bottom=0.15, left=0.25)
     plt.ioff()
-    plt.rcParams['figure.facecolor'] = 'white'
-
     plt.tight_layout()
-    plt.savefig(filename, bbox_inches='tight', format='png')
+    plt.savefig(filename, format='png')
     plt.cla()
     plt.clf()
-    plt.close()
 
 
 def get_rotation(labels):
@@ -144,8 +149,19 @@ def get_rotation(labels):
 
 
 def italic_string_plot(string):
-    string = string.replace("\"", "")
+    string = string.replace('\"', '')
     return f'$\\it{{{string}}}$'
+
+
+def get_string_confusion_matrix(string):
+    string = string.replace('\n', '')
+    string = string.replace('\"', '')
+    taxon_italic = italic_string_plot(string.split(';')[0])
+    taxon = string.split(';')[0]
+    id = string.split(';')[1]
+    id = int(id.replace('f', ''))
+    count = string.split(';')[2]
+    return {'taxon_italic': taxon_italic, 'taxon': taxon, 'id': id, 'count': count}
 
 
 def get_list_label(filename):
@@ -155,6 +171,6 @@ def get_list_label(filename):
             file.close()
 
         lines = [l for l in lines if len(l) > 0]
-        return [italic_string_plot(l.split(';')[0].replace('\n', '')) for l in lines if len(l.split(';')) > 0]
+        return [get_string_confusion_matrix(l) for l in lines if len(l.split(';')) > 0]
     except FileNotFoundError:
         print(f'{filename} not exits exists')

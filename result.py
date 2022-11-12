@@ -49,17 +49,19 @@ def sum_all_prob(n_labels, n_patch, y_pred):
     return new_y_pred_prob_sum, new_y_pred
 
 
-def calculate_test(fold, n_labels, y_pred, y_test, n_patch=1):
+def calculate_test(fold, labels, y_pred, y_test, n_patch=1):
     if n_patch > 1:
         y_test = y_test_with_patch(n_patch, y_test)
-    y_pred_prob_max, y_pred_max = max_rule(n_labels, n_patch, y_pred)
-    y_pred_prob_prod, y_pred_prod = prod_all_prob(n_labels, n_patch, y_pred)
-    y_pred_prob_sum, y_pred_sum = sum_all_prob(n_labels, n_patch, y_pred)
-    return create_result(fold, n_labels, 'max', y_pred_prob_max, y_pred_max, y_test), create_result(fold, n_labels, 'prod', y_pred_prob_prod, y_pred_prod, y_test), create_result(fold, n_labels, 'sum', y_pred_prob_sum, y_pred_sum, y_test)
+        print(len(y_test))
+    y_pred_prob_max, y_pred_max = max_rule(len(labels), n_patch, y_pred)
+    y_pred_prob_prod, y_pred_prod = prod_all_prob(len(labels), n_patch, y_pred)
+    y_pred_prob_sum, y_pred_sum = sum_all_prob(len(labels), n_patch, y_pred)
+    return create_result(fold, labels, 'max', y_pred_prob_max, y_pred_max, y_test), create_result(fold, labels, 'prod', y_pred_prob_prod, y_pred_prod, y_test), create_result(fold, labels, 'sum', y_pred_prob_sum, y_pred_sum, y_test)
 
 
-def create_result(fold, n_labels, rule, y_pred_prob, y_pred, y_true):
+def create_result(fold, labels, rule, y_pred_prob, y_pred, y_true):
     accuracy = accuracy_score(y_pred=y_pred, y_true=y_true)
+
     cm = confusion_matrix(y_pred=y_pred, y_true=y_true)
     cm_normalized = confusion_matrix(y_pred=y_pred, y_true=y_true, normalize='true')
     cm_multilabel = multilabel_confusion_matrix(y_pred=y_pred, y_true=y_true)
@@ -69,10 +71,10 @@ def create_result(fold, n_labels, rule, y_pred_prob, y_pred, y_true):
         f1 = f1_score(y_pred=y_pred, y_true=y_true, average='weighted')
 
     list_top_k_accuracy = []
-    if n_labels > 2:
-        list_top_k_accuracy = get_list_top_k_accuracy(n_labels, y_pred_prob, y_true)
+    if len(labels) > 2:
+        list_top_k_accuracy = get_list_top_k_accuracy(len(labels), y_pred_prob, y_true)
 
-    cr = classification_report(y_pred=y_pred, y_true=y_true, labels=np.arange(1, n_labels + 1), zero_division=0, output_dict=True)
+    cr = classification_report(y_pred=y_pred, y_true=y_true, labels=np.arange(1, len(labels) + 1), zero_division=0, output_dict=True)
     return {
         'fold': fold,
         'rule': rule,

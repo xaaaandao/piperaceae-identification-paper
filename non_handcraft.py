@@ -46,12 +46,10 @@ def non_handcraft(cfg, current_datetime, labels, list_data_input, list_extractor
                 save_info_samples(fold, labels, index_train, index_test, data['n_patch'], path, data['y'], y_train, y_test)
                 save_best_model(best['classifier'], fold, path)
 
-                result_max_rule, result_prod_rule, result_sum_rule = calculate_test(fold, data['n_labels'], y_pred,
-                                                                                    y_test, n_patch=int(data['n_patch']))
+                result_max_rule, result_prod_rule, result_sum_rule = calculate_test(fold, labels, y_pred, y_test, n_patch=int(data['n_patch']))
 
                 end_time_train_valid = time.time()
-                insert_result_fold_and_time(end_time_train_valid, fold, list_result_fold, list_time, result_max_rule, result_prod_rule,
-                                            result_sum_rule, start_time_train_valid, time_find_best_params)
+                insert_result_fold_and_time(end_time_train_valid, fold, list_result_fold, list_time, result_max_rule, result_prod_rule, result_sum_rule, start_time_train_valid, time_find_best_params)
 
             save(best['params'], cfg, classifier_name, data, labels, list_result_fold, list_time, metric, path)
 

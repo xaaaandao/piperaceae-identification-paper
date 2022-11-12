@@ -3,35 +3,63 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
-        <entry key="/out/planilha/grayscale.csv">
+        <entry key="/a.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/06-11-2022-08-34-02/george/unet/rgb/400/resnet50v2/DecisionTreeClassifier/patch=3/128/0/sum/new/cf_normalized_sum.csv">
           <value>
             <Attribute>
               <option name="separator" value=";" />
             </Attribute>
           </value>
         </entry>
-        <entry key="/out/planilha/rgb.csv">
+        <entry key="/out/06-11-2022-08-34-02/george/unet/rgb/400/resnet50v2/KNeighborsClassifier/patch=3/1024/0/sum/new/cf_normalized_sum.csv">
           <value>
             <Attribute>
               <option name="separator" value=";" />
             </Attribute>
           </value>
         </entry>
-        <entry key="/out/planilha/rgb_t.csv">
+        <entry key="/out/06-11-2022-08-34-02/george/unet/rgb/400/resnet50v2/KNeighborsClassifier/patch=3/1024/0/sum/new/confusion_matrix_sum.csv">
           <value>
             <Attribute>
               <option name="separator" value=";" />
             </Attribute>
           </value>
         </entry>
-        <entry key="/test2/mean_RGB.csv">
+        <entry key="/out/06-11-2022-08-34-02/george/unet/rgb/400/resnet50v2/KNeighborsClassifier/patch=3/128/0/sum/new/cf_normalized_sum.csv">
           <value>
             <Attribute>
               <option name="separator" value=";" />
             </Attribute>
           </value>
         </entry>
-        <entry key="/test2/mean_time_RGB.csv">
+        <entry key="/out/06-11-2022-08-34-02/george/unet/rgb/400/resnet50v2/KNeighborsClassifier/patch=3/128/0/sum/new/multilabel/confusion_matrix_aduncum_sum.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/results/sheets_10/mean_RGB.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/results/sheets_10/mean_time_RGB.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/results/sheets_5/mean_RGB.csv">
           <value>
             <Attribute>
               <option name="separator" value=";" />

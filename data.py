@@ -92,10 +92,10 @@ def show_info_data(data):
 
 def show_info_data_train_test(classifier_name, fold, x_test, x_train, y_test, y_train):
     print(fold, classifier_name, x_train.shape, x_test.shape)
-    # print('train')
-    # print(sorted(list(collections.Counter(y_train).items())))
-    # print('test')
-    # print(sorted(list(collections.Counter(y_test).items())))
+    print('train')
+    print(sorted(list(collections.Counter(y_train).items())))
+    print('test')
+    print(sorted(list(collections.Counter(y_test).items())))
 
 
 def data_with_pca(cfg, color_mode, d, dataset, extractor, image_size, list_data, list_extractor, n_features, n_labels, n_patch, n_samples, segmented, slice_patch, x_normalized, y):

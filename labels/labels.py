@@ -47,7 +47,7 @@ def main(file, input, taxon):
 
             result = [l for l in list_data if filename in l]
             info = result[0].split(',')
-            string_filelabel = f'\"{info[index_header]}\";\"{d.stem}\"'
+            string_filelabel = f'\"{info[index_header]}\";\"{d.stem}\";\"{len(files_dir)}\"\n'
             print(string_filelabel)
             file_label.write(string_filelabel)
         file_label.close()

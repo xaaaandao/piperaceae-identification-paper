@@ -32,7 +32,7 @@ def save_info_dataset(data, metric, path):
 
 
 def save(best_params, cfg, classifier_name, data, labels, list_result_fold, list_time, metric, path):
-    list_files_fold = save_fold(cfg, classifier_name, data['dataset'], labels, list_result_fold, list_time, path)
+    list_files_fold = save_fold(cfg, classifier_name, data, labels, list_result_fold, list_time, path)
     list_mean_accuracy, list_mean_f1, list_files_mean = save_mean(list_result_fold, list_time, path)
     list_files_best = save_best(best_params, list_mean_accuracy, list_mean_f1, list_result_fold, path)
     list_file_info = save_info_dataset(data, metric, path)
@@ -60,7 +60,7 @@ def save_info_samples(fold, labels, index_train, index_test, n_patch, path, y, y
         samples_train = int(v/n_patch)
         samples_test = int(result_y_test['value']/n_patch)
         samples_total = int(result_y['value']/n_patch)
-        clabels = labels[int(k)-1].replace('$\it{', '').replace('}$', '')
+        clabels = labels[int(k)-1]['taxon']
         l.append({'label': f'{k} ({clabels})', 'samples_train': f'{v} ({samples_train}) ({percentage_train})', 'samples_test': f'{result_y_test["value"]} ({samples_test})({percentage_test})', 'total': f'{result_y["value"]} ({samples_total})'})
 
     df = pd.DataFrame(l)
