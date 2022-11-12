@@ -96,28 +96,40 @@ def confusion_matrix_by_fold(classifier_name, data, list_labels, list_fold, path
     for rule in ['max', 'prod', 'sum']:
         result = [x for x in list_fold if x['rule'] == rule]
         if len(result) > 0:
-            # print(f'plot confusion matrix {result[0]["fold"]} {result[0]["rule"]}')
             path_confusion_matrix = os.path.join(path_fold, 'confusion_matrix', rule)
             pathlib.Path(path_confusion_matrix).mkdir(exist_ok=True, parents=True)
 
-            confusion_matrix = result[0]['confusion_matrix']
-            filename = os.path.join(path_confusion_matrix, f'ConfusionMatrix_{rule}.png')
-            print(f'save {filename}')
             list_samples_per_label = dict(collections.Counter(result[0]['y_true']))
-            yticklabels = [label['taxon_italic'] + ' (' + str(int(list_samples_per_label[label['id']] / data['n_patch'])) + ')'
-                           for label in list_labels]
-            xticklabels = [label['taxon_italic'] for label in list_labels]
-            save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=(15, 15), fmt='.2g',
-                                  xticklabels=xticklabels, yticklabels=yticklabels, rotation_xtickslabels=90,
-                                  rotation_ytickslabels=0)
+            yticklabels = get_labels_and_count_samples(list_labels, list_samples_per_label, data['n_patch'])
+            xticklabels = get_only_labels(list_labels)
 
-            confusion_matrix = result[0]['confusion_matrix_normalized']
-            filename = os.path.join(path_confusion_matrix, f'ConfusionMatrix_{rule}_normalized.png')
-            print(f'save {filename}')
-            # save_confusion_matrix(classifier_name, confusion_matrix, dataset, filename, 44, (35, 35), result[0]['rule'], labels=list_labels)
-            save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=(35, 35), fmt='.2f',
-                                  xticklabels=xticklabels, yticklabels=yticklabels, rotation_xtickslabels=90,
-                                  rotation_ytickslabels=0)
+            save_confusion_matrix_normal(result[0]['confusion_matrix'], path_confusion_matrix, rule, xticklabels, yticklabels)
+            save_confusion_matrix_normalized(result[0]['confusion_matrix_normalized'], path_confusion_matrix, rule, xticklabels, yticklabels)
+
+
+def save_confusion_matrix_normal(confusion_matrix, path_confusion_matrix, rule, xticklabels, yticklabels):
+    filename = os.path.join(path_confusion_matrix, f'ConfusionMatrix_{rule}.png')
+    print(f'save {filename}')
+    save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=(15, 15), fmt='.2g',
+                          xticklabels=xticklabels, yticklabels=yticklabels, rotation_xtickslabels=90,
+                          rotation_ytickslabels=0)
+
+
+def get_only_labels(list_labels):
+    return [label['taxon_italic'] for label in list_labels]
+
+
+def get_labels_and_count_samples(list_labels, list_samples_per_label, n_patch):
+    return [label['taxon_italic'] + ' (' + str(int(list_samples_per_label[label['id']] / n_patch)) + ')'
+            for label in list_labels]
+
+
+def save_confusion_matrix_normalized(confusion_matrix, path, rule, xticklabels, yticklabels):
+    filename = os.path.join(path, f'ConfusionMatrix_{rule}_normalized.png')
+    print(f'save {filename}')
+    save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=(35, 35), fmt='.2f',
+                          xticklabels=xticklabels, yticklabels=yticklabels, rotation_xtickslabels=90,
+                          rotation_ytickslabels=0)
 
 
 def save_confusion_matrix(confusion_matrix, filename, title, figsize=(5, 5), fmt='.2g', xticklabels=None, yticklabels=None, rotation_xtickslabels=0, rotation_ytickslabels=90):
@@ -142,10 +154,6 @@ def save_confusion_matrix(confusion_matrix, filename, title, figsize=(5, 5), fmt
     plt.savefig(filename, format='png')
     plt.cla()
     plt.clf()
-
-
-def get_rotation(labels):
-    return 90 if len(labels) > 5 else 45
 
 
 def italic_string_plot(string):

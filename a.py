@@ -14,7 +14,8 @@ from data import get_info, merge_all_files_of_dir, get_x_y, get_cv, get_samples_
 from main import cfg, list_extractor
 from result import calculate_test, insert_result_fold_and_time
 from save import save_info_samples, save
-from save_fold import get_list_label, save_confusion_matrix
+from save_fold import get_list_label, save_confusion_matrix, save_confusion_matrix_normalized, \
+    save_confusion_matrix_normal, get_labels_and_count_samples, get_only_labels
 from save_model import save_best_model
 
 
@@ -63,6 +64,19 @@ def save_others(list_labels, n_patch, path, result, y_test):
     rule = result['rule']
 
     list_labels = sorted(list_labels, key=lambda d: d['id'])
+    save_confusion_matrix_multilabel(list_confusion_matrix, list_labels, p, rule)
+
+    list_samples_per_label = dict(collections.Counter(y_test))
+    yticklabels = get_labels_and_count_samples(list_labels, list_samples_per_label, n_patch)
+    xticklabels = get_only_labels(list_labels)
+
+    save_confusion_matrix_normal(result['confusion_matrix'], p, rule, xticklabels, yticklabels)
+    save_confusion_matrix_normalized(result['confusion_matrix_normalized'], p, rule, xticklabels,
+                                     yticklabels)
+    save_confusion_matrix_sheet(result['confusion_matrix_normalized'], os.path(p, 'confusionmatrix_normalized_'), xticklabels, yticklabels)
+
+
+def save_confusion_matrix_multilabel(list_confusion_matrix, list_labels, p, rule):
     for i, confusion_matrix in enumerate(list_confusion_matrix):
         taxon = list_labels[i]['taxon']
         taxon_italic = list_labels[i]['taxon_italic']
@@ -74,33 +88,16 @@ def save_others(list_labels, n_patch, path, result, y_test):
         filename = os.path.join(path_to_multilabel, filename)
         ticklabels = ['False', 'Positive']
         print(f'save {filename}')
-        save_confusion_matrix(confusion_matrix, filename, f'Confusion Matrix\n{taxon_italic}', fmt='d', xticklabels=ticklabels, yticklabels=ticklabels, rotation_xtickslabels=0, rotation_ytickslabels=0)
+        save_confusion_matrix(confusion_matrix, filename, f'Confusion Matrix\n{taxon_italic}', fmt='d',
+                              xticklabels=ticklabels, yticklabels=ticklabels, rotation_xtickslabels=0,
+                              rotation_ytickslabels=0)
         save_confusion_matrix_sheet(confusion_matrix, filename.replace('.png', ''), ticklabels, ticklabels)
+    # return filename
 
-    list_samples_per_label = dict(collections.Counter(y_test))
-    yticklabels = [label['taxon_italic'] + ' (' + str(int(list_samples_per_label[label['id']] / n_patch)) + ')' for label in list_labels]
-    xticklabels = [label['taxon_italic'] for label in list_labels]
-
-    confusion_matrix = result['confusion_matrix']
-    filename = 'confusion_matrix_' + rule + '.png'
-    filename = os.path.join(p, filename)
-    print(f'save {filename}')
-    save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=(12, 12), fmt='.2g',
-                          xticklabels=xticklabels, yticklabels=yticklabels, rotation_xtickslabels=90,
-                          rotation_ytickslabels=0)
-    # save_confusion_matrix_sheet(confusion_matrix, filename.replace('.png', ''), xticklabels, yticklabels)
-
-    confusion_matrix = result['confusion_matrix_normalized']
-    filename = os.path.join(p, f'cf_normalized_{rule}.png')
-    print(f'save {filename}')
-    save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=(12, 12), fmt='.2f',
-                          xticklabels=xticklabels, yticklabels=yticklabels, rotation_xtickslabels=90,
-                          rotation_ytickslabels=0)
-    save_confusion_matrix_sheet(confusion_matrix, filename.replace('.png', ''), xticklabels, yticklabels)
 
 
 def main():
-    p = '/home/xandao/Documentos/resultados_gimp/identificacao_george/especie/20'
+    p = '/home/xandao/Documentos/resultados_gimp/identificacao_george/especie/20/09-11-2022-15-54-34'
     print(os.path.exists(p))
 
     if not os.path.exists(p):

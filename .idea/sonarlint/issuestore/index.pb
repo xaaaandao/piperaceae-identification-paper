@@ -14,20 +14,10 @@ H
 requirements.txt,1/9/19359a61ae2446b51b549167b014da2fcf265768
 <
 handcraft.py,3/0/306cac00c27f870d7189390542e0e1ee2cf275c7
-9
-	script.sh,0/3/0329d79171f0f92caecdb36bd26a669696d1042b
-M
-results/sheets_5/mean_RGB.csv,4/1/4194eab010f5cfbd3243e81fac2965ac69053d12
-N
-results/sheets_10/mean_RGB.csv,3/8/3884eadfeebc7bc6f0a73318004d04f72f2ec7a1
-S
-#results/sheets_10/mean_time_RGB.csv,a/7/a7cf39018d6fb277eca639e613fcfc84ada746b3
 A
 results/script.sh,f/c/fcd5e2d287106248387bcf86499d3471bc9fb1a7
 F
 results/read_result.py,6/3/6314a65b93f4b94d77275b56cbe67cf69bd9212e
-7
-a.ipynb,2/1/21d4bc795bf661ebd4ec2388020995bb34ff78c8
 =
 save_model.py,2/f/2f6b76eb354202792149b3c90f3c406239ebf257
 <
