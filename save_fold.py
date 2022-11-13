@@ -1,12 +1,8 @@
 import csv
 import os
 
-import numpy as np
 import pathlib
 import pandas as pd
-import seaborn as sns
-
-from matplotlib import pyplot as plt
 
 from confusion_matrix import confusion_matrix_by_fold
 from save_top_k import get_top_k_by_rule
@@ -85,70 +81,3 @@ def get_values_by_fold_and_metric(list_fold, metric):
     return index, values
 
 
-def get_only_labels(list_labels):
-    return [label['taxon_italic'] for label in list_labels]
-
-
-def get_labels_and_count_samples(list_labels, list_samples_per_label, n_patch):
-    return [label['taxon_italic'] + ' (' + str(int(list_samples_per_label[label['id']] / n_patch)) + ')'
-            for label in list_labels]
-
-
-def save_confusion_matrix_normalized(confusion_matrix, path, rule, xticklabels, yticklabels):
-    filename = os.path.join(path, f'ConfusionMatrix_{rule}_normalized.png')
-    print(f'save {filename}')
-    save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=(35, 35), fmt='.2f',
-                          xticklabels=xticklabels, yticklabels=yticklabels, rotation_xtickslabels=90,
-                          rotation_ytickslabels=0)
-
-
-def save_confusion_matrix(confusion_matrix, filename, title, figsize=(5, 5), fmt='.2g', xticklabels=None, yticklabels=None, rotation_xtickslabels=0, rotation_ytickslabels=90):
-    vmin = np.min(confusion_matrix)
-    vmax = np.max(confusion_matrix)
-    off_diag_mask = np.eye(*confusion_matrix.shape, dtype=bool)
-
-    figure, axis = plt.subplots(figsize=figsize)
-    axis = sns.heatmap(confusion_matrix, annot=True, mask=~off_diag_mask, cmap='Reds', fmt=fmt, vmin=vmin, vmax=vmax, ax=axis, annot_kws={'fontweight':'bold', 'size': 12})
-    axis = sns.heatmap(confusion_matrix, annot=True, mask=off_diag_mask, cmap='Reds', fmt=fmt, vmin=vmin, vmax=vmax, cbar=False, ax=axis)
-
-    fontsize_ticklabels = 8
-    axis.set_xticklabels(xticklabels, fontsize=fontsize_ticklabels, rotation=rotation_xtickslabels)
-    axis.set_yticklabels(yticklabels, fontsize=fontsize_ticklabels, rotation=rotation_ytickslabels)
-    axis.set_xlabel('True label', fontsize=14)
-    axis.set_ylabel('Prediction label', fontsize=14)
-    axis.set_facecolor('white')
-    axis.set_title(title, fontsize=24, pad=32)
-
-    plt.ioff()
-    plt.tight_layout()
-    plt.savefig(filename, format='png')
-    plt.cla()
-    plt.clf()
-
-
-def italic_string_plot(string):
-    string = string.replace('\"', '')
-    return f'$\\it{{{string}}}$'
-
-
-def get_string_confusion_matrix(string):
-    string = string.replace('\n', '')
-    string = string.replace('\"', '')
-    taxon_italic = italic_string_plot(string.split(';')[0])
-    taxon = string.split(';')[0]
-    id = string.split(';')[1]
-    id = int(id.replace('f', ''))
-    count = string.split(';')[2]
-    return {'taxon_italic': taxon_italic, 'taxon': taxon, 'id': id, 'count': count}
-
-
-def get_list_label(filename):
-    try:
-        with open(filename) as file:
-            lines = file.readlines()
-            file.close()
-
-        lines = [l for l in lines if len(l) > 0]
-        return [get_string_confusion_matrix(l) for l in lines if len(l.split(';')) > 0]
-    except FileNotFoundError:
-        print(f'{filename} not exits exists')

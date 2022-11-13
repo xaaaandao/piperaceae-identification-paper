@@ -1,11 +1,8 @@
-import os
-
 import click
 import datetime
 
-from handcraft import handcraft
 from non_handcraft import non_handcraft
-from save_fold import get_list_label
+from confusion_matrix import get_list_label
 
 cfg = {
     'fold': 5,

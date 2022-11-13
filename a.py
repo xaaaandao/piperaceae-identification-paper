@@ -9,13 +9,12 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from confusion_matrix import save_confusion_matrix_sheet, save_confusion_matrix_normal
+from confusion_matrix import save_confusion_matrix_sheet, save_confusion_matrix_normal, get_only_labels, \
+    get_labels_and_count_samples, save_confusion_matrix_normalized, save_confusion_matrix, get_list_label
 from data import get_info, merge_all_files_of_dir, get_x_y, get_cv, get_samples_with_patch, show_info_data_train_test, \
     show_info_data
 from main import cfg, list_extractor
 from result import calculate_test, insert_result_fold_and_time
-from save_fold import get_list_label, save_confusion_matrix, save_confusion_matrix_normalized, \
-    get_labels_and_count_samples, get_only_labels
 
 
 def get_model(path):
