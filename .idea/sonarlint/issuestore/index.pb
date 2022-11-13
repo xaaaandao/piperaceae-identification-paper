@@ -16,8 +16,6 @@ H
 handcraft.py,3/0/306cac00c27f870d7189390542e0e1ee2cf275c7
 A
 results/script.sh,f/c/fcd5e2d287106248387bcf86499d3471bc9fb1a7
-F
-results/read_result.py,6/3/6314a65b93f4b94d77275b56cbe67cf69bd9212e
 =
 save_model.py,2/f/2f6b76eb354202792149b3c90f3c406239ebf257
 <

@@ -6,20 +6,24 @@ import pathlib
 import numpy as np
 import pandas as pd
 
+import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib import ticker
 
 
 def create_dataframe_info_top_k(index, path_csv, path_xlsx, rule, values):
     df = pd.DataFrame(values, index)
-    filename = f'info_top_k_{rule}'
+    filename = 'info_top_k_' + rule
+    print(f'[TOP-K] save {filename}.csv')
+    print(f'[TOP-K] save {filename}.xlsx')
     df.to_csv(os.path.join(path_csv, f'{filename}.csv'), sep=';', na_rep='', quoting=csv.QUOTE_ALL, header=False)
     df.to_excel(os.path.join(path_xlsx, f'{filename}.xlsx'), na_rep='', engine='xlsxwriter', header=False)
-    # save_file_csv_excel(df, , os.path.join(path_xlsx, f'{filename}.xlsx'), index=False)
 
 
 def create_dataframe_top_k(df, path_csv, path_xlsx, rule):
     filename = f'top_k_{rule}'
+    print(f'[TOP-K] save {filename}.csv')
+    print(f'[TOP-K] save {filename}.xlsx')
     df.to_csv(os.path.join(path_csv, f'{filename}.csv'), sep=';', na_rep='', quoting=csv.QUOTE_ALL, index=False)
     df.to_excel(os.path.join(path_xlsx, f'{filename}.xlsx'), na_rep='', engine='xlsxwriter', index=False)
 
@@ -27,7 +31,7 @@ def create_dataframe_top_k(df, path_csv, path_xlsx, rule):
 def get_top_k_by_rule(list_fold, path_fold):
     for rule in ['max', 'prod', 'sum']:
         result = [x for x in list_fold if x['rule'] == rule]
-        if len(result) > 0:
+        if len(result[0]['top_k']) > 0:
             fold, max_top_k, min_top_k, top_k, y_test = get_info_top_k(result[0])
             index = ['rule', 'min_top_k', 'max_top_k', 'total']
             values = [rule, min_top_k, max_top_k, len(y_test)]
@@ -74,6 +78,8 @@ def plot_top_k(filename, key, list_top_k, max_top_k, min_top_k, title, y_test):
     fontsize_label = 14
 
     plot_size = (10, 10)
+    matplotlib.use('Agg')
+
     figure, axis = plt.subplots(figsize=plot_size)
     plt.plot(x, y, marker='o', color='green')
 
@@ -93,9 +99,10 @@ def plot_top_k(filename, key, list_top_k, max_top_k, min_top_k, title, y_test):
 
     plt.tight_layout()
     plt.savefig(filename, bbox_inches='tight', dpi=300)
+    print(f'[TOP-K] save {filename}')
     plt.cla()
     plt.clf()
-    plt.close()
+    plt.close(figure)
 
 
 def mean_top_k(list_result_fold, path):

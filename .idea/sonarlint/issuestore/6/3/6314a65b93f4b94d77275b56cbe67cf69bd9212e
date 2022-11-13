@@ -1,9 +1,0 @@
-
-apython:S1192T"IDefine a constant instead of duplicating this literal 'mean.csv' 6 times.(¶éüÒ
-Ipython:S1172@",Remove the unused function parameter "date".(ÿõÚÒşÿÿÿÿ
-;python:S125F"Remove this commented out code.(èè€µøÿÿÿÿ
-Lpython:S1172M"/Remove the unused function parameter "n_patch".(À–ÿÿÿÿÿ
-{python:S117Ğ"WRename this local variable "X_axis" to match the regular expression ^[_a-z][a-z0-9_]*$.(œÌëûÿÿÿÿ8®‚ï’Å0
-Mpython:S1481À"/Remove the unused local variable "slice_patch".(ëÀÌıÿÿÿÿ
-7python:S125»"Remove this commented out code.(¼ª†­
-qpython:S117ç"RRename this parameter "X_axis" to match the regular expression ^[_a-z][a-z0-9_]*$.(Ùåí‡8İ¶“›Å0

@@ -48,7 +48,7 @@ def save_confusion_matrix_multilabel(list_confusion_matrix, list_labels, p, rule
 
         filename = os.path.join(path_to_multilabel, filename)
         ticklabels = ['False', 'Positive']
-        print(f'save {filename}')
+        print(f'[CONFUSION MATRIX] save {filename}')
         save_confusion_matrix(confusion_matrix, filename, f'Confusion Matrix\n{taxon_italic}', fmt='d',
                               xticklabels=ticklabels, yticklabels=ticklabels, rotation_xtickslabels=0,
                               rotation_ytickslabels=0)

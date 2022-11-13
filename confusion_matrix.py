@@ -6,13 +6,13 @@ import pathlib
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from matplotlib import pyplot as plt
+import matplotlib
+import matplotlib.pyplot as plt
 
 
 def save_confusion_matrix_sheet(confusion_matrix, filename, xticklabels, yticklabels):
     index = [label.replace('$\it{', '').replace('}$', '') for label in yticklabels]
     columns = [label.replace('$\it{', '').replace('}$', '') for label in xticklabels]
-    # confusion_matrix = confusion_matrix.astype('object')
     columns.append('Threshold')
     l = []
     for i, cm in enumerate(confusion_matrix):
@@ -30,7 +30,7 @@ def save_confusion_matrix_sheet(confusion_matrix, filename, xticklabels, ytickla
     df.to_excel(filename + '.xlsx', na_rep='', engine='xlsxwriter')
 
 
-def confusion_matrix_by_fold(classifier_name, data, list_labels, list_fold, path_fold):
+def confusion_matrix_by_fold(data, list_labels, list_fold, path_fold):
     for rule in ['max', 'prod', 'sum']:
         result = [x for x in list_fold if x['rule'] == rule]
         if len(result) > 0:
@@ -43,13 +43,13 @@ def confusion_matrix_by_fold(classifier_name, data, list_labels, list_fold, path
 
             save_confusion_matrix_normal(result[0]['confusion_matrix'], path_confusion_matrix, rule, xticklabels, yticklabels)
             save_confusion_matrix_normalized(result[0]['confusion_matrix_normalized'], path_confusion_matrix, rule, xticklabels, yticklabels)
-            save_confusion_matrix_sheet(result[0]['confusion_matrix'], os.path.join(path_confusion_matrix, 'confusionmatrix_normalized_'), xticklabels, yticklabels)
+            save_confusion_matrix_sheet(result[0]['confusion_matrix'], os.path.join(path_confusion_matrix, f'confusionmatrix_normalized_{rule}'), xticklabels, yticklabels)
 
 
 def save_confusion_matrix_normal(confusion_matrix, path_confusion_matrix, rule, xticklabels, yticklabels):
     filename = os.path.join(path_confusion_matrix, f'ConfusionMatrix_{rule}.png')
     print(f'save {filename}')
-    save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=(15, 15), fmt='.2g',
+    save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=(5, 5), fmt='.2g',
                           xticklabels=xticklabels, yticklabels=yticklabels, rotation_xtickslabels=90,
                           rotation_ytickslabels=0)
 
@@ -66,7 +66,7 @@ def get_labels_and_count_samples(list_labels, list_samples_per_label, n_patch):
 def save_confusion_matrix_normalized(confusion_matrix, path, rule, xticklabels, yticklabels):
     filename = os.path.join(path, f'ConfusionMatrix_{rule}_normalized.png')
     print(f'save {filename}')
-    save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=(35, 35), fmt='.2f',
+    save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=(5, 5), fmt='.2f',
                           xticklabels=xticklabels, yticklabels=yticklabels, rotation_xtickslabels=90,
                           rotation_ytickslabels=0)
 
@@ -93,6 +93,7 @@ def save_confusion_matrix(confusion_matrix, filename, title, figsize=(5, 5), fmt
     plt.savefig(filename, format='png')
     plt.cla()
     plt.clf()
+    plt.close(figure)
 
 
 def italic_string_plot(string):

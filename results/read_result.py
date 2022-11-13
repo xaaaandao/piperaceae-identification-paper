@@ -207,14 +207,12 @@ def main(color, input, output):
         labels_axis_x = ['DecisionTree', 'k-NN', 'MLP', 'RF', 'SVM']
         X_axis = np.arange(len(labels_axis_x))
 
-        fig1, ax = plt.subplots(figsize=(12, 6))
+        figure, axis = plt.subplots(figsize=(12, 6))
 
-        add_mean_plot(X_axis, ax, bar_width, 'mobilenetv2', mean_mobilenet)
-        add_mean_plot(X_axis+0.25, ax, bar_width, 'resenet50v2', mean_resnet)
-        add_mean_plot(X_axis+0.5, ax, bar_width, 'vgg16', mean_vgg)
-        add_bar_label(ax)
-
-        # print(len(mean_mobilenet), len(mean_vgg), len(mean_resnet))
+        add_mean_plot(X_axis, axis, bar_width, 'mobilenetv2', mean_mobilenet)
+        add_mean_plot(X_axis+0.25, axis, bar_width, 'resenet50v2', mean_resnet)
+        add_mean_plot(X_axis+0.5, axis, bar_width, 'vgg16', mean_vgg)
+        add_bar_label(axis)
 
         r = np.arange(len(labels_axis_x))
         plt.xticks(r + 0.4/2, labels_axis_x)
@@ -223,9 +221,12 @@ def main(color, input, output):
         plt.ylabel('mean', fontweight='bold', fontsize='xx-large')
         pathlib.Path(os.path.join(output, 'plots')).mkdir(exist_ok=True, parents=True)
         filename = os.path.join(output, 'plots', f'f1_{n_features}.png')
-        print(f'save {filename}')
+        print(f'[TOP-k]save {filename}')
         plt.savefig(filename, dpi=300)
         plt.grid()
+        plt.cla()
+        plt.clf()
+        plt.close(figure)
 
 
 def add_mean_plot(X_axis, ax, bar_width, label, mean):

@@ -30,7 +30,7 @@ def save_fold(cfg, classifier_name, data, labels, list_result_fold, list_time, p
         path_fold = os.path.join(path, str(fold))
         pathlib.Path(path_fold).mkdir(parents=True, exist_ok=True)
 
-        confusion_matrix_by_fold(classifier_name, data, labels, list_fold, path_fold)
+        confusion_matrix_by_fold(data, labels, list_fold, path_fold)
 
         index, values = get_values_by_fold_and_metric(list_fold, 'accuracy')
         list_files.append({'filename': 'accuracy', 'index': index, 'path': path_fold, 'values': values})
