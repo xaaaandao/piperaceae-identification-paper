@@ -1,5 +1,4 @@
 import collections
-import csv
 import os
 import pathlib
 import tarfile
@@ -10,14 +9,13 @@ import joblib
 import numpy as np
 import pandas as pd
 
+from confusion_matrix import save_confusion_matrix_sheet, save_confusion_matrix_normal
 from data import get_info, merge_all_files_of_dir, get_x_y, get_cv, get_samples_with_patch, show_info_data_train_test, \
     show_info_data
 from main import cfg, list_extractor
 from result import calculate_test, insert_result_fold_and_time
-from save import save_info_samples, save
 from save_fold import get_list_label, save_confusion_matrix, save_confusion_matrix_normalized, \
-    save_confusion_matrix_normal, get_labels_and_count_samples, get_only_labels
-from save_model import save_best_model
+    get_labels_and_count_samples, get_only_labels
 
 
 def get_model(path):
@@ -56,26 +54,6 @@ def save_confusion_matrix_multilabel(list_confusion_matrix, list_labels, p, rule
                               xticklabels=ticklabels, yticklabels=ticklabels, rotation_xtickslabels=0,
                               rotation_ytickslabels=0)
         save_confusion_matrix_sheet(confusion_matrix, filename.replace('.png', ''), ticklabels, ticklabels)
-
-def save_confusion_matrix_sheet(confusion_matrix, filename, xticklabels, yticklabels):
-    index = [label.replace('$\it{', '').replace('}$', '') for label in yticklabels]
-    columns = [label.replace('$\it{', '').replace('}$', '') for label in xticklabels]
-    # confusion_matrix = confusion_matrix.astype('object')
-    columns.append('Threshold')
-    l = []
-    for i, cm in enumerate(confusion_matrix):
-        x = cm.tolist()
-        if float(cm[i]) > 0.6:
-            x.append('easy')
-        elif float(cm[i]) <= 0.6 and float(cm[i]) >= 0.4:
-            x.append('medium')
-        else:
-            x.append('hard')
-        l.append(x)
-
-    df = pd.DataFrame(l, index=index, columns=columns)
-    df.to_csv(filename + '.csv', sep=';', na_rep='', quoting=csv.QUOTE_ALL)
-    df.to_excel(filename + '.xlsx', na_rep='', engine='xlsxwriter')
 
 
 def save_others(list_labels, n_patch, path, result, y_test):

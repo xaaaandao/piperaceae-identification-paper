@@ -1,21 +1,14 @@
-import collections
 import csv
-import io
 import os
-import multiprocessing
 
-import matplotlib
 import numpy as np
 import pathlib
 import pandas as pd
 import seaborn as sns
-import PIL
 
-from PIL import Image
-from sklearn.metrics import ConfusionMatrixDisplay
-from sklearn.utils import parallel_backend
 from matplotlib import pyplot as plt
 
+from confusion_matrix import confusion_matrix_by_fold
 from save_top_k import get_top_k_by_rule
 
 ROUND_VALUE = 2
@@ -90,29 +83,6 @@ def get_values_by_fold_and_metric(list_fold, metric):
             round_value_metric = round(result[0][metric], ROUND_VALUE)
             values.append([value_metric, round_value_metric])
     return index, values
-
-
-def confusion_matrix_by_fold(classifier_name, data, list_labels, list_fold, path_fold):
-    for rule in ['max', 'prod', 'sum']:
-        result = [x for x in list_fold if x['rule'] == rule]
-        if len(result) > 0:
-            path_confusion_matrix = os.path.join(path_fold, 'confusion_matrix', rule)
-            pathlib.Path(path_confusion_matrix).mkdir(exist_ok=True, parents=True)
-
-            list_samples_per_label = dict(collections.Counter(result[0]['y_true']))
-            yticklabels = get_labels_and_count_samples(list_labels, list_samples_per_label, data['n_patch'])
-            xticklabels = get_only_labels(list_labels)
-
-            save_confusion_matrix_normal(result[0]['confusion_matrix'], path_confusion_matrix, rule, xticklabels, yticklabels)
-            save_confusion_matrix_normalized(result[0]['confusion_matrix_normalized'], path_confusion_matrix, rule, xticklabels, yticklabels)
-
-
-def save_confusion_matrix_normal(confusion_matrix, path_confusion_matrix, rule, xticklabels, yticklabels):
-    filename = os.path.join(path_confusion_matrix, f'ConfusionMatrix_{rule}.png')
-    print(f'save {filename}')
-    save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=(15, 15), fmt='.2g',
-                          xticklabels=xticklabels, yticklabels=yticklabels, rotation_xtickslabels=90,
-                          rotation_ytickslabels=0)
 
 
 def get_only_labels(list_labels):
