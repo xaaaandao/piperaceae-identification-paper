@@ -103,13 +103,11 @@ def mean_top_k(list_result_fold, path):
     pathlib.Path(p).mkdir(exist_ok=True, parents=True)
     for rule in ['max', 'prod', 'sum']:
         list_top_k = [x['top_k'] for x in list_result_fold if x['rule'] == rule]
-        # print(list_top_k[0])
+        list_top_k = list(itertools.chain.from_iterable(list_top_k))
         if len(list_top_k) > 0:
-            list_top_k = list(itertools.chain.from_iterable(list_top_k))
 
             min_k = min(list_top_k, key=lambda x: x['k'])['k']
             max_k = max(list_top_k, key=lambda x: x['k'])['k']
-            # max =
 
             list_each_k = []
             for i in range(min_k, max_k + 1):
