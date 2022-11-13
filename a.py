@@ -5,6 +5,7 @@ import pathlib
 import tarfile
 import time
 
+import click
 import joblib
 import numpy as np
 import pandas as pd
@@ -35,6 +36,26 @@ def get_model(path):
     time_find_best_params = 0
     return filename_pkl, best, classifier_name, time_find_best_params
 
+
+def save_confusion_matrix_multilabel(list_confusion_matrix, list_labels, p, rule):
+    for i, confusion_matrix in enumerate(list_confusion_matrix):
+        taxon = list_labels[i]['taxon']
+        taxon_italic = list_labels[i]['taxon_italic']
+        filename = 'confusion_matrix_' + taxon + '_' + rule + '.png'
+
+        path_to_multilabel = os.path.join(p, 'multilabel')
+        pathlib.Path(path_to_multilabel).mkdir(exist_ok=True, parents=True)
+
+        path_to_csv_xlsx = os.path.join(path_to_multilabel, 'csv_xlsx')
+        pathlib.Path(path_to_csv_xlsx).mkdir(exist_ok=True, parents=True)
+
+        filename = os.path.join(path_to_multilabel, filename)
+        ticklabels = ['False', 'Positive']
+        print(f'save {filename}')
+        save_confusion_matrix(confusion_matrix, filename, f'Confusion Matrix\n{taxon_italic}', fmt='d',
+                              xticklabels=ticklabels, yticklabels=ticklabels, rotation_xtickslabels=0,
+                              rotation_ytickslabels=0)
+        save_confusion_matrix_sheet(confusion_matrix, filename.replace('.png', ''), ticklabels, ticklabels)
 
 def save_confusion_matrix_sheet(confusion_matrix, filename, xticklabels, yticklabels):
     index = [label.replace('$\it{', '').replace('}$', '') for label in yticklabels]
@@ -73,37 +94,20 @@ def save_others(list_labels, n_patch, path, result, y_test):
     save_confusion_matrix_normal(result['confusion_matrix'], p, rule, xticklabels, yticklabels)
     save_confusion_matrix_normalized(result['confusion_matrix_normalized'], p, rule, xticklabels,
                                      yticklabels)
-    save_confusion_matrix_sheet(result['confusion_matrix_normalized'], os.path(p, 'confusionmatrix_normalized_'), xticklabels, yticklabels)
+    save_confusion_matrix_sheet(result['confusion_matrix_normalized'], os.path.join(path, 'confusionmatrix_normalized_'), xticklabels, yticklabels)
 
 
-def save_confusion_matrix_multilabel(list_confusion_matrix, list_labels, p, rule):
-    for i, confusion_matrix in enumerate(list_confusion_matrix):
-        taxon = list_labels[i]['taxon']
-        taxon_italic = list_labels[i]['taxon_italic']
-        filename = 'confusion_matrix_' + taxon + '_' + rule + '.png'
-        path_to_multilabel = os.path.join(p, 'multilabel')
-        pathlib.Path(path_to_multilabel).mkdir(exist_ok=True, parents=True)
-        path_to_csv_xlsx = os.path.join(path_to_multilabel, 'csv_xlsx')
-        pathlib.Path(path_to_csv_xlsx).mkdir(exist_ok=True, parents=True)
-        filename = os.path.join(path_to_multilabel, filename)
-        ticklabels = ['False', 'Positive']
-        print(f'save {filename}')
-        save_confusion_matrix(confusion_matrix, filename, f'Confusion Matrix\n{taxon_italic}', fmt='d',
-                              xticklabels=ticklabels, yticklabels=ticklabels, rotation_xtickslabels=0,
-                              rotation_ytickslabels=0)
-        save_confusion_matrix_sheet(confusion_matrix, filename.replace('.png', ''), ticklabels, ticklabels)
-    # return filename
+@click.command()
+@click.option('-path', '--path', required=True)
+@click.option('-l', '--labels', required=True)
+def main(labels, path):
+    if not os.path.exists(path):
+        raise IsADirectoryError(f'dir is not found {path}')
 
+    if not os.path.isfile(path):
+        raise FileNotFoundError(f'file is not found {path}')
 
-
-def main():
-    p = '/home/xandao/Documentos/resultados_gimp/identificacao_george/especie/20/09-11-2022-15-54-34'
-    print(os.path.exists(p))
-
-    if not os.path.exists(p):
-        raise IsADirectoryError(f'dir is not found {p}')
-
-    list_info_file = [c for c in pathlib.Path(p).rglob('info.csv') if c.is_file()]
+    list_info_file = [c for c in pathlib.Path(path).rglob('info.csv') if c.is_file()]
 
     print(len(list_info_file))
     for l in list_info_file:
@@ -123,8 +127,7 @@ def main():
             get_x_y(cfg, color_mode, np.array(data), dataset, extractor, d, image_size, list_data, list_extractor,
                     n_patch, segmented, slice_patch)
 
-        filename_label = f'/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/imagens/{color_mode.upper()}/specific_epithet/{image_size}/20/label2.txt'
-        labels = get_list_label(filename_label)
+        list_labels = get_list_label(labels)
 
         list_data = [d for d in list_data if d['n_features'] == int(n_features)]
         for data in list_data:
@@ -136,12 +139,12 @@ def main():
             for fold, (index_train, index_test) in enumerate(split):
                 path = str(l).replace('info.csv', '')
                 path_fold = os.path.join(path, str(fold))
-                p = os.path.join(path_fold, 'best_model.tar.gz')
+                path_model = os.path.join(path_fold, 'best_model.tar.gz')
 
-                if not os.path.exists(p):
+                if not os.path.exists(path_model):
                     raise FileNotFoundError(f'best_model.tar.gz not found')
 
-                path_model, best, classifier_name, time_find_best_params = get_model(p)
+                path_model, best, classifier_name, time_find_best_params = get_model(path_model)
                 x_train, y_train = get_samples_with_patch(data['x'], data['y'], index_train, data['n_patch'])
                 x_test, y_test = get_samples_with_patch(data['x'], data['y'], index_test, data['n_patch'])
 
@@ -151,7 +154,7 @@ def main():
                 best['classifier'].fit(x_train, y_train)
                 y_pred = best['classifier'].predict_proba(x_test)
 
-                result_max_rule, result_prod_rule, result_sum_rule = calculate_test(fold, labels, y_pred, y_test,
+                result_max_rule, result_prod_rule, result_sum_rule = calculate_test(fold, list_labels, y_pred, y_test,
                                                                                     n_patch=int(data['n_patch']))
 
                 end_time_train_valid = time.time()
@@ -159,9 +162,8 @@ def main():
                                             result_prod_rule, result_sum_rule, start_time_train_valid,
                                             time_find_best_params)
 
-                save_others(labels, int(data['n_patch']), path_model.replace('best_model.pkl', ''), result_sum_rule,
+                save_others(list_labels, int(data['n_patch']), path_model.replace('best_model.pkl', ''), result_sum_rule,
                             y_test)
-        # break
 
 
 if __name__ == '__main__':
