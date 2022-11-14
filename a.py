@@ -14,45 +14,50 @@ from confusion_matrix import save_confusion_matrix_sheet, save_confusion_matrix_
 from data import get_info, merge_all_files_of_dir, get_x_y, get_cv, get_samples_with_patch, show_info_data_train_test, \
     show_info_data
 from main import cfg, list_extractor
+from non_handcraft import load_all_files_npy, split_train_test
 from result import calculate_test, insert_result_fold_and_time
 
 
 def get_model(path):
-    file = tarfile.open(path)
-    file.extractall()
-    filename_pkl = file.getnames()[0]
-    file.close()
-    clf = joblib.load(filename_pkl)
+    filename = get_path_to_model_extracted(path)
+    clf = joblib.load(filename)
 
     best = {
         'classifier': clf,
         'params': clf.get_params()
     }
-    print(clf.get_params())
     classifier_name = clf.__class__.__name__
     time_find_best_params = 0
-    return filename_pkl, best, classifier_name, time_find_best_params
+    return filename, best, classifier_name, time_find_best_params
 
 
-def save_confusion_matrix_multilabel(list_confusion_matrix, list_labels, p, rule):
+def get_path_to_model_extracted(path):
+    f = tarfile.open(path)
+    f.extractall()
+    filename = f.getnames()[0]
+    f.close()
+    return filename
+
+
+def save_confusion_matrix_multilabel(list_confusion_matrix, list_labels, path, rule):
     for i, confusion_matrix in enumerate(list_confusion_matrix):
         taxon = list_labels[i]['taxon']
         taxon_italic = list_labels[i]['taxon_italic']
         filename = 'confusion_matrix_' + taxon + '_' + rule + '.png'
 
-        path_to_multilabel = os.path.join(p, 'multilabel')
+        path_to_multilabel = os.path.join(path, 'multilabel')
         pathlib.Path(path_to_multilabel).mkdir(exist_ok=True, parents=True)
 
         path_to_csv_xlsx = os.path.join(path_to_multilabel, 'csv_xlsx')
         pathlib.Path(path_to_csv_xlsx).mkdir(exist_ok=True, parents=True)
 
         filename = os.path.join(path_to_multilabel, filename)
-        ticklabels = ['False', 'Positive']
+        list_ticklabels = ['False', 'Positive']
         print(f'[CONFUSION MATRIX] save {filename}')
         save_confusion_matrix(confusion_matrix, filename, f'Confusion Matrix\n{taxon_italic}', fmt='d',
-                              xticklabels=ticklabels, yticklabels=ticklabels, rotation_xtickslabels=0,
+                              xticklabels=list_ticklabels, yticklabels=list_ticklabels, rotation_xtickslabels=0,
                               rotation_ytickslabels=0)
-        save_confusion_matrix_sheet(confusion_matrix, filename.replace('.png', ''), ticklabels, ticklabels)
+        save_confusion_matrix_sheet(confusion_matrix, filename.replace('.png', ''), list_ticklabels, list_ticklabels)
 
 
 def save_others(list_labels, n_patch, path, result, y_test):
@@ -68,21 +73,24 @@ def save_others(list_labels, n_patch, path, result, y_test):
     yticklabels = get_labels_and_count_samples(list_labels, list_samples_per_label, n_patch)
     xticklabels = get_only_labels(list_labels)
 
-    save_confusion_matrix_normal(result['confusion_matrix'], p, rule, xticklabels, yticklabels)
+    confusion_matrix = result['confusion_matrix']
+    save_confusion_matrix_normal(confusion_matrix, p, rule, xticklabels, yticklabels)
     save_confusion_matrix_normalized(result['confusion_matrix_normalized'], p, rule, xticklabels,
                                      yticklabels)
-    save_confusion_matrix_sheet(result['confusion_matrix_normalized'], os.path.join(path, 'confusionmatrix_normalized_'), xticklabels, yticklabels)
+    confusion_matrix_normalized = result['confusion_matrix_normalized']
+    filename = os.path.join(path, 'ConfusionMatrix_Normalized_' + rule)
+    save_confusion_matrix_sheet(confusion_matrix_normalized, filename, xticklabels, yticklabels)
 
 
 @click.command()
-@click.option('-path', '--path', required=True)
-@click.option('-l', '--labels', required=True)
-def main(labels, path):
+@click.option('-path', '--path', required=True, default='/home/xandao/Documentos/resultados_gimp/identificacao_george/especie/5')
+@click.option('-l', '--labels', required=True, default='/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/imagens/RGB/specific_epithet/256/5/label2.txt')
+def main2(labels, path):
     if not os.path.exists(path):
         raise IsADirectoryError(f'dir is not found {path}')
 
-    if not os.path.isfile(path):
-        raise FileNotFoundError(f'file is not found {path}')
+    # if not os.path.isfile(path):
+    #     raise FileNotFoundError(f'file is not found {path}')
 
     list_info_file = [c for c in pathlib.Path(path).rglob('info.csv') if c.is_file()]
 
@@ -98,11 +106,7 @@ def main(labels, path):
 
         list_data = []
         list_only_dir = [d for d in [dir_data] if os.path.isdir(d) and len(os.listdir(d)) > 0]
-        for d in list_only_dir:
-            dataset, color_mode, segmented, image_size, extractor, slice_patch = get_info(d)
-            data, n_patch = merge_all_files_of_dir(d)
-            get_x_y(cfg, color_mode, np.array(data), dataset, extractor, d, image_size, list_data, list_extractor,
-                    n_patch, segmented, slice_patch)
+        load_all_files_npy(cfg, list_data, list_extractor, list_only_dir)
 
         list_labels = get_list_label(labels)
 
@@ -122,8 +126,7 @@ def main(labels, path):
                     raise FileNotFoundError(f'best_model.tar.gz not found')
 
                 path_model, best, classifier_name, time_find_best_params = get_model(path_model)
-                x_train, y_train = get_samples_with_patch(data['x'], data['y'], index_train, data['n_patch'])
-                x_test, y_test = get_samples_with_patch(data['x'], data['y'], index_test, data['n_patch'])
+                x_test, x_train, y_test, y_train = split_train_test(data, index_test, index_train)
 
                 show_info_data_train_test(classifier_name, fold, x_test, x_train, y_test, y_train)
 
@@ -144,4 +147,4 @@ def main(labels, path):
 
 
 if __name__ == '__main__':
-    main()
+    main2()

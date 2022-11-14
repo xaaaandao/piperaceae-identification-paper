@@ -21,7 +21,7 @@ def result_per_label(list_fold, path):
         df.to_excel(os.path.join(p, f'{filename}.xlsx'), na_rep='', engine='xlsxwriter')
 
 
-def save_fold(cfg, classifier_name, data, labels, list_result_fold, list_time, path):
+def save_fold(cfg, data, labels, list_result_fold, list_time, path):
     list_files = []
     for fold in range(0, cfg['fold']):
         list_fold = [x for x in list_result_fold if x['fold'] == fold]

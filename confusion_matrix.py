@@ -8,6 +8,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 
 
 def save_confusion_matrix_sheet(confusion_matrix, filename, xticklabels, yticklabels):
@@ -49,9 +50,7 @@ def confusion_matrix_by_fold(data, list_labels, list_fold, path_fold):
 def save_confusion_matrix_normal(confusion_matrix, path_confusion_matrix, rule, xticklabels, yticklabels):
     filename = os.path.join(path_confusion_matrix, f'ConfusionMatrix_{rule}.png')
     print(f'save {filename}')
-    save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=(5, 5), fmt='.2g',
-                          xticklabels=xticklabels, yticklabels=yticklabels, rotation_xtickslabels=90,
-                          rotation_ytickslabels=0)
+    save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=(5, 5), fmt='.2g', xticklabels=xticklabels, yticklabels=yticklabels, rotation_xtickslabels=90, rotation_ytickslabels=0)
 
 
 def get_only_labels(list_labels):
@@ -65,7 +64,7 @@ def get_labels_and_count_samples(list_labels, list_samples_per_label, n_patch):
 
 def save_confusion_matrix_normalized(confusion_matrix, path, rule, xticklabels, yticklabels):
     filename = os.path.join(path, f'ConfusionMatrix_{rule}_normalized.png')
-    print(f'save {filename}')
+    print(f'[CONFUSION MATRIX] save {filename}')
     save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=(5, 5), fmt='.2f',
                           xticklabels=xticklabels, yticklabels=yticklabels, rotation_xtickslabels=90,
                           rotation_ytickslabels=0)

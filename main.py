@@ -23,19 +23,17 @@ list_extractor = {
 }
 
 @click.command()
-@click.option('-i', '--list_user_input', multiple=True)
-@click.option('-l', '--labels')
+@click.option('-i', multiple=True, default=['/home/xandao/Documentos/resultados_gimp/identificacao_george/especie/20'])
+@click.option('-l', '--labels', default=['/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/imagens/RGB/specific_epithet/256/20/label2.txt'])
 @click.option('-m', '--metric', type=click.Choice(['f1_weighted', 'accuracy']), default='f1_weighted')
 def main(list_user_input, labels, metric):
     current_datetime = datetime.datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
     list_data_input = []
-    # list_data_input = ['../dataset_gimp/imagens_george/features/RGB/segmented_unet/256/patch=3/specific_epithet/5/vgg16/horizontal']
     if len(list_user_input) == 0 and len(list_data_input) == 0:
         raise ValueError(f'list data input is empty')
 
     list_data_input = list_data_input + [i for i in list(list_user_input) if i not in list_data_input]
     print(f'quantidade de entradas: {len(list_data_input)}, filname labels: {labels}')
-    # labels = '../dataset_gimp/imagens_george/imagens/RGB/specific_epithet/256/5/label.txt'
     list_labels = get_list_label(labels)
 
     if len(list_data_input) > 0 and len(list_labels) > 0:

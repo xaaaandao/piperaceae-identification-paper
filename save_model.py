@@ -7,7 +7,7 @@ import tarfile
 def save_best_model(classifier, fold, path):
     pathlib.Path(os.path.join(path, str(fold))).mkdir(parents=True, exist_ok=True)
     filename = os.path.join(path, str(fold), 'best_model.pkl')
-    print(f'save {filename}')
+    print(f'[MODEL] save {filename}')
 
     try:
         with open(filename, 'wb') as file:
@@ -22,7 +22,7 @@ def save_best_model(classifier, fold, path):
 
 def compress_file_model(filename_model, fold, path):
     filename = os.path.join(path, str(fold), 'best_model.tar.gz')
-    print(f'compress file {filename}')
+    print(f'[MODEL] compress file {filename}')
     try:
         with tarfile.open(filename, 'w:gz') as tar_file:
             tar_file.add(filename_model)

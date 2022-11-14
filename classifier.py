@@ -58,9 +58,9 @@ def find_best_classifier_and_params(cfg, classifier, data, metric):
 
     print(f'find best params of {classifier_name}')
 
-    classifier_best_params = GridSearchCV(classifier, list_params[classifier_name], scoring=metric, cv=cfg['fold'], pre_dispatch=int(n_cpu/2), n_jobs=int(n_cpu/2), verbose=cfg['verbose'])
+    classifier_best_params = GridSearchCV(classifier, list_params[classifier_name], scoring=metric, cv=cfg['fold'], pre_dispatch=int((n_cpu)*3/4), n_jobs=int((n_cpu)*3/4), verbose=cfg['verbose'])
 
-    with parallel_backend('threading', n_jobs=int(n_cpu/2)):
+    with parallel_backend('threading', n_jobs=int((n_cpu)*3/4)):
         start_search_best_params = time.time()
         classifier_best_params.fit(data['x'], data['y'])
         end_search_best_params = time.time()

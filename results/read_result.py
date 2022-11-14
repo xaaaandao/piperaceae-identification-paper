@@ -20,7 +20,7 @@ def create_df(columns, index):
 
 
 def round_mean(value):
-    return str(round(value * 100, ROUND_VALUE))
+    return str(round(value * 100, ROUND_VALUE)).replace('.', ',')
 
 
 def round_time(value):
@@ -56,9 +56,12 @@ def get_date(path):
 
 
 def get_top_k(top_k, total_top_k):
-    percentage = int(top_k) / int(total_top_k)
-    percentage = str(round(percentage * 100, 1))
-    return str(str(top_k) + '/' + str(total_top_k) + '=' + str(percentage) + '%')
+    if int(top_k) > 0 and int(total_top_k) > 0:
+        percentage = int(top_k) / int(total_top_k)
+        percentage = str(round(percentage * 100, 1))
+        # return str(str(top_k) + '/' + str(total_top_k) + '=' + str(percentage) + '%')
+        return str(percentage).replace('.', ',')
+    return str(0)
 
 
 def insert_sheet(column, date, df, index_mean, index_std, index_top_k, mean, mean_time_search_best_params, mean_time_train_valid, std, top_k, total_top_k):
@@ -91,6 +94,8 @@ def fill_sheet_mean_std(classifier, date, df, filename, image_size, extractor, n
     sheet_info_top_k_sum = get_csv(str(filename).replace('mean.csv', '0/top_k/sum/info_top_k_sum.csv'))
     top_k = sheet_mean_top_k_sum.iloc[1]['top_k']
     total_top_k = sheet_info_top_k_sum.loc['total'][1]
+    # top_k = 0
+    # total_top_k = 0
 
     index_mean = extractor + '_' + n_features + '_' + 'mean'
     index_std = extractor + '_' + n_features + '_' + 'std'
