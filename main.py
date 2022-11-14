@@ -23,7 +23,7 @@ list_extractor = {
 }
 
 @click.command()
-@click.option('-i', multiple=True, default=['/home/xandao/Documentos/resultados_gimp/identificacao_george/especie/20'])
+@click.option('-i', '--list_user_input', multiple=True, default=['/home/xandao/Documentos/resultados_gimp/identificacao_george/especie/20'])
 @click.option('-l', '--labels', default=['/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/imagens/RGB/specific_epithet/256/20/label2.txt'])
 @click.option('-m', '--metric', type=click.Choice(['f1_weighted', 'accuracy']), default='f1_weighted')
 def main(list_user_input, labels, metric):
