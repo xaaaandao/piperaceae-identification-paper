@@ -17,7 +17,7 @@ def create_dataframe_info_top_k(index, path_csv, path_xlsx, rule, values):
     print(f'[TOP-K] save {filename}.csv')
     print(f'[TOP-K] save {filename}.xlsx')
     df.to_csv(os.path.join(path_csv, f'{filename}.csv'), sep=';', na_rep='', quoting=csv.QUOTE_ALL, header=False)
-    df.to_excel(os.path.join(path_xlsx, f'{filename}.xlsx'), na_rep='', engine='xlsxwriter', header=False)
+    # df.to_excel(os.path.join(path_xlsx, f'{filename}.xlsx'), na_rep='', engine='xlsxwriter', header=False)
 
 
 def create_dataframe_top_k(df, path_csv, path_xlsx, rule):
@@ -25,7 +25,7 @@ def create_dataframe_top_k(df, path_csv, path_xlsx, rule):
     print(f'[TOP-K] save {filename}.csv')
     print(f'[TOP-K] save {filename}.xlsx')
     df.to_csv(os.path.join(path_csv, f'{filename}.csv'), sep=';', na_rep='', quoting=csv.QUOTE_ALL, index=False)
-    df.to_excel(os.path.join(path_xlsx, f'{filename}.xlsx'), na_rep='', engine='xlsxwriter', index=False)
+    # df.to_excel(os.path.join(path_xlsx, f'{filename}.xlsx'), na_rep='', engine='xlsxwriter', index=False)
 
 
 def get_top_k_by_rule(list_fold, path_fold):
@@ -125,7 +125,7 @@ def mean_top_k(list_result_fold, path):
 
             filename = f'mean_top_k_{rule}'
             df.to_csv(os.path.join(p, f'{filename}.csv'), sep=';', na_rep='', quoting=csv.QUOTE_ALL, index=False)
-            df.to_excel(os.path.join(p, f'{filename}.xlsx'), na_rep='', engine='xlsxwriter', index=False)
+            # df.to_excel(os.path.join(p, f'{filename}.xlsx'), na_rep='', engine='xlsxwriter', index=False)
 
             title = 'Mean of top $k$\n'
             min_top_k = min(list_each_k, key=lambda x: x['top_k'])['top_k']

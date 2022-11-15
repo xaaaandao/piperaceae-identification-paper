@@ -28,7 +28,7 @@ def save_confusion_matrix_sheet(confusion_matrix, filename, xticklabels, ytickla
 
     df = pd.DataFrame(l, index=index, columns=columns)
     df.to_csv(filename + '.csv', sep=';', na_rep='', quoting=csv.QUOTE_ALL)
-    df.to_excel(filename + '.xlsx', na_rep='', engine='xlsxwriter')
+    # df.to_excel(filename + '.xlsx', na_rep='', engine='xlsxwriter')
 
 
 def confusion_matrix_by_fold(data, list_labels, list_fold, path_fold):

@@ -15,10 +15,10 @@ def create_file_xlsx_and_csv(list_files):
         p = os.path.join(file['path'], 'xlsx')
         pathlib.Path(p).mkdir(exist_ok=True, parents=True)
         filename = file['filename']
-        df.to_excel(os.path.join(p, f'{filename}.xlsx'), na_rep='', engine='xlsxwriter', header=False)
+        # df.to_excel(os.path.join(p, f'{filename}.xlsx'), na_rep='', engine='xlsxwriter', header=False)
         df.to_csv(os.path.join(file['path'], f'{filename}.csv'), sep=';', na_rep='', header=False,
                   quoting=csv.QUOTE_ALL)
-        df.to_excel(os.path.join(p, f'{file["filename"]}.xlsx'), na_rep='', engine='xlsxwriter', header=False)
+        # df.to_excel(os.path.join(p, f'{file["filename"]}.xlsx'), na_rep='', engine='xlsxwriter', header=False)
         df.to_csv(os.path.join(file['path'], f'{file["filename"]}.csv'), sep=';', na_rep='', header=False,
                   quoting=csv.QUOTE_ALL)
 
@@ -65,10 +65,10 @@ def save_info_samples(fold, labels, index_train, index_test, n_patch, path, y, y
 
     df = pd.DataFrame(l)
     df.to_csv(os.path.join(p, 'samples_fold.csv'), sep=';', na_rep='', index=False, quoting=csv.QUOTE_ALL)
-    df.to_excel(os.path.join(p, 'samples_fold.xlsx'), na_rep='', engine='xlsxwriter', index=False)
+    # df.to_excel(os.path.join(p, 'samples_fold.xlsx'), na_rep='', engine='xlsxwriter', index=False)
 
     samples_used = {'index_train': [index_train], 'index_test': [index_test]}
     df = pd.DataFrame(samples_used)
     df = df.transpose()
     df.to_csv(os.path.join(path, str(fold), 'samples_used.csv'), sep=';', na_rep='', header=False, quoting=csv.QUOTE_ALL)
-    df.to_excel(os.path.join(path, str(fold), 'samples_used.xlsx'), na_rep='', engine='xlsxwriter', header=False)
+    # df.to_excel(os.path.join(path, str(fold), 'samples_used.xlsx'), na_rep='', engine='xlsxwriter', header=False)

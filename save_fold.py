@@ -18,7 +18,7 @@ def result_per_label(list_fold, path):
         df = df.transpose()
         filename = f'result_per_label={f["rule"]}'
         df.to_csv(os.path.join(p, f'{filename}.csv'), sep=';', na_rep='', quoting=csv.QUOTE_ALL)
-        df.to_excel(os.path.join(p, f'{filename}.xlsx'), na_rep='', engine='xlsxwriter')
+        # df.to_excel(os.path.join(p, f'{filename}.xlsx'), na_rep='', engine='xlsxwriter')
 
 
 def save_fold(cfg, data, labels, list_result_fold, list_time, path):

@@ -244,9 +244,9 @@ def save_df(color, df, dir_output):
     filename_mean = os.path.join(dir_output, f'mean_{color}')
     filename_mean_time = os.path.join(dir_output, f'mean_time_{color}')
     df['mean'].to_csv(f'{filename_mean}.csv', sep=';', na_rep='', quoting=csv.QUOTE_ALL)
-    df['mean'].to_excel(f'{filename_mean}.xlsx', na_rep='', engine='xlsxwriter')
+    # df['mean'].to_excel(f'{filename_mean}.xlsx', na_rep='', engine='xlsxwriter')
     df['time'].to_csv(f'{filename_mean_time}.csv', sep=';', na_rep='', quoting=csv.QUOTE_ALL)
-    df['time'].to_excel(f'{filename_mean_time}.xlsx', na_rep='', engine='xlsxwriter')
+    # df['time'].to_excel(f'{filename_mean_time}.xlsx', na_rep='', engine='xlsxwriter')
 
 
 if __name__ == '__main__':

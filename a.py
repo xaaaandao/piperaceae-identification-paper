@@ -67,23 +67,23 @@ def save_others(list_labels, n_patch, path, result, y_test):
     rule = result['rule']
 
     list_labels = sorted(list_labels, key=lambda d: d['id'])
-    save_confusion_matrix_multilabel(list_confusion_matrix, list_labels, p, rule)
+    # save_confusion_matrix_multilabel(list_confusion_matrix, list_labels, p, rule)
 
     list_samples_per_label = dict(collections.Counter(y_test))
     yticklabels = get_labels_and_count_samples(list_labels, list_samples_per_label, n_patch)
     xticklabels = get_only_labels(list_labels)
 
     confusion_matrix = result['confusion_matrix']
-    save_confusion_matrix_normal(confusion_matrix, p, rule, xticklabels, yticklabels)
-    save_confusion_matrix_normalized(result['confusion_matrix_normalized'], p, rule, xticklabels,
-                                     yticklabels)
+    # save_confusion_matrix_normal(confusion_matrix, p, rule, xticklabels, yticklabels)
+    # save_confusion_matrix_normalized(result['confusion_matrix_normalized'], p, rule, xticklabels,
+    #                                  yticklabels)
     confusion_matrix_normalized = result['confusion_matrix_normalized']
-    filename = os.path.join(path, 'ConfusionMatrix_Normalized_' + rule)
+    filename = os.path.join(p, 'ConfusionMatrix_Normalized_' + rule)
     save_confusion_matrix_sheet(confusion_matrix_normalized, filename, xticklabels, yticklabels)
 
 
 @click.command()
-@click.option('-path', '--path', required=True, default='/home/xandao/Documentos/resultados_gimp/identificacao_george/especie/5')
+@click.option('-path', '--path', required=True, default='/home/xandao/Documentos/resultados_gimp/identificacao_george/especie/5/09-11-2022-09-40-03')
 @click.option('-l', '--labels', required=True, default='/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/imagens/RGB/specific_epithet/256/5/label2.txt')
 def main2(labels, path):
     if not os.path.exists(path):
