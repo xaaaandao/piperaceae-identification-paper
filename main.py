@@ -1,6 +1,7 @@
 import click
 import datetime
 
+from handcraft import handcraft
 from non_handcraft import non_handcraft
 from confusion_matrix import get_list_label
 
@@ -37,7 +38,7 @@ def main(list_user_input, labels, metric):
     list_labels = get_list_label(labels)
 
     if len(list_data_input) > 0 and len(list_labels) > 0:
-        # handcraft(cfg, current_datetime, list_labels, list_data_input, list_extractor, metric)
+        handcraft(cfg, current_datetime, list_labels, list_data_input, list_extractor, metric)
         non_handcraft(cfg, current_datetime, list_labels, list_data_input, list_extractor, metric)
 
 

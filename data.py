@@ -14,7 +14,7 @@ from result import y_test_with_patch
 
 def merge_all_files_of_dir(dir):
     list_data = []
-    n_patch = -1
+    n_patch = 1
     for file in sorted(pathlib.Path(dir).rglob('*.npy')):
         data = np.load(str(file))
         fold, patch = re.split('_', str(file.stem))
@@ -56,7 +56,7 @@ def add_data(color_mode, dataset, dir, extractor, image_size, n_features, n_labe
         'image_size': int(image_size),
         'n_labels': n_labels,
         'n_features': n_features,
-        'n_patch': int(n_patch) if n_patch else -1,
+        'n_patch': int(n_patch) if n_patch else 1,
         'n_samples': n_samples,
         'segmented': segmented,
         'slice_patch': slice_patch,
@@ -76,7 +76,7 @@ def get_info(path):
     color_mode = search_info(['grayscale', 'rgb'], str(path))
     segmented = search_info(['manual', 'unet'], str(path))
     dim = search_info(['256', '400', '512'], str(path))
-    extractor = search_info(['lbp', 'surf', 'mobilenetv2', 'resnet50v2', 'vgg16'], str(path))
+    extractor = search_info(['lbp', 'surf64', 'surf128', 'mobilenetv2', 'resnet50v2', 'vgg16'], str(path))
     slice_patch = search_info(['horizontal', 'vertical', 'h+v'], str(path))
 
     return dataset, color_mode, segmented, dim, extractor, slice_patch
@@ -99,6 +99,7 @@ def show_info_data_train_test(classifier_name, fold, x_test, x_train, y_test, y_
 
 
 def data_with_pca(cfg, color_mode, d, dataset, extractor, image_size, list_data, list_extractor, n_features, n_labels, n_patch, n_samples, segmented, slice_patch, x_normalized, y):
+
     for pca in list_extractor[extractor]:
         if pca < n_features - 1:
             x = PCA(n_components=pca, random_state=cfg['seed']).fit_transform(x_normalized)

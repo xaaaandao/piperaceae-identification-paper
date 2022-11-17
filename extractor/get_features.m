@@ -1,6 +1,8 @@
 function get_features()
-    path_in = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/imagens/grayscale/segmented_unet/512/matlab/specific_epithet/todos";
-    path_out = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/features/grayscale/segmented_unet/512/patch=1/specific_epithet/5";
+    path_in = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/imagens/grayscale/genus/256/2/matlab";
+    path_out = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/features/grayscale/segmented_unet/256/patch=1/genus/2";
+%     path_in = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/imagens/grayscale/segmented_manual/400/matlab";
+%     path_out = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/400/patch=1/";
     delete_file_exists();
     list_dir = sort_by_name(dir(path_in));
     
@@ -45,20 +47,17 @@ function delete_file_exists()
 end
 
 function i = get_label(filename)
-%     iwssip
-%     list_label = ["manekia", "ottonia", "peperomia", "piper", "pothomorphe"];
-%     genus/peperomia-piper
-%     list_label = ["peperomia", "piper"];
-%     genus/todos
-%     list_label = ["manekia", "peperomia", "piper", "pothomorphe", "sarcorhachis"];
-%     especies/todos
-    list_label = ["abutiloides", "aduncum", "aequale", "alata", "alnoides", "amalago", "amplum", "arboreum", "arifolia", "balansana", "barbarana", "blanda", "brasiliensis", "caldasianum", "caldense", "callosum", "calophylla", "catharinae", "caulibarbis", "cernuum", "circinnata", "clivicola", "concinnatoris", "corcovadensis", "crassinervium", "crinicaulis", "delicatula", "diaphanodies", "diaphanoides", "dilatatum", "diospyrifolium", "elongata", "emarginella", "flavicans", "fuligineum", "galioides", "gaudichaudianum", "glabella", "glabratum", "glaziovi", "glaziovii", "gracilicaulis", "hatschbachii", "hayneanum", "hemmandorfii", "hemmendorffii", "hemmendorfii", "hernandiifolia", "hilariana", "hispidula", "hispidum", "hydrocotyloides", "ibiramana", "lanceolat", "lanceolatopeltata", "lepturum", "leucaenum", "leucanthum", "lhotzkianum", "lhotzkyanum", "lindbergii", "lucaeanum", "lyma", "macedoi", "magnoliifolia", "malacophyllum", "mandiocana", "mandioccana", "martiana", "michelianum", "mikanianium", "mikanianum", "miquelianum", "mollicomum", "mosenii", "nitida", "nudifolia", "obtusa", "obtusifolia", "ouabianae", "ovatum", "pellucida", "pereirae", "pereskiaefolia", "pereskiifolia", "perlongicaulis", "permucronatum", "piritubanum", "pseudoestrellensis", "pseudolanceolatum", "psilostachya", "punicea", "quadrifolia", "radicosa", "reflexa", "regenelli", "regnellii", "reitzii", "renifolia", "retivenulosa", "rhombea", "rivinoides", "rizzinii", "rotundifolia", "rubricaulis", "rupestris", "sandersii", "schwackei", "solmsianum", "stroemfeltii", "subcinereum", "subemarginata", "subretusa", "subrubrispica", "subternifolia", "tenuissima", "tetraphylla", "trichocarpa", "trineura", "trineuroides", "tuberculatum", "umbellata", "umbellatum", "urocarpa", "vicosanum", "viminifolium", "warmingii", "xylosteoides", "xylosteroides"];
-%     acima-5 
-%     list_label=["aduncum", "alata", "amalago", "arboreum", "arifolia", "barbarana", "blanda", "caldasianum", "caldense", "catharinae", "cernuum", "circinnata", "corcovadensis", "crassinervium", "dilatatum", "diospyrifolium", "emarginella", "galioides", "gaudichaudianum", "glabella", "glabratum", "hatschbachii", "hayneanum", "hilariana", "hispidula", "hispidum", "hydrocotyloides", "lhotzkianum", "macedoi", "malacophyllum", "martiana", "mikanianum", "miquelianum", "mollicomum", "mosenii", "nitida", "obtusa", "pereirae", "pereskiaefolia", "pereskiifolia", "pseudoestrellensis", "regnellii", "reitzii", "rhombea", "rotundifolia", "rupestris", "solmsianum", "subretusa", "tetraphylla", "trineura", "trineuroides", "umbellatum", "urocarpa", "viminifolium", "xylosteoides"];
-%     acima-10
-%     list_label=["aduncum", "alata", "amalago", "arboreum", "barbarana", "blanda", "caldense", "catharinae", "cernuum", "corcovadensis", "crassinervium", "dilatatum", "gaudichaudianum", "glabella", "glabratum", "hispidula", "hispidum", "malacophyllum", "martiana", "mikanianum", "miquelianum", "mollicomum", "nitida", "pereskiaefolia", "pseudoestrellensis", "regnellii", "reitzii", "rotundifolia", "solmsianum", "tetraphylla", "trineura", "urocarpa", "viminifolium", "xylosteoides"];
-%     acima-20
-%     list_label=["aduncum", "amalago", "arboreum", "blanda", "caldense", "catharinae", "corcovadensis", "crassinervium", "gaudichaudianum", "glabella", "glabratum", "hispidum", "martiana", "mikanianum", "miquelianum", "rubricaulis", "stroemfeltii", "trichocarpa", "vicosanum", "xylosteroides"];
+%     dataset iwssip
+    list_label=["manekia", "ottonia", "peperomia", "piper", "pothomorphe"];
+%     dataset george
+%     > 2       
+%     list_label=["Peperomia","Piper"]
+%     > 5
+%     list_label=["nitida", "pereskiaefolia", "hydrocotyloides", "pseudoestrellensis", "xylosteoides", "umbellatum", "urocarpa", "gaudichaudianum", "miquelianum", "amalago", "tetraphylla", "arifolia", "mosenii", "caldense", "blanda", "arboreum", "dilatatum", "hayneanum", "glabratum", "caldasianum", "viminifolium", "rhombea", "malacophyllum", "galioides", "obtusa", "martiana", "mollicomum", "alata", "glabella", "rupestris", "rotundifolia", "hispidula", "aduncum", "catharinae", "mikanianum", "cernuum", "crassinervium", "hatschbachii", "diospyrifolium", "circinnata", "lhotzkianum", "barbarana", "regnellii", "hispidum", "trineura", "reitzii", "subretusa", "hilariana", "corcovadensis", "pereskiifolia", "macedoi", "emarginella", "solmsianum", "trineuroides", "pereirae"];
+%     > 10
+%     list_label = ["cernuum", "glabella", "reitzii", "barbarana", "rotundifolia", "catharinae", "amalago", "miquelianum", "viminifolium", "caldense", "nitida", "arboreum", "gaudichaudianum", "pseudoestrellensis", "dilatatum", "blanda", "mollicomum", "malacophyllum", "hispidula", "trineura", "crassinervium", "mikanianum", "aduncum", "glabratum", "martiana", "xylosteoides", "alata", "urocarpa", "corcovadensis", "hispidum", "solmsianum", "pereskiaefolia", "regnellii", "tetraphylla"];
+%     > 20
+%     list_label = ["miquelianum", "tetraphylla", "glabratum", "caldense", "urocarpa", "blanda", "glabella", "xylosteoides", "gaudichaudianum", "catharinae", "mikanianum", "corcovadensis", "crassinervium", "aduncum", "solmsianum", "martiana", "rotundifolia", "hispidum", "amalago", "arboreum"];
     for i=1:length(list_label)
         if contains(filename, list_label(i), "IgnoreCase", true)
             return;
