@@ -83,8 +83,8 @@ def save_others(list_labels, n_patch, path, result, y_test):
 
 
 @click.command()
-@click.option('-path', '--path', required=True, default='/home/xandao/Documentos/resultados_gimp/identificacao_george/especie/5/09-11-2022-09-40-03')
-@click.option('-l', '--labels', required=True, default='/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/imagens/RGB/specific_epithet/256/5/label2.txt')
+@click.option('-path', '--path', required=True, default='/home/xandao/Documentos/resultados_gimp/identificacao_george/especie/20')
+@click.option('-l', '--labels', required=True, default='/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/imagens/RGB/specific_epithet/256/20/label2.txt')
 def main2(labels, path):
     if not os.path.exists(path):
         raise IsADirectoryError(f'dir is not found {path}')

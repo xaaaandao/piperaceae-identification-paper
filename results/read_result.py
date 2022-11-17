@@ -84,18 +84,18 @@ def fill_sheet_mean_std(classifier, date, df, filename, image_size, extractor, n
     mean_time_train_valid = sheet_mean.loc['mean_time_train_valid'][1]
     std = sheet_mean.loc['std_f1_sum'][1]
 
-    if not os.path.exists(str(filename).replace('mean.csv', 'mean_top_k/mean_top_k_sum.csv')):
-        raise FileNotFoundError(f'file not exists {str(filename).replace("mean.csv", "mean_top_k/mean_top_k_sum.csv")}')
-
-    if not os.path.exists(str(filename).replace('mean.csv', '0/top_k/sum/info_top_k_sum.csv')):
-        raise FileNotFoundError(f'file not exists {str(filename).replace("mean.csv", "0/top_k/sum/info_top_k_sum.csv")}')
-
-    sheet_mean_top_k_sum = get_csv(str(filename).replace('mean.csv', 'mean_top_k/mean_top_k_sum.csv'), header=0)
-    sheet_info_top_k_sum = get_csv(str(filename).replace('mean.csv', '0/top_k/sum/info_top_k_sum.csv'))
-    top_k = sheet_mean_top_k_sum.iloc[1]['top_k']
-    total_top_k = sheet_info_top_k_sum.loc['total'][1]
-    # top_k = 0
-    # total_top_k = 0
+    # if not os.path.exists(str(filename).replace('mean.csv', 'mean_top_k/mean_top_k_sum.csv')):
+    #     raise FileNotFoundError(f'file not exists {str(filename).replace("mean.csv", "mean_top_k/mean_top_k_sum.csv")}')
+    #
+    # if not os.path.exists(str(filename).replace('mean.csv', '0/top_k/sum/info_top_k_sum.csv')):
+    #     raise FileNotFoundError(f'file not exists {str(filename).replace("mean.csv", "0/top_k/sum/info_top_k_sum.csv")}')
+    #
+    # sheet_mean_top_k_sum = get_csv(str(filename).replace('mean.csv', 'mean_top_k/mean_top_k_sum.csv'), header=0)
+    # sheet_info_top_k_sum = get_csv(str(filename).replace('mean.csv', '0/top_k/sum/info_top_k_sum.csv'))
+    # top_k = sheet_mean_top_k_sum.iloc[1]['top_k']
+    # total_top_k = sheet_info_top_k_sum.loc['total'][1]
+    top_k = 0
+    total_top_k = 0
 
     index_mean = extractor + '_' + n_features + '_' + 'mean'
     index_std = extractor + '_' + n_features + '_' + 'std'
@@ -244,7 +244,7 @@ def save_df(color, df, dir_output):
     filename_mean = os.path.join(dir_output, f'mean_{color}')
     filename_mean_time = os.path.join(dir_output, f'mean_time_{color}')
     df['mean'].to_csv(f'{filename_mean}.csv', sep=';', na_rep='', quoting=csv.QUOTE_ALL)
-    # df['mean'].to_excel(f'{filename_mean}.xlsx', na_rep='', engine='xlsxwriter')
+    df['mean'].to_excel(f'{filename_mean}.xlsx', na_rep='', engine='xlsxwriter')
     df['time'].to_csv(f'{filename_mean_time}.csv', sep=';', na_rep='', quoting=csv.QUOTE_ALL)
     # df['time'].to_excel(f'{filename_mean_time}.xlsx', na_rep='', engine='xlsxwriter')
 

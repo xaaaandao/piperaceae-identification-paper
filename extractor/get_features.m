@@ -1,6 +1,6 @@
 function get_features()
     path_in = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/imagens/grayscale/segmented_unet/512/matlab/specific_epithet/todos";
-    path_out = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/features/grayscale/segmented_unet/512/patch=1/specific_epithet/todos";
+    path_out = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/features/grayscale/segmented_unet/512/patch=1/specific_epithet/5";
     delete_file_exists();
     list_dir = sort_by_name(dir(path_in));
     
