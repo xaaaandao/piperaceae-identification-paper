@@ -13,10 +13,8 @@ from save_model import save_best_model
 
 
 def non_handcraft(cfg, current_datetime, labels, list_data_input, list_extractor, metric):
-    list_data = []
-    list_only_dir = [d for d in list_data_input if os.path.isdir(d) and len(os.listdir(d)) > 0]
-
-    load_all_files_npy(cfg, list_data, list_extractor, list_only_dir)
+    list_dir = [d for d in list_data_input if os.path.isdir(d) and len(os.listdir(d)) > 0]
+    list_data = load_data(cfg, list_extractor, list_dir)
 
     for data in list_data:
         show_info_data(data)
@@ -41,7 +39,7 @@ def non_handcraft(cfg, current_datetime, labels, list_data_input, list_extractor
                 save_info_samples(fold, labels, index_train, index_test, data['n_patch'], path, data['y'], y_train, y_test)
                 save_best_model(best['classifier'], fold, path)
 
-                result_max_rule, result_prod_rule, result_sum_rule = calculate_test(fold, labels, y_pred, y_test, n_patch=int(data['n_patch']))
+                result_max_rule, result_prod_rule, result_sum_rule = get_result(data, fold, labels, y_pred, y_test)
 
                 end_time_train_valid = time.time()
                 insert_result_fold_and_time(end_time_train_valid, fold, list_result_fold, list_time, result_max_rule, result_prod_rule, result_sum_rule, start_time_train_valid, time_find_best_params)
@@ -49,17 +47,33 @@ def non_handcraft(cfg, current_datetime, labels, list_data_input, list_extractor
             save(best['params'], cfg, classifier_name, data, labels, list_result_fold, list_time, metric, path)
 
 
-def split_train_test(data, index_test, index_train):
-    x_train, y_train = get_samples_with_patch(data['x'], data['y'], index_train, data['n_patch'])
-    x_test, y_test = get_samples_with_patch(data['x'], data['y'], index_test, data['n_patch'])
+def split_train_test(data, index_test, index_train, handcraft=False):
+    if handcraft:
+        x = data['x']
+        y = data['y']
+        x_train, y_train = x[index_train], y[index_train]
+        x_test, y_test = x[index_test], y[index_test]
+    else:
+        x_train, y_train = get_samples_with_patch(data['x'], data['y'], index_train, data['n_patch'])
+        x_test, y_test = get_samples_with_patch(data['x'], data['y'], index_test, data['n_patch'])
     return x_test, x_train, y_test, y_train
 
 
-def load_all_files_npy(cfg, list_data, list_extractor, list_only_dir):
-    for d in list_only_dir:
-        dataset, color_mode, segmented, image_size, extractor, slice_patch = get_info(d)
-        data, n_patch = merge_all_files_of_dir(d)
-        get_x_y(cfg, color_mode, np.array(data), dataset, extractor, d, image_size, list_data, list_extractor, n_patch,
-                segmented, slice_patch)
+def load_data(cfg, list_extractor, list_inputs, handcraft=False):
+    list_data = []
+    if handcraft:
+        for file in list_inputs:
+            dataset, color_mode, segmented, image_size, extractor, slice_patch = get_info(file)
+            get_x_y(cfg, color_mode, np.loadtxt(file), dataset, extractor, file, image_size, list_data, list_extractor, 1, segmented, slice_patch)
+    else:
+        for d in list_inputs:
+            dataset, color_mode, segmented, image_size, extractor, slice_patch = get_info(d)
+            data, n_patch = merge_all_files_of_dir(d)
+            get_x_y(cfg, color_mode, np.array(data), dataset, extractor, d, image_size, list_data, list_extractor, n_patch, segmented, slice_patch)
+    return list_data
 
 
+def get_result(data, fold, labels, y_pred, y_test, handcraft=False):
+    if handcraft:
+        return calculate_test(fold, labels, y_pred, y_test)
+    return calculate_test(fold, labels, y_pred, y_test, n_patch=int(data['n_patch']))

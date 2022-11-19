@@ -45,10 +45,10 @@ list_params = {
 
 list_classifiers = [
     DecisionTreeClassifier(random_state=cfg_classifier['seed']),
-    KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
-    MLPClassifier(random_state=cfg_classifier['seed']),
-    RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs']),
-    SVC(random_state=cfg_classifier['seed'], probability=True)
+    # KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
+    # MLPClassifier(random_state=cfg_classifier['seed']),
+    # RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs']),
+    # SVC(random_state=cfg_classifier['seed'], probability=True)
 ]
 
 
@@ -56,7 +56,7 @@ def find_best_classifier_and_params(cfg, classifier, data, metric):
     n_cpu = multiprocessing.cpu_count()
     classifier_name = classifier.__class__.__name__
 
-    print(f'find best params of {classifier_name}')
+    print(f'[GRIDSEARCH CV] find best params of {classifier_name}')
 
     classifier_best_params = GridSearchCV(classifier, list_params[classifier_name], scoring=metric, cv=cfg['fold'], pre_dispatch=int((n_cpu)*3/4), n_jobs=int((n_cpu)*3/4), verbose=cfg['verbose'])
 

@@ -52,7 +52,6 @@ def sum_all_prob(n_labels, n_patch, y_pred):
 def calculate_test(fold, labels, y_pred, y_test, n_patch=1):
     if n_patch > 1:
         y_test = y_test_with_patch(n_patch, y_test)
-        print(len(y_test))
     y_pred_prob_max, y_pred_max = max_rule(len(labels), n_patch, y_pred)
     y_pred_prob_prod, y_pred_prod = prod_all_prob(len(labels), n_patch, y_pred)
     y_pred_prob_sum, y_pred_sum = sum_all_prob(len(labels), n_patch, y_pred)
@@ -118,8 +117,7 @@ def get_min_top_k(list_top_k_accuracy):
     return 0
 
 
-def insert_result_fold_and_time(end_time_train_valid, fold, list_result_fold, list_time, result_max_rule, result_prod_rule, result_sum_rule,
-                                start_time_train_valid, time_find_best_params):
+def insert_result_fold_and_time(end_time_train_valid, fold, list_result_fold, list_time, result_max_rule, result_prod_rule, result_sum_rule, start_time_train_valid, time_find_best_params):
     list_result_fold.append(result_max_rule)
     list_result_fold.append(result_prod_rule)
     list_result_fold.append(result_sum_rule)

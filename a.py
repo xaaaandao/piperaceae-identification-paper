@@ -14,7 +14,7 @@ from confusion_matrix import save_confusion_matrix_sheet, save_confusion_matrix_
 from data import get_info, merge_all_files_of_dir, get_x_y, get_cv, get_samples_with_patch, show_info_data_train_test, \
     show_info_data
 from main import cfg, list_extractor
-from non_handcraft import load_all_files_npy, split_train_test
+from handcraft import split_train_test, load_all_files_npy
 from result import calculate_test, insert_result_fold_and_time
 
 
@@ -94,7 +94,6 @@ def main2(labels, path):
 
     list_info_file = [c for c in pathlib.Path(path).rglob('info.csv') if c.is_file()]
 
-    print(len(list_info_file))
     for l in list_info_file:
         file_info = pd.read_csv(l, sep=';', index_col=0, header=None)
         color_mode = file_info.loc['color_mode', 1]

@@ -3,49 +3,707 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
-        <entry key="/out/17-11-2022-17-43-38/sp/unet/grayscale/256/lbp/DecisionTreeClassifier/patch=1/59/0/info_samples/samples_fold.csv">
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/0/accuracy.csv">
           <value>
             <Attribute>
               <option name="separator" value=";" />
             </Attribute>
           </value>
         </entry>
-        <entry key="/out/17-11-2022-17-43-40/sp/unet/grayscale/400/lbp/DecisionTreeClassifier/patch=1/59/0/info_samples/samples_fold.csv">
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/0/f1.csv">
           <value>
             <Attribute>
               <option name="separator" value=";" />
             </Attribute>
           </value>
         </entry>
-        <entry key="/out/17-11-2022-17-44-23/sp/unet/grayscale/256/lbp/DecisionTreeClassifier/patch=1/59/0/info_samples/samples_fold.csv">
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/0/info_by_fold.csv">
           <value>
             <Attribute>
               <option name="separator" value=";" />
             </Attribute>
           </value>
         </entry>
-        <entry key="/out/17-11-2022-17-44-23/sp/unet/grayscale/256/lbp/DecisionTreeClassifier/patch=1/59/1/info_samples/samples_fold.csv">
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/0/result_per_label/result_per_label=max.csv">
           <value>
             <Attribute>
               <option name="separator" value=";" />
             </Attribute>
           </value>
         </entry>
-        <entry key="/out/17-11-2022-17-44-23/sp/unet/grayscale/256/lbp/DecisionTreeClassifier/patch=1/59/2/info_samples/samples_fold.csv">
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/0/result_per_label/result_per_label=prod.csv">
           <value>
             <Attribute>
               <option name="separator" value=";" />
             </Attribute>
           </value>
         </entry>
-        <entry key="/out/17-11-2022-17-44-23/sp/unet/grayscale/256/lbp/DecisionTreeClassifier/patch=1/59/3/info_samples/samples_fold.csv">
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/0/result_per_label/result_per_label=sum.csv">
           <value>
             <Attribute>
               <option name="separator" value=";" />
             </Attribute>
           </value>
         </entry>
-        <entry key="/out/17-11-2022-17-44-23/sp/unet/grayscale/256/lbp/DecisionTreeClassifier/patch=1/59/4/info_samples/samples_fold.csv">
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/0/top_k/prod/info_top_k_prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/1/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/1/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/1/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/1/result_per_label/result_per_label=max.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/1/result_per_label/result_per_label=prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/1/result_per_label/result_per_label=sum.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/1/top_k/prod/info_top_k_prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/2/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/2/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/2/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/2/result_per_label/result_per_label=max.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/2/result_per_label/result_per_label=prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/2/result_per_label/result_per_label=sum.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/2/top_k/prod/info_top_k_prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/3/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/3/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/3/result_per_label/result_per_label=max.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/3/result_per_label/result_per_label=prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/3/result_per_label/result_per_label=sum.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/3/top_k/prod/info_top_k_prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/4/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/4/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/4/result_per_label/result_per_label=max.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/4/result_per_label/result_per_label=prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/4/result_per_label/result_per_label=sum.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/4/top_k/prod/info_top_k_prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/128/mean.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/0/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/0/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/0/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/0/result_per_label/result_per_label=max.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/0/result_per_label/result_per_label=prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/0/result_per_label/result_per_label=sum.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/0/top_k/prod/info_top_k_prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/1/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/1/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/1/result_per_label/result_per_label=max.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/1/result_per_label/result_per_label=prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/1/result_per_label/result_per_label=sum.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/1/top_k/prod/info_top_k_prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/2/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/2/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/2/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/2/result_per_label/result_per_label=max.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/2/result_per_label/result_per_label=prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/2/result_per_label/result_per_label=sum.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/2/top_k/prod/info_top_k_prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/3/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/3/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/3/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/3/result_per_label/result_per_label=max.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/3/result_per_label/result_per_label=prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/3/result_per_label/result_per_label=sum.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/3/top_k/prod/info_top_k_prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/4/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/4/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/4/result_per_label/result_per_label=max.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/4/result_per_label/result_per_label=prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/4/result_per_label/result_per_label=sum.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/4/top_k/prod/info_top_k_prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/best.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/256/mean.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/0/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/0/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/0/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/0/result_per_label/result_per_label=max.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/0/result_per_label/result_per_label=prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/0/result_per_label/result_per_label=sum.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/0/top_k/prod/info_top_k_prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/1/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/1/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/1/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/1/result_per_label/result_per_label=max.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/1/result_per_label/result_per_label=prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/1/result_per_label/result_per_label=sum.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/1/top_k/prod/info_top_k_prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/2/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/2/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/2/info_by_fold.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/2/result_per_label/result_per_label=max.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/2/result_per_label/result_per_label=prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/2/result_per_label/result_per_label=sum.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/2/top_k/prod/info_top_k_prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/3/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/3/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/3/result_per_label/result_per_label=max.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/3/result_per_label/result_per_label=prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/3/result_per_label/result_per_label=sum.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/3/top_k/prod/info_top_k_prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/4/accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/4/f1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/out/18-11-2022-15-19-26/sp/unet/rgb/256/mobilenetv2/SVC/patch=3/512/4/top_k/prod/info_top_k_prod.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/results/sheets_iwssip/mean_RGB.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/results/sheets_iwssip/mean_grayscale.csv">
           <value>
             <Attribute>
               <option name="separator" value=";" />

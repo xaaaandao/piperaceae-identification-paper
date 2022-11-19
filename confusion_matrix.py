@@ -49,7 +49,7 @@ def confusion_matrix_by_fold(data, list_labels, list_fold, path_fold):
 
 def save_confusion_matrix_normal(confusion_matrix, path_confusion_matrix, rule, xticklabels, yticklabels):
     filename = os.path.join(path_confusion_matrix, f'ConfusionMatrix_{rule}.png')
-    print(f'save {filename}')
+    print(f'[CONFUSION MATRIX]save {filename}')
     save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=(5, 5), fmt='.2g', xticklabels=xticklabels, yticklabels=yticklabels, rotation_xtickslabels=90, rotation_ytickslabels=0)
 
 

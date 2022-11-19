@@ -79,10 +79,10 @@ def get_csv(filename, header=None):
 
 def fill_sheet_mean_std(classifier, date, df, filename, image_size, extractor, n_features, n_patch, plot, segmented):
     sheet_mean = get_csv(filename)
-    mean = sheet_mean.loc['mean_f1_sum'][1]
+    mean = sheet_mean.loc['mean_accuracy_sum'][1]
     mean_time_search_best_params = sheet_mean.loc['mean_time_search_best_params'][1]
     mean_time_train_valid = sheet_mean.loc['mean_time_train_valid'][1]
-    std = sheet_mean.loc['std_f1_sum'][1]
+    std = sheet_mean.loc['std_accuracy_sum'][1]
 
     # if not os.path.exists(str(filename).replace('mean.csv', 'mean_top_k/mean_top_k_sum.csv')):
     #     raise FileNotFoundError(f'file not exists {str(filename).replace("mean.csv", "mean_top_k/mean_top_k_sum.csv")}')
@@ -179,7 +179,7 @@ def main(color, input, output):
                        'SVC']
     list_dim = [256, 400, 512]
 
-    list_segmented = ['unet']
+    list_segmented = ['unet', 'manual']
     columns = [c + '_' + str(d) + '_' + s for c in list_classifier for s in sorted(list_segmented) for d in list_dim]
 
     df = create_df(columns, index)
@@ -215,7 +215,7 @@ def main(color, input, output):
         figure, axis = plt.subplots(figsize=(12, 6))
 
         add_mean_plot(X_axis, axis, bar_width, 'mobilenetv2', mean_mobilenet)
-        add_mean_plot(X_axis+0.25, axis, bar_width, 'resenet50v2', mean_resnet)
+        add_mean_plot(X_axis+0.25, axis, bar_width, 'resnet50v2', mean_resnet)
         add_mean_plot(X_axis+0.5, axis, bar_width, 'vgg16', mean_vgg)
         add_bar_label(axis)
 

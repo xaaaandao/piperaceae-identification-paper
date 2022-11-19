@@ -1,25 +1,17 @@
 import os
 import time
 
-import numpy as np
-
 from classifier import find_best_classifier_and_params, list_classifiers
 from data import get_info, get_cv, show_info_data, show_info_data_train_test
-from non_handcraft import get_x_y
+from non_handcraft import load_data, split_train_test, get_result
 from result import calculate_test, insert_result_fold_and_time
 from save import save, create_path_base, save_info_samples
 from save_model import save_best_model
 
 
 def handcraft(cfg, current_datetime, labels, list_data_input, list_extractor, metric):
-    n_patch = None
-    list_data = []
-    list_only_file = [file for file in list_data_input if os.path.isfile(file)]
-
-    for file in list_only_file:
-        dataset, color_mode, segmented, image_size, extractor, slice_patch = get_info(file)
-        get_x_y(cfg, color_mode, np.loadtxt(file), dataset, extractor, file, image_size, list_data, list_extractor,
-                n_patch, segmented, slice_patch)
+    list_files = [file for file in list_data_input if os.path.isfile(file)]
+    list_data = load_data(cfg, list_extractor, list_files, handcraft=True)
 
     for data in list_data:
         show_info_data(data)
@@ -31,11 +23,9 @@ def handcraft(cfg, current_datetime, labels, list_data_input, list_extractor, me
 
             path = create_path_base(cfg, classifier_name, current_datetime, data)
             split = get_cv(cfg, data)
-            x = data['x']
-            y = data['y']
+
             for fold, (index_train, index_test) in enumerate(split):
-                x_train, y_train = x[index_train], y[index_train]
-                x_test, y_test = x[index_test], y[index_test]
+                x_test, x_train, y_test, y_train = split_train_test(data, index_test, index_train, handcraft=True)
 
                 show_info_data_train_test(classifier_name, fold, x_test, x_train, y_test, y_train)
 
@@ -46,7 +36,7 @@ def handcraft(cfg, current_datetime, labels, list_data_input, list_extractor, me
                 save_info_samples(fold, labels, index_train, index_test, data['n_patch'], path, data['y'], y_train, y_test)
                 save_best_model(best['classifier'], fold, path)
 
-                result_max_rule, result_prod_rule, result_sum_rule = calculate_test(fold, labels, y_pred, y_test)
+                result_max_rule, result_prod_rule, result_sum_rule = get_result(data, fold, labels, y_pred, y_test, handcraft=True)
 
                 end_time_train_valid = time.time()
                 insert_result_fold_and_time(end_time_train_valid, fold, list_result_fold, list_time, result_max_rule,
