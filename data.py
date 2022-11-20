@@ -66,8 +66,11 @@ def add_data(color_mode, dataset, dir, extractor, image_size, n_features, n_labe
 
 
 def search_info(list_info, info):
-    # result = list(filter(lambda x: x in str(info).lower(), list_info))
     result = [i for i in list_info if i in str(info).lower()]
+    return check_has_result(result)
+
+
+def check_has_result(result):
     return None if len(result) == 0 else result[0]
 
 
@@ -92,31 +95,96 @@ def show_info_data(data):
 
 def show_info_data_train_test(classifier_name, fold, x_test, x_train, y_test, y_train):
     print(fold, classifier_name, x_train.shape, x_test.shape)
-    # print('train')
     print('[TRAIN]' + str(sorted(list(collections.Counter(y_train).items()))))
-    # print('test')
     print('[TEST]' + str(sorted(list(collections.Counter(y_test).items()))))
 
 
 def data_with_pca(cfg, color_mode, d, dataset, extractor, image_size, list_data, list_extractor, n_features, n_labels, n_patch, n_samples, segmented, slice_patch, x_normalized, y):
 
     for pca in list_extractor[extractor]:
-        if pca < n_features - 1:
+        if pca_is_less_than_n_features(n_features, pca):
             x = PCA(n_components=pca, random_state=cfg['seed']).fit_transform(x_normalized)
             list_data.append(
                 add_data(color_mode, dataset, d, extractor, image_size, x.shape[1], n_labels, n_patch, n_samples,
                          segmented, slice_patch, x, y))
 
 
+def pca_is_less_than_n_features(n_features, pca):
+    return pca < n_features - 1
+
+
+def data_contains_nan(x):
+    return np.isnan(x).any()
+
+
 def get_x_y(cfg, color_mode, data, dataset, extractor, file, image_size, list_data, list_extractor, n_patch, segmented,
             slice_patch):
     n_samples, n_features = data.shape
     x, y = data[0:, 0:n_features - 1], data[:, n_features - 1]
-    if np.isnan(x).any():
+
+    if data_contains_nan(x):
         raise ValueError(f'data contain nan')
+
     n_labels = len(np.unique(y))
     x_normalized = StandardScaler().fit_transform(x)
     list_data.append(add_data(color_mode, dataset, file, extractor, image_size, n_features - 1, n_labels, n_patch,
                               n_samples, segmented, slice_patch, x_normalized, y))
     data_with_pca(cfg, color_mode, file, dataset, extractor, image_size, list_data, list_extractor, n_features,
                   n_labels, n_patch, n_samples, segmented, slice_patch, x_normalized, y)
+
+
+def split_train_test(data, index_test, index_train, handcraft=False):
+    return check_split_train_test(data, handcraft, index_test, index_train)
+
+
+def check_split_train_test(data, handcraft, index_test, index_train):
+    """
+
+    :param data:
+    :param handcraft:
+    :param index_test:
+    :param index_train:
+    :return: x_test, x_train, y_test, y_train
+    """
+    return split_train_test_handcraft(data, index_test, index_train) if handcraft else split_train_test_non_handcraft(data, index_test, index_train)
+
+
+def split_train_test_non_handcraft(data, index_test, index_train):
+    x_train, y_train = get_samples_with_patch(data['x'], data['y'], index_train, data['n_patch'])
+    x_test, y_test = get_samples_with_patch(data['x'], data['y'], index_test, data['n_patch'])
+    return x_test, x_train, y_test, y_train
+
+
+def split_train_test_handcraft(data, index_test, index_train):
+    x = data['x']
+    y = data['y']
+    x_train, y_train = x[index_train], y[index_train]
+    x_test, y_test = x[index_test], y[index_test]
+    return x_test, x_train, y_test, y_train
+
+
+def load_data(cfg, list_extractor, list_inputs, handcraft=False):
+    return check_data(cfg, handcraft, list_extractor, list_inputs)
+
+
+def check_data(cfg, handcraft, list_extractor, list_inputs):
+    return data_is_a_file_handcraft(cfg, list_extractor, list_inputs) if handcraft else data_is_a_dir_non_handcraft(cfg, list_extractor, list_inputs)
+
+
+def data_is_a_dir_non_handcraft(cfg, list_extractor, list_inputs):
+    list_data = []
+    for d in list_inputs:
+        dataset, color_mode, segmented, image_size, extractor, slice_patch = get_info(d)
+        data, n_patch = merge_all_files_of_dir(d)
+        get_x_y(cfg, color_mode, np.array(data), dataset, extractor, d, image_size, list_data, list_extractor, n_patch,
+                segmented, slice_patch)
+    return list_data
+
+
+def data_is_a_file_handcraft(cfg, list_extractor, list_inputs):
+    list_data = []
+    for file in list_inputs:
+        dataset, color_mode, segmented, image_size, extractor, slice_patch = get_info(file)
+        get_x_y(cfg, color_mode, np.loadtxt(file), dataset, extractor, file, image_size, list_data, list_extractor, 1,
+                segmented, slice_patch)
+    return list_data

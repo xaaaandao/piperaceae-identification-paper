@@ -1,8 +1,8 @@
 function get_features()
-    path_in = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/imagens/grayscale/genus/256/2/matlab";
-    path_out = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/features/grayscale/segmented_unet/256/patch=1/genus/2";
-%     path_in = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/imagens/grayscale/segmented_manual/400/matlab";
-%     path_out = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/400/patch=1/";
+%     path_in = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/imagens/grayscale/genus/256/2/matlab";
+%     path_out = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/features/grayscale/segmented_unet/256/patch=1/genus/2";
+    path_in = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/imagens/grayscale/segmented_unet/400/matlab";
+    path_out = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_unet/400/patch=1/";
     delete_file_exists();
     list_dir = sort_by_name(dir(path_in));
     

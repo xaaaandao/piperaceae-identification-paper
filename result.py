@@ -126,3 +126,7 @@ def insert_result_fold_and_time(end_time_train_valid, fold, list_result_fold, li
         'time_train_valid': end_time_train_valid - start_time_train_valid,
         'time_search_best_params': time_find_best_params
     })
+
+
+def get_result(data, fold, labels, y_pred, y_test, handcraft=False):
+    return calculate_test(fold, labels, y_pred, y_test) if handcraft else calculate_test(fold, labels, y_pred, y_test, n_patch=int(data['n_patch']))

@@ -6,15 +6,14 @@ import time
 
 import click
 import joblib
-import numpy as np
 import pandas as pd
 
-from confusion_matrix import save_confusion_matrix_sheet, save_confusion_matrix_normal, get_only_labels, \
-    get_labels_and_count_samples, save_confusion_matrix_normalized, save_confusion_matrix, get_list_label
-from data import get_info, merge_all_files_of_dir, get_x_y, get_cv, get_samples_with_patch, show_info_data_train_test, \
-    show_info_data
+from save.save_confusion_matrix import save_confusion_matrix_sheet, get_only_labels, \
+    get_labels_and_count_samples, save_confusion_matrix, get_list_label
+from data import get_cv, show_info_data_train_test, \
+    show_info_data, split_train_test
 from main import cfg, list_extractor
-from handcraft import split_train_test, load_all_files_npy
+from handcraft import load_all_files_npy
 from result import calculate_test, insert_result_fold_and_time
 
 
@@ -67,7 +66,7 @@ def save_others(list_labels, n_patch, path, result, y_test):
     rule = result['rule']
 
     list_labels = sorted(list_labels, key=lambda d: d['id'])
-    # save_confusion_matrix_multilabel(list_confusion_matrix, list_labels, p, rule)
+    save_confusion_matrix_multilabel(list_confusion_matrix, list_labels, p, rule)
 
     list_samples_per_label = dict(collections.Counter(y_test))
     yticklabels = get_labels_and_count_samples(list_labels, list_samples_per_label, n_patch)

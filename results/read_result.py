@@ -189,7 +189,7 @@ def main(color, input, output):
         sheet_info = pd.read_csv(str(file).replace('mean.csv', 'info.csv'), header=None, sep=';', index_col=0)
 
         classifier = get_classifier(list_classifier, file)
-        # color = sheet_info.loc['color_mode'][1]
+        color = sheet_info.loc['color_mode'][1]
         image_size = sheet_info.loc['dim_image'][1]
         extractor = sheet_info.loc['extractor'][1]
         n_features = sheet_info.loc['data_n_features'][1]
@@ -202,6 +202,10 @@ def main(color, input, output):
 
     save_df(color, df, output)
 
+    # plot_mean(output, plot)
+
+
+def plot_mean(output, plot):
     image_size = '256'
     bar_width = 0.25
     for n_features in [128, 256, 512, 1024, 1280, 2048]:
@@ -215,12 +219,12 @@ def main(color, input, output):
         figure, axis = plt.subplots(figsize=(12, 6))
 
         add_mean_plot(X_axis, axis, bar_width, 'mobilenetv2', mean_mobilenet)
-        add_mean_plot(X_axis+0.25, axis, bar_width, 'resnet50v2', mean_resnet)
-        add_mean_plot(X_axis+0.5, axis, bar_width, 'vgg16', mean_vgg)
+        add_mean_plot(X_axis + 0.25, axis, bar_width, 'resnet50v2', mean_resnet)
+        add_mean_plot(X_axis + 0.5, axis, bar_width, 'vgg16', mean_vgg)
         add_bar_label(axis)
 
         r = np.arange(len(labels_axis_x))
-        plt.xticks(r + 0.4/2, labels_axis_x)
+        plt.xticks(r + 0.4 / 2, labels_axis_x)
         plt.title(f'Mean F1-score (n_features: {n_features})', fontweight='bold', fontsize='xx-large', pad=20)
         plt.xlabel('classifiers', fontweight='bold', fontsize='xx-large')
         plt.ylabel('mean', fontweight='bold', fontsize='xx-large')
