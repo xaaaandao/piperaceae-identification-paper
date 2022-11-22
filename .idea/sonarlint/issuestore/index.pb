@@ -3,9 +3,6 @@ D
 test/test_samples.py,7\c\7c40ce320cb0e08dddeebdb2abc4dc495abd610c
 C
 test/test_result.py,a/b/abf2530a1e8bb64529750749d0d9f41ccbbae40f
-:
-
-.gitignore,a/5/a5cc2925ca8258af241be7e5b0381edf30266302
 ?
 scheme/Makefile,3/e/3eac087817f191a82448bf401a6f53d437d070e7
 H
@@ -30,15 +27,11 @@ A
 save/save_best.py,3/c/3c6cf87249f7ea998891bdbf24346d5520cc4a94
 A
 save/save_mean.py,f/a/face6f1ffc3422f0d27e38aa8caa0a999b404f7c
-4
-a.py,b/b/bb88d7506cfdcbc88cc950c4af72a3e28c024a77
 9
 	result.py,b/c/bc83f7151d84b53f50c6bb3593df4d19cd07b65d
 A
 save/save_fold.py,7/0/70fe40d311a6fc0634463b52157691dda39b5489
 <
 save/save.py,0/0/00062fb8e5de4a9e4526b5379027c582d21304ac
-M
-save/save_confusion_matrix.py,f/4/f44e044746147d2641b588d8c757610fa7afb9be
-=
-classifier.py,c/d/cd7ff97061ecc87fddd1aaae9ccd97779a5ebd11
+7
+main.py,f/1/f1bdda93d9a278e358509d498e17d97764c1fb29

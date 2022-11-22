@@ -1,7 +1,7 @@
 #!/bin/bash
 py=~/miniconda3/bin/python
 taxon=specific_epithet
-metric=accuracy
+metric=f1_weighted
 for img_size in 256 400 512
 do
 	for extractor in mobilenetv2 resnet50v2 vgg16

@@ -1,8 +1,0 @@
-
-Qpython:S1481K"4Remove the unused local variable "confusion_matrix".(Œ€ë»ùÿÿÿÿ
-;python:S125L"Remove this commented out code.(½ÕßÀûÿÿÿÿ
-Hpython:S1481f"+Remove the unused local variable "dataset".(×·Ìúÿÿÿÿ
-Bpython:S1481d"*Remove the unused local variable "metric".(‚ô·Ç
-Kpython:S1481g".Remove the unused local variable "image_size".(ùÊÄÙùÿÿÿÿ
-Kpython:S1481b".Remove the unused local variable "color_mode".(Û§²ñıÿÿÿÿ
-;python:S125["Remove this commented out code.(ìâ˜ıÿÿÿÿ

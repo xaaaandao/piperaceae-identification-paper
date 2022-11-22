@@ -6,9 +6,7 @@ import pathlib
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MaxNLocator
 
 
 def save_confusion_matrix_sheet(confusion_matrix, filename, xticklabels, yticklabels):
@@ -40,22 +38,78 @@ def accuracy_grather_than_four_and_less_than_six(accuracy):
 
 
 def accuracy_less_than_six(accuracy, line_confusion_matrix):
-    line_confusion_matrix.append('medium') if accuracy_grather_than_four_and_less_than_six(accuracy) else line_confusion_matrix.append('hard')
+    line_confusion_matrix.append('medium') if accuracy_grather_than_four_and_less_than_six(
+        accuracy) else line_confusion_matrix.append('hard')
 
 
 def check_accuracy(confusion_matrix, line_confusion_matrix, pos):
-    line_confusion_matrix.append('easy') if accuracy_greather_than_six(confusion_matrix[pos]) else accuracy_less_than_six(confusion_matrix[pos], line_confusion_matrix)
+    line_confusion_matrix.append('easy') if accuracy_greather_than_six(
+        confusion_matrix[pos]) else accuracy_less_than_six(confusion_matrix[pos], line_confusion_matrix)
 
 
-def get_figsize(list_labels, normalized=True):
-    if len(list_labels) <= 5:
-        return (5, 4) if not normalized else (5, 5)
-    elif len(list_labels) <= 20:
-        return (5, 4) if not normalized else (5, 5)
-    elif len(list_labels) <= 34:
-        return (5, 4) if not normalized else (5, 5)
-    elif len(list_labels) <= 55:
-        return (5, 4) if not normalized else (5, 5)
+def size_list_labels_between_six_and_twenty(list_labels):
+    return 6 <= len(list_labels) <= 20
+
+
+def get_size_list_labels_between_six_and_twenty(normalized):
+    fontsize_title = 40
+    fontsize_tick = 10
+    fontsize_label = 20
+    figsize = (15, 15)
+    if not normalized:
+        figsize = (8, 8)
+    return figsize, fontsize_title, fontsize_tick, fontsize_label
+
+
+def size_list_labels_between_twenty_one_and_thirty_four(list_labels):
+    return 21 <= len(list_labels) <= 34
+
+
+def get_size_list_labels_between_twenty_one_and_thirty_four(normalized):
+    fontsize_title = 42
+    fontsize_tick = 12
+    fontsize_label = 24
+    figsize = (25, 25)
+    if not normalized:
+        figsize = (15, 15)
+    return figsize, fontsize_title, fontsize_tick, fontsize_label
+
+def size_list_labels_between_thirty_five_and_fifty_five(list_labels):
+    return 35 <= len(list_labels) <= 55
+
+
+def get_size_list_labels_between_thirty_five_and_fifty_five(normalized):
+    fontsize_title = 48
+    fontsize_tick = 15
+    fontsize_label = 30
+    figsize = (35, 35)
+    if not normalized:
+        figsize = (25, 25)
+    return figsize, fontsize_title, fontsize_tick, fontsize_label
+
+def get_size(list_labels, normalized=True):
+    if size_list_labels_between_one_and_five(list_labels):
+        return get_size_list_labels_between_one_and_five(normalized)
+    elif size_list_labels_between_six_and_twenty(list_labels):
+        return get_size_list_labels_between_six_and_twenty(normalized)
+    elif size_list_labels_between_twenty_one_and_thirty_four(list_labels):
+        return get_size_list_labels_between_twenty_one_and_thirty_four(normalized)
+    elif size_list_labels_between_thirty_five_and_fifty_five(list_labels):
+        return get_size_list_labels_between_thirty_five_and_fifty_five(normalized)
+
+
+def get_size_list_labels_between_one_and_five(normalized):
+    fontsize_title = 24
+    fontsize_tick = 8
+    fontsize_label = 14
+    figsize = (5, 5)
+    if not normalized:
+        figsize = (5, 4)
+    return figsize, fontsize_title, fontsize_tick, fontsize_label
+
+
+def size_list_labels_between_one_and_five(list_labels):
+    return 1 <= len(list_labels) <= 5
 
 
 def save_confusion_matrix_multilabel(list_confusion_matrix, list_labels, path, rule):
@@ -85,25 +139,31 @@ def save_confusion_matrix_fold(data, list_labels, path_fold, result, rule):
 
     # ConfusionMatrix
     confusion_matrix = result[0]['confusion_matrix']
-    figsize = get_figsize(list_labels)
-    save_confusion_matrix_normal(confusion_matrix, path_confusion_matrix, rule, xticklabels, yticklabels, figsize=figsize)
+    figsize, fontsize_title, fontsize_ticklabels, fontsize_label = get_size(list_labels)
+    save_confusion_matrix_normal(confusion_matrix, path_confusion_matrix, rule, xticklabels, yticklabels,
+                                 figsize=figsize, fontsize_title=fontsize_title,
+                                 fontsize_ticklabels=fontsize_ticklabels, fontsize_label=fontsize_label)
 
     # ConfusionMatrix normalized
-    figsize = get_figsize(list_labels, normalized=True)
+    figsize, fontsize_title, fontsize_ticklabels, fontsize_label = get_size(list_labels, normalized=True)
     confusion_matrix_normalized = result[0]['confusion_matrix_normalized']
-    save_confusion_matrix_normalized(confusion_matrix_normalized, path_confusion_matrix, rule, xticklabels, yticklabels, figsize=figsize)
-    # save_confusion_matrix_sheet(confusion_matrix, os.path.join(path_confusion_matrix, f'confusionmatrix_normalized_{rule}'), xticklabels, yticklabels)
+    save_confusion_matrix_normalized(confusion_matrix_normalized, path_confusion_matrix, rule, xticklabels, yticklabels,
+                                     figsize=figsize, fontsize_title=fontsize_title,
+                                     fontsize_ticklabels=fontsize_ticklabels, fontsize_label=fontsize_label)
 
     # ConfusionMatrix multilabel
     list_confusion_matrix_multilabel = result[0]['confusion_matrix_multilabel']
     save_confusion_matrix_multilabel(list_confusion_matrix_multilabel, list_labels, path_confusion_matrix, rule)
 
 
-
-def save_confusion_matrix_normal(confusion_matrix, path_confusion_matrix, rule, xticklabels, yticklabels, figsize=(5, 5)):
+def save_confusion_matrix_normal(confusion_matrix, path_confusion_matrix, rule, xticklabels, yticklabels,
+                                 figsize=(5, 5), fontsize_title=24, fontsize_ticklabels=8, fontsize_label=14):
     filename = os.path.join(path_confusion_matrix, 'ConfusionMatrix_%s.png' % rule)
     print(f'[CONFUSION MATRIX] save %s' % filename)
-    save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=figsize, fmt='.2g', xticklabels=xticklabels, yticklabels=yticklabels, rotation_xtickslabels=90, rotation_ytickslabels=0)
+    save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=figsize,
+                          fontsize_title=fontsize_title, fontsize_ticklabels=fontsize_ticklabels,
+                          fontsize_label=fontsize_label, fmt='.2g', xticklabels=xticklabels, yticklabels=yticklabels,
+                          rotation_xtickslabels=90, rotation_ytickslabels=0)
 
 
 def get_only_labels(list_labels):
@@ -115,30 +175,39 @@ def get_labels_and_count_samples(list_labels, list_samples_per_label, n_patch):
             for label in list_labels]
 
 
-def save_confusion_matrix_normalized(confusion_matrix, path, rule, xticklabels, yticklabels, figsize=(5, 5)):
+def save_confusion_matrix_normalized(confusion_matrix, path, rule, xticklabels, yticklabels, figsize=(5, 5),
+                                     fontsize_title=24, fontsize_ticklabels=8, fontsize_label=14):
     filename = os.path.join(path, 'ConfusionMatrix_%s_normalized.png' % rule)
     print(f'[CONFUSION MATRIX] save %s' % filename)
-    save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=(5, 5), fmt='.2f',
+    save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=figsize,
+                          fontsize_title=fontsize_title, fontsize_ticklabels=fontsize_ticklabels,
+                          fontsize_label=fontsize_label, fmt='.2f',
                           xticklabels=xticklabels, yticklabels=yticklabels, rotation_xtickslabels=90,
                           rotation_ytickslabels=0)
 
 
-def save_confusion_matrix(confusion_matrix, filename, title, figsize=(5, 5), fmt='.2g', xticklabels=None, yticklabels=None, rotation_xtickslabels=0, rotation_ytickslabels=90):
+def save_confusion_matrix(confusion_matrix, filename, title, figsize=(5, 5), fontsize_title=24, fontsize_ticklabels=8,
+                          fontsize_label=14, fmt='.2g', xticklabels=None, yticklabels=None, rotation_xtickslabels=0,
+                          rotation_ytickslabels=90):
     vmin = np.min(confusion_matrix)
     vmax = np.max(confusion_matrix)
     off_diag_mask = np.eye(*confusion_matrix.shape, dtype=bool)
 
     figure, axis = plt.subplots(figsize=figsize)
-    axis = sns.heatmap(confusion_matrix, annot=True, mask=~off_diag_mask, cmap='Reds', fmt=fmt, vmin=vmin, vmax=vmax, ax=axis, annot_kws={'fontweight':'bold', 'size': 12})
-    axis = sns.heatmap(confusion_matrix, annot=True, mask=off_diag_mask, cmap='Reds', fmt=fmt, vmin=vmin, vmax=vmax, cbar=False, ax=axis)
+    axis = sns.heatmap(confusion_matrix, annot=True, mask=~off_diag_mask, cmap='Reds', fmt=fmt, vmin=vmin, vmax=vmax,
+                       ax=axis, annot_kws={'fontweight': 'bold', 'size': 12})
+    axis = sns.heatmap(confusion_matrix, annot=True, mask=off_diag_mask, cmap='Reds', fmt=fmt, vmin=vmin, vmax=vmax,
+                       cbar=False, ax=axis)
 
-    fontsize_ticklabels = 8
-    axis.set_xticklabels(xticklabels, fontsize=fontsize_ticklabels, rotation=rotation_xtickslabels)
-    axis.set_yticklabels(yticklabels, fontsize=fontsize_ticklabels, rotation=rotation_ytickslabels)
-    axis.set_xlabel('True label', fontsize=14)
-    axis.set_ylabel('Prediction label', fontsize=14)
+    list_xtick = [i + 0.5 for i in range(len(xticklabels))]
+    list_ytick = [i + 0.5 for i in range(len(yticklabels))]
+
+    axis.set_xticks(list_xtick, labels=xticklabels, fontsize=fontsize_ticklabels, rotation=rotation_xtickslabels)
+    axis.set_yticks(list_ytick, labels=yticklabels, fontsize=fontsize_ticklabels, rotation=rotation_ytickslabels)
+    axis.set_xlabel('True label', fontsize=fontsize_label)
+    axis.set_ylabel('Prediction label', fontsize=fontsize_label)
     axis.set_facecolor('white')
-    axis.set_title(title, fontsize=24, pad=32)
+    axis.set_title(title, fontsize=fontsize_title, pad=32)
 
     plt.ioff()
     plt.tight_layout()

@@ -69,7 +69,6 @@ def get_top_k(top_k, total_top_k):
     if int(top_k) > 0 and int(total_top_k) > 0:
         percentage = int(top_k) / int(total_top_k)
         percentage = str(round(percentage * 100, 1))
-        # return str(str(top_k) + '/' + str(total_top_k) + '=' + str(percentage) + '%')
         return str(percentage).replace('.', ',')
     return str(0)
 
@@ -169,16 +168,15 @@ def unet_not_hifen(file):
 )
 def main(color, input, output):
     if not os.path.exists(input):
-        raise NotADirectoryError(f'directory {input} not exists')
+        raise NotADirectoryError('directory %s not exists' % input)
 
     if not os.path.exists(output):
-        raise NotADirectoryError(f'directory {output} not exists')
+        raise NotADirectoryError('directory %s not exists' % output)
 
     list_files = [file for file in pathlib.Path(input).rglob('mean.csv') if file.is_file() and color.lower() in str(file.resolve())]
-    # list_files = [file for file in pathlib.Path(input).rglob('mean.csv') if file.is_file()]
 
     if len(list_files) == 0:
-        raise FileNotFoundError(f'files not found in directory {input}')
+        raise ValueError('list empty')
 
     list_extractor = {
         'lbp': [59],
@@ -188,14 +186,12 @@ def main(color, input, output):
         'resnet50v2': [128, 256, 512, 1024, 2048],
         'vgg16': [128, 256, 512]
     }
-    # index = get_index_mean(list_extractor)
 
     list_classifier = ['DecisionTreeClassifier', 'KNeighborsClassifier', 'MLPClassifier', 'RandomForestClassifier',
                        'SVC']
     list_dim = [256, 400, 512]
 
     list_segmented = ['unet', 'manual']
-    # columns = get_columns(list_classifier, list_dim, list_segmented)
 
     df = create_df(list_classifier, list_extractor, list_dim, list_segmented)
 
@@ -217,8 +213,6 @@ def main(color, input, output):
 
     save_df(color, df, output)
 
-    # plot_mean(output, plot)
-
 
 def get_columns(list_classifier, list_dim, list_segmented):
     columns = [c + '_' + str(d) + '_' + s for c in list_classifier for s in sorted(list_segmented) for d in list_dim]
@@ -239,23 +233,23 @@ def plot_mean(output, plot):
         mean_resnet = get_list_mean('resnet', image_size, n_features, plot)
 
         labels_axis_x = ['DecisionTree', 'k-NN', 'MLP', 'RF', 'SVM']
-        X_axis = np.arange(len(labels_axis_x))
+        x_axis = np.arange(len(labels_axis_x))
 
         figure, axis = plt.subplots(figsize=(12, 6))
 
-        add_mean_plot(X_axis, axis, bar_width, 'mobilenetv2', mean_mobilenet)
-        add_mean_plot(X_axis + 0.25, axis, bar_width, 'resnet50v2', mean_resnet)
-        add_mean_plot(X_axis + 0.5, axis, bar_width, 'vgg16', mean_vgg)
+        add_mean_plot(axis, bar_width, 'mobilenetv2', mean_mobilenet, x_axis)
+        add_mean_plot(axis, bar_width, 'resnet50v2', mean_resnet, x_axis + 0.25)
+        add_mean_plot(axis, bar_width, 'vgg16', mean_vgg, x_axis + 0.5)
         add_bar_label(axis)
 
         r = np.arange(len(labels_axis_x))
         plt.xticks(r + 0.4 / 2, labels_axis_x)
-        plt.title(f'Mean F1-score (n_features: {n_features})', fontweight='bold', fontsize='xx-large', pad=20)
+        plt.title('Mean F1-score (n_features: %s)' % n_features, fontweight='bold', fontsize='xx-large', pad=20)
         plt.xlabel('classifiers', fontweight='bold', fontsize='xx-large')
         plt.ylabel('mean', fontweight='bold', fontsize='xx-large')
         pathlib.Path(os.path.join(output, 'plots')).mkdir(exist_ok=True, parents=True)
-        filename = os.path.join(output, 'plots', f'f1_{n_features}.png')
-        print(f'[TOP-k]save {filename}')
+        filename = os.path.join(output, 'plots', 'f1_%s.png' % n_features)
+        print('[TOP-k] save %s' % filename)
         plt.savefig(filename, dpi=300)
         plt.grid()
         plt.cla()
@@ -263,9 +257,9 @@ def plot_mean(output, plot):
         plt.close(figure)
 
 
-def add_mean_plot(X_axis, ax, bar_width, label, mean):
+def add_mean_plot(ax, bar_width, label, mean, x_axis):
     if len(mean) > 0:
-        ax.bar(X_axis, mean, width=bar_width, edgecolor='black', label=label)
+        ax.bar(x_axis, mean, width=bar_width, edgecolor='black', label=label)
         ax.legend(fontsize='x-large')
 
 
