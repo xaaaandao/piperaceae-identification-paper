@@ -11,11 +11,21 @@ import pathlib
 ROUND_VALUE = 3
 
 
-def create_df(columns, index):
+def get_index_time(list_extractor):
+    return [e + '_' + str(d) + '_' + m for e in list_extractor.keys() for d in reversed(list_extractor[e]) for m in
+            ['train_test', 'gridsearch']]
+
+
+def get_index_folder(list_extractor):
+    return [e + '_' + str(d) + '_' + m for e in list_extractor.keys() for d in reversed(list_extractor[e]) for m in
+            ['folder']]
+
+
+def create_df(list_classifier, list_extractor, list_dim, list_segmented):
     return {
-        'mean': pd.DataFrame(index=index, columns=columns),
-        'time': pd.DataFrame(index=index, columns=columns),
-        'folder': pd.DataFrame(index=index, columns=columns)
+        'mean': pd.DataFrame(index=get_index_mean(list_extractor), columns=get_columns(list_classifier, list_dim, list_segmented)),
+        'time': pd.DataFrame(index=get_index_time(list_extractor), columns=get_columns(list_classifier, list_dim, list_segmented)),
+        'folder': pd.DataFrame(index=get_index_folder(list_extractor), columns=get_columns(list_classifier, list_dim, list_segmented))
     }
 
 
@@ -64,13 +74,13 @@ def get_top_k(top_k, total_top_k):
     return str(0)
 
 
-def insert_sheet(column, date, df, index_mean, index_std, index_top_k, mean, mean_time_search_best_params, mean_time_train_valid, std, top_k, total_top_k):
+def insert_sheet(column, date, df, index_folder, index_gridsearch, index_mean, index_std, index_top_k, index_train_test, mean, mean_time_search_best_params, mean_time_train_valid, std, top_k, total_top_k):
     df['mean'].loc[index_mean, column] = round_mean(mean)
     df['mean'].loc[index_std, column] = plus_minus_std(std)
     df['mean'].loc[index_top_k, column] = get_top_k(top_k, total_top_k)
-    df['time'].loc[index_mean, column] = round_time(mean_time_train_valid)
-    df['time'].loc[index_std, column] = round_time(mean_time_search_best_params)
-    # df['folder'].loc[index_folder, column] = date
+    df['time'].loc[index_train_test, column] = round_time(mean_time_train_valid)
+    df['time'].loc[index_gridsearch, column] = round_time(mean_time_search_best_params)
+    df['folder'].loc[index_folder, column] = date
 
 
 def get_csv(filename, header=None):
@@ -84,22 +94,26 @@ def fill_sheet_mean_std(classifier, date, df, filename, image_size, extractor, n
     mean_time_train_valid = sheet_mean.loc['mean_time_train_valid'][1]
     std = sheet_mean.loc['std_accuracy_sum'][1]
 
-    # if not os.path.exists(str(filename).replace('mean.csv', 'mean_top_k/mean_top_k_sum.csv')):
-    #     raise FileNotFoundError(f'file not exists {str(filename).replace("mean.csv", "mean_top_k/mean_top_k_sum.csv")}')
-    #
-    # if not os.path.exists(str(filename).replace('mean.csv', '0/top_k/sum/info_top_k_sum.csv')):
-    #     raise FileNotFoundError(f'file not exists {str(filename).replace("mean.csv", "0/top_k/sum/info_top_k_sum.csv")}')
-    #
-    # sheet_mean_top_k_sum = get_csv(str(filename).replace('mean.csv', 'mean_top_k/mean_top_k_sum.csv'), header=0)
-    # sheet_info_top_k_sum = get_csv(str(filename).replace('mean.csv', '0/top_k/sum/info_top_k_sum.csv'))
-    # top_k = sheet_mean_top_k_sum.iloc[1]['top_k']
-    # total_top_k = sheet_info_top_k_sum.loc['total'][1]
-    top_k = 0
-    total_top_k = 0
+    filename_mean_top_k_sum = str(filename).replace('mean.csv', 'mean_top_k/mean_top_k_sum.csv')
+    if os.path.exists(filename_mean_top_k_sum):
+        sheet_mean_top_k_sum = get_csv(filename_mean_top_k_sum, header=0)
+        top_k = sheet_mean_top_k_sum.iloc[1]['top_k']
+    else:
+        top_k = 0
+
+    filename_info_top_k_sum = str(filename).replace('mean.csv', '0/top_k/sum/info_top_k_sum.csv')
+    if os.path.exists(filename_info_top_k_sum):
+        sheet_info_top_k_sum = get_csv(filename_info_top_k_sum)
+        total_top_k = sheet_info_top_k_sum.loc['total'][1]
+    else:
+        total_top_k = 0
 
     index_mean = extractor + '_' + n_features + '_' + 'mean'
     index_std = extractor + '_' + n_features + '_' + 'std'
     index_top_k = extractor + '_' + n_features + '_' + 'top_k'
+    index_train_test = extractor + '_' + n_features + '_' + 'train_test'
+    index_gridsearch = extractor + '_' + n_features + '_' + 'gridsearch'
+    index_folder = extractor + '_' + n_features + '_' + 'folder'
     column = classifier + '_' + image_size + '_' + segmented
 
     plot.append({
@@ -110,7 +124,7 @@ def fill_sheet_mean_std(classifier, date, df, filename, image_size, extractor, n
         'mean': mean
     })
 
-    insert_sheet(column, date, df, index_mean, index_std, index_top_k, mean, mean_time_search_best_params, mean_time_train_valid, std, top_k, total_top_k)
+    insert_sheet(column, date, df, index_folder, index_gridsearch, index_mean, index_std, index_top_k, index_train_test, mean, mean_time_search_best_params, mean_time_train_valid, std, top_k, total_top_k)
 
 
 def get_list_mean(extractor, image_size, n_features, plot):
@@ -160,7 +174,9 @@ def main(color, input, output):
     if not os.path.exists(output):
         raise NotADirectoryError(f'directory {output} not exists')
 
-    list_files = [file for file in pathlib.Path(input).rglob('mean.csv') if file.is_file()]
+    list_files = [file for file in pathlib.Path(input).rglob('mean.csv') if file.is_file() and color.lower() in str(file.resolve())]
+    # list_files = [file for file in pathlib.Path(input).rglob('mean.csv') if file.is_file()]
+
     if len(list_files) == 0:
         raise FileNotFoundError(f'files not found in directory {input}')
 
@@ -172,17 +188,16 @@ def main(color, input, output):
         'resnet50v2': [128, 256, 512, 1024, 2048],
         'vgg16': [128, 256, 512]
     }
-    index = [e + '_' + str(d) + '_' + m for e in list_extractor.keys() for d in reversed(list_extractor[e]) for m in
-             ['mean', 'std', 'top_k']]
+    # index = get_index_mean(list_extractor)
 
     list_classifier = ['DecisionTreeClassifier', 'KNeighborsClassifier', 'MLPClassifier', 'RandomForestClassifier',
                        'SVC']
     list_dim = [256, 400, 512]
 
     list_segmented = ['unet', 'manual']
-    columns = [c + '_' + str(d) + '_' + s for c in list_classifier for s in sorted(list_segmented) for d in list_dim]
+    # columns = get_columns(list_classifier, list_dim, list_segmented)
 
-    df = create_df(columns, index)
+    df = create_df(list_classifier, list_extractor, list_dim, list_segmented)
 
     plot = []
     for file in sorted(list_files):
@@ -203,6 +218,16 @@ def main(color, input, output):
     save_df(color, df, output)
 
     # plot_mean(output, plot)
+
+
+def get_columns(list_classifier, list_dim, list_segmented):
+    columns = [c + '_' + str(d) + '_' + s for c in list_classifier for s in sorted(list_segmented) for d in list_dim]
+    return columns
+
+
+def get_index_mean(list_extractor):
+    return [e + '_' + str(d) + '_' + m for e in list_extractor.keys() for d in reversed(list_extractor[e]) for m in
+             ['mean', 'std', 'top_k']]
 
 
 def plot_mean(output, plot):
@@ -245,12 +270,16 @@ def add_mean_plot(X_axis, ax, bar_width, label, mean):
 
 
 def save_df(color, df, dir_output):
-    filename_mean = os.path.join(dir_output, f'mean_{color}')
-    filename_mean_time = os.path.join(dir_output, f'mean_time_{color}')
-    df['mean'].to_csv(f'{filename_mean}.csv', sep=';', na_rep='', quoting=csv.QUOTE_ALL)
-    df['mean'].to_excel(f'{filename_mean}.xlsx', na_rep='', engine='xlsxwriter')
-    df['time'].to_csv(f'{filename_mean_time}.csv', sep=';', na_rep='', quoting=csv.QUOTE_ALL)
-    # df['time'].to_excel(f'{filename_mean_time}.xlsx', na_rep='', engine='xlsxwriter')
+    filename_mean = os.path.join(dir_output, 'mean_%s' % color)
+    filename_mean_time = os.path.join(dir_output, 'mean_time_%s' % color)
+    filename_date = os.path.join(dir_output, 'date_%s' % color)
+    save_xlsx(df['mean'], filename_mean)
+    save_xlsx(df['time'], filename_mean_time)
+    save_xlsx(df['folder'], filename_date)
+
+
+def save_xlsx(df, filename):
+    df.to_excel('%s.xlsx' % filename, na_rep='', engine='xlsxwriter')
 
 
 if __name__ == '__main__':
