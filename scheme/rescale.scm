@@ -1,5 +1,5 @@
-(define (rescale value)
-	(let* ((filelist (cadr (file-glob "*.xcf" 1))))
+(define (rescale path value is_grayscale)
+	(let* ((filelist (cadr (file-glob (string-append path "*.xcf") 1))))
 		(while (not (null? filelist))
             (let* (
                     (filename (car filelist))
@@ -11,6 +11,8 @@
                 )
                 (gimp-message filename)
                 (gimp-image-scale-full image value value INTERPOLATION-NONE)
+                ; (gimp-message is_grayscale)
+                (cond  ( (eqv? is_grayscale 1) (gimp-image-convert-grayscale image) ) )
                 ; (gimp-image-convert-grayscale image)
                 (gimp-xcf-save RUN-NONINTERACTIVE image drawable filename filename)
                 (gimp-file-save RUN-NONINTERACTIVE image drawable nfilename nfilename)                    
@@ -19,12 +21,4 @@
             (set! filelist (cdr filelist))
         )
 	)
-)
-(script-fu-register "rescale"
-	""
-	"Do nothing"
-	"Joey User"
-	"Joey User"
-	"August 2000"
-	""
 )
