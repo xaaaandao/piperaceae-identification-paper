@@ -46,8 +46,7 @@ function run_test {
         for color in RGB; do
             for j in `seq 1 ${classes}`;
             do
-                # create_xcf ${color} ${taxon} ${image_size} ${threshold} $j ${dataset}
-                echo "oi"
+                create_xcf ${color} ${taxon} ${image_size} ${threshold} $j ${dataset}
             done
             for j in `seq 1 ${classes}`;
             do
@@ -60,7 +59,7 @@ function run_test {
 # run_test 20 specific_epithet 20 imagens_george
 # run_test 34 specific_epithet 10 imagens_george
 # run_test 55 specific_epithet 5 imagens_george
-run_test 2 genus 2 imagens_george
+# run_test 2 genus 2 imagens_george
 # run_test 20 specific_epithet 20 imagens_br
 # run_test 34 specific_epithet 10 imagens_br
 # run_test 55 specific_epithet 5 imagens_br

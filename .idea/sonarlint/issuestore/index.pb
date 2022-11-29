@@ -17,10 +17,6 @@ D
 save/save_samples.py,a/f/aff5bba098da3fd9bbfb5a078fcaec3f670302e5
 B
 save/save_files.py,e/c/ecb4fc5a286eb2a7bf3a8582e82238dc440b49c8
-7
-data.py,7/2/724b1af384039fb78ce97d10160f394e8b8785a7
-7
-test.py,a/3/a36e355ddb203d7d4133221f339dc406cb9f480f
 D
 save/save_dataset.py,4/3/43e91401ce67f37a625161e6e422ccf95e0c5f4a
 A
@@ -33,20 +29,3 @@ A
 save/save_fold.py,7/0/70fe40d311a6fc0634463b52157691dda39b5489
 <
 save/save.py,0/0/00062fb8e5de4a9e4526b5379027c582d21304ac
-7
-main.py,f/1/f1bdda93d9a278e358509d498e17d97764c1fb29
-<
-script_sp.sh,f/3/f33d12f28b4fffbf9c3535927ff3ee04fd83cfe2
-M
-save/save_confusion_matrix.py,f/4/f44e044746147d2641b588d8c757610fa7afb9be
-:
-
-.gitignore,a/5/a5cc2925ca8258af241be7e5b0381edf30266302
-@
-script_george.sh,c/2/c2258801b588f6ba8dd7ae23b58b99395a157a24
-F
-results/read_result.py,6/3/6314a65b93f4b94d77275b56cbe67cf69bd9212e
-A
-results/script.sh,f/c/fcd5e2d287106248387bcf86499d3471bc9fb1a7
-=
-classifier.py,c/d/cd7ff97061ecc87fddd1aaae9ccd97779a5ebd11

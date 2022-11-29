@@ -7,7 +7,6 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.utils import parallel_backend
 
 cfg_classifier = {
     'n_jobs': -1,
@@ -47,23 +46,21 @@ list_classifiers = [
     KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
     MLPClassifier(random_state=cfg_classifier['seed']),
     RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs']),
-    SVC(random_state=cfg_classifier['seed'], probability=True)
+    SVC(random_state=cfg_classifier['seed'], verbose=True, probability=True, max_iter=500)
 ]
 
 
 def find_best_classifier_and_params(cfg, classifier, data, metric):
-    n_cpu = multiprocessing.cpu_count()
     classifier_name = classifier.__class__.__name__
 
     print(f'[GRIDSEARCH CV] find best params of {classifier_name}')
 
-    classifier_best_params = GridSearchCV(classifier, list_params[classifier_name], scoring=metric, cv=cfg['fold'], pre_dispatch=int((n_cpu)*3/4), n_jobs=int((n_cpu)*3/4), verbose=cfg['verbose'])
+    classifier_best_params = GridSearchCV(classifier, list_params[classifier_name], scoring=metric, cv=cfg['fold'], n_jobs=cfg_classifier['n_jobs'], verbose=cfg['verbose'])
 
-    with parallel_backend('threading', n_jobs=int((n_cpu)*3/4)):
-        start_search_best_params = time.time()
-        classifier_best_params.fit(data['x'], data['y'])
-        end_search_best_params = time.time()
-        time_search_best_params = end_search_best_params - start_search_best_params
+    start_search_best_params = time.time()
+    classifier_best_params.fit(data['x'], data['y'])
+    end_search_best_params = time.time()
+    time_search_best_params = end_search_best_params - start_search_best_params
 
     best_classifier = classifier_best_params.best_estimator_
     best_params = classifier_best_params.best_params_

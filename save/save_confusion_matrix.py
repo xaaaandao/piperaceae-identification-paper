@@ -243,3 +243,4 @@ def get_list_label(filename):
         return [get_string_confusion_matrix(l) for l in lines if len(l.split(';')) > 0]
     except FileNotFoundError:
         print(f'{filename} not exits exists')
+        raise
