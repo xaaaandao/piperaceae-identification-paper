@@ -1,4 +1,3 @@
-import multiprocessing
 import time
 
 from sklearn.ensemble import RandomForestClassifier
@@ -46,7 +45,7 @@ list_classifiers = [
     KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
     MLPClassifier(random_state=cfg_classifier['seed']),
     RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs']),
-    SVC(random_state=cfg_classifier['seed'], verbose=True, probability=True, max_iter=500)
+    # SVC(random_state=cfg_classifier['seed'], verbose=True, probability=True, max_iter=500)
 ]
 
 
