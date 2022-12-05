@@ -87,6 +87,21 @@ def get_size_list_labels_between_thirty_five_and_fifty_five(normalized):
         figsize = (25, 25)
     return figsize, fontsize_title, fontsize_tick, fontsize_label
 
+
+def size_list_labels_seventy_one(list_labels):
+    return len(list_labels) == 71
+
+
+def get_size_list_labels_seventy_one(normalized):
+    fontsize_title = 48
+    fontsize_tick = 15
+    fontsize_label = 30
+    figsize = (45, 45)
+    if not normalized:
+        figsize = (35, 35)
+    return figsize, fontsize_title, fontsize_tick, fontsize_label
+
+
 def get_size(list_labels, normalized=True):
     if size_list_labels_between_one_and_five(list_labels):
         return get_size_list_labels_between_one_and_five(normalized)
@@ -96,6 +111,8 @@ def get_size(list_labels, normalized=True):
         return get_size_list_labels_between_twenty_one_and_thirty_four(normalized)
     elif size_list_labels_between_thirty_five_and_fifty_five(list_labels):
         return get_size_list_labels_between_thirty_five_and_fifty_five(normalized)
+    elif size_list_labels_seventy_one(list_labels):
+        return get_size_list_labels_seventy_one(normalized)
 
 
 def get_size_list_labels_between_one_and_five(normalized):

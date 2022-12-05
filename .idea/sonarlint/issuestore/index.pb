@@ -36,13 +36,7 @@ A
 :
 
 .gitignore,a/5/a5cc2925ca8258af241be7e5b0381edf30266302
-<
-script_sp.sh,f/3/f33d12f28b4fffbf9c3535927ff3ee04fd83cfe2
 7
 data.py,7/2/724b1af384039fb78ce97d10160f394e8b8785a7
-M
-save/save_confusion_matrix.py,f/4/f44e044746147d2641b588d8c757610fa7afb9be
-7
-main.py,f/1/f1bdda93d9a278e358509d498e17d97764c1fb29
 7
 test.py,a/3/a36e355ddb203d7d4133221f339dc406cb9f480f
