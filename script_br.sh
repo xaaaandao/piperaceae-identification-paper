@@ -8,7 +8,7 @@ do
 	do
 		for color in RGB
 		do
-			for threshold in 5
+			for threshold in 20
 			do
 				echo ${extractor} ${img_size} ${threshold} ${color} ${metric}
 				${py} main.py -i ../dataset_gimp/imagens_br/features/${color}/segmented_unet/${img_size}/patch\=3/${taxon}/${threshold}/${extractor}/horizontal -l ../dataset_gimp/imagens_br/imagens/${color}/${taxon}/${img_size}/${threshold}/label2.txt -m ${metric}
