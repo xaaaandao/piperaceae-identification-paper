@@ -88,17 +88,45 @@ def get_size_list_labels_between_thirty_five_and_fifty_five(normalized):
     return figsize, fontsize_title, fontsize_tick, fontsize_label
 
 
-def size_list_labels_seventy_one(list_labels):
-    return len(list_labels) == 71
+def size_list_labels_between_one_hundred_and_one_hundred_ten(list_labels):
+    return 100 <= len(list_labels) <= 110
 
 
-def get_size_list_labels_seventy_one(normalized):
-    fontsize_title = 48
+def get_size_list_labels_one_hundred_and_one_hundred_ten(normalized):
+    fontsize_title = 84
     fontsize_tick = 15
     fontsize_label = 30
-    figsize = (45, 45)
+    figsize = (75, 75)
     if not normalized:
-        figsize = (35, 35)
+        figsize = (55, 55)
+    return figsize, fontsize_title, fontsize_tick, fontsize_label
+
+
+def size_list_labels_between_one_hundred_sixty_and_one_hundred_seventy(list_labels):
+    return 160 <= len(list_labels) <= 170
+
+
+def get_size_list_labels_one_hundred_sixty_and_one_hundred_seventy(normalized):
+    fontsize_title = 96
+    fontsize_tick = 15
+    fontsize_label = 30
+    figsize = (115, 115)
+    if not normalized:
+        figsize = (95, 95)
+    return figsize, fontsize_title, fontsize_tick, fontsize_label
+
+
+def size_list_labels_between_two_hundred_thirty_and_two_hundred_fourty(list_labels):
+    return 230 <= len(list_labels) <= 240
+
+
+def get_size_list_labels_two_hundred_thirty_and_two_hundred_fourty(normalized):
+    fontsize_title = 160
+    fontsize_tick = 15
+    fontsize_label = 30
+    figsize = (165, 165)
+    if not normalized:
+        figsize = (145, 145)
     return figsize, fontsize_title, fontsize_tick, fontsize_label
 
 
@@ -111,8 +139,12 @@ def get_size(list_labels, normalized=True):
         return get_size_list_labels_between_twenty_one_and_thirty_four(normalized)
     elif size_list_labels_between_thirty_five_and_fifty_five(list_labels):
         return get_size_list_labels_between_thirty_five_and_fifty_five(normalized)
-    elif size_list_labels_seventy_one(list_labels):
-        return get_size_list_labels_seventy_one(normalized)
+    elif size_list_labels_between_one_hundred_and_one_hundred_ten(list_labels):
+        return get_size_list_labels_one_hundred_and_one_hundred_ten(normalized)
+    elif size_list_labels_between_one_hundred_sixty_and_one_hundred_seventy(list_labels):
+        return get_size_list_labels_one_hundred_sixty_and_one_hundred_seventy(normalized)
+    elif size_list_labels_between_two_hundred_thirty_and_two_hundred_fourty(list_labels):
+        return get_size_list_labels_two_hundred_thirty_and_two_hundred_fourty(normalized)
 
 
 def get_size_list_labels_between_one_and_five(normalized):
@@ -179,7 +211,7 @@ def save_confusion_matrix_normal(confusion_matrix, path_confusion_matrix, rule, 
     print(f'[CONFUSION MATRIX] save %s' % filename)
     save_confusion_matrix(confusion_matrix, filename, 'Confusion Matrix', figsize=figsize,
                           fontsize_title=fontsize_title, fontsize_ticklabels=fontsize_ticklabels,
-                          fontsize_label=fontsize_label, fmt='.2g', xticklabels=xticklabels, yticklabels=yticklabels,
+                          fontsize_label=fontsize_label, fmt='.4g', xticklabels=xticklabels, yticklabels=yticklabels,
                           rotation_xtickslabels=90, rotation_ytickslabels=0)
 
 

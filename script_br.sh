@@ -4,7 +4,7 @@ taxon=specific_epithet
 metric=f1_weighted
 for img_size in 512
 do
-	for extractor in mobilenetv2 resnet50v2 vgg16
+	for extractor in vgg16
 	do
 		for color in RGB
 		do

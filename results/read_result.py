@@ -88,19 +88,21 @@ def get_csv(filename, header=None):
 
 def fill_sheet_mean_std(classifier, date, df, filename, image_size, extractor, n_features, n_patch, plot, segmented):
     sheet_mean = get_csv(filename)
-    mean = sheet_mean.loc['mean_accuracy_sum'][1]
+    filename_mean = 'mean.csv'
+    metric = 'f1'
+    mean = sheet_mean.loc['mean_%s_sum' % metric][1]
     mean_time_search_best_params = sheet_mean.loc['mean_time_search_best_params'][1]
     mean_time_train_valid = sheet_mean.loc['mean_time_train_valid'][1]
-    std = sheet_mean.loc['std_accuracy_sum'][1]
+    std = sheet_mean.loc['std_%s_sum' % metric][1]
 
-    filename_mean_top_k_sum = str(filename).replace('mean.csv', 'mean_top_k/mean_top_k_sum.csv')
+    filename_mean_top_k_sum = str(filename).replace(filename_mean, 'mean_top_k/mean_top_k_sum.csv')
     if os.path.exists(filename_mean_top_k_sum):
         sheet_mean_top_k_sum = get_csv(filename_mean_top_k_sum, header=0)
         top_k = sheet_mean_top_k_sum.iloc[1]['top_k']
     else:
         top_k = 0
 
-    filename_info_top_k_sum = str(filename).replace('mean.csv', '0/top_k/sum/info_top_k_sum.csv')
+    filename_info_top_k_sum = str(filename).replace(filename_mean, '0/top_k/sum/info_top_k_sum.csv')
     if os.path.exists(filename_info_top_k_sum):
         sheet_info_top_k_sum = get_csv(filename_info_top_k_sum)
         total_top_k = sheet_info_top_k_sum.loc['total'][1]
@@ -122,6 +124,7 @@ def fill_sheet_mean_std(classifier, date, df, filename, image_size, extractor, n
         'image_size': image_size,
         'mean': mean
     })
+
 
     insert_sheet(column, date, df, index_folder, index_gridsearch, index_mean, index_std, index_top_k, index_train_test, mean, mean_time_search_best_params, mean_time_train_valid, std, top_k, total_top_k)
 
@@ -147,11 +150,20 @@ def unet_not_hifen(file):
     return 'unet' in str(file).lower()
 
 
+def get_threshold(dir_input, taxon):
+    if '%s/5' % taxon in dir_input:
+        return 5
+    elif '%s/10' % taxon in dir_input:
+        return 10
+    elif '%s/20' % taxon in dir_input:
+        return 20
+
+
 @click.command()
 @click.option(
     '--color',
     '-c',
-    type=click.Choice(['RGB', 'grayscale']),
+    type=click.Choice(['RGB', 'grayscale', 'rgb']),
     required=True
 )
 @click.option(
@@ -166,7 +178,17 @@ def unet_not_hifen(file):
     type=str,
     required=True
 )
-def main(color, input, output):
+@click.option(
+    '--taxon',
+    type=click.Choice(['specific_epithet', 'genus']),
+    required=True
+)
+@click.option(
+    '--threshold',
+    type=int,
+    required=True
+)
+def main(color, input, taxon, threshold, output):
     if not os.path.exists(input):
         raise NotADirectoryError('directory %s not exists' % input)
 
@@ -203,13 +225,15 @@ def main(color, input, output):
         color = sheet_info.loc['color_mode'][1]
         image_size = sheet_info.loc['dim_image'][1]
         extractor = sheet_info.loc['extractor'][1]
+        file_threshold = get_threshold(sheet_info.loc['dir_input'][1], taxon)
         n_features = sheet_info.loc['data_n_features'][1]
         n_patch = sheet_info.loc['n_patch'][1]
         slice_patch = sheet_info.loc['slice'][1]
         segmented = get_type_segmented(file)
         date = get_date(file)
 
-        fill_sheet_mean_std(classifier, date, df, file, image_size, extractor, n_features, n_patch, plot, segmented)
+        if threshold == file_threshold:
+            fill_sheet_mean_std(classifier, date, df, file, image_size, extractor, n_features, n_patch, plot, segmented)
 
     save_df(color, df, output)
 
