@@ -2,11 +2,14 @@ import collections
 import csv
 import os
 import pathlib
+import shutil
 
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+
+from save.save_files import compress_folder
 
 
 def save_confusion_matrix_sheet(confusion_matrix, filename, xticklabels, yticklabels):
@@ -73,6 +76,7 @@ def get_size_list_labels_between_twenty_one_and_thirty_four(normalized):
     if not normalized:
         figsize = (15, 15)
     return figsize, fontsize_title, fontsize_tick, fontsize_label
+
 
 def size_list_labels_between_thirty_five_and_fifty_five(list_labels):
     return 35 <= len(list_labels) <= 55
@@ -172,7 +176,7 @@ def save_confusion_matrix_multilabel(list_confusion_matrix, list_labels, path, r
 
         filename = os.path.join(path_to_multilabel, filename)
         list_ticklabels = ['False', 'Positive']
-        save_confusion_matrix(confusion_matrix, filename, f'Confusion Matrix\n{taxon_italic}', fmt='d',
+        save_confusion_matrix(confusion_matrix, filename, f'Confusion Matrix\n%s' % taxon_italic, fmt='d',
                               xticklabels=list_ticklabels, yticklabels=list_ticklabels, rotation_xtickslabels=0,
                               rotation_ytickslabels=0)
         # save_confusion_matrix_sheet(confusion_matrix, filename.replace('.png', ''), list_ticklabels, list_ticklabels)
@@ -203,6 +207,14 @@ def save_confusion_matrix_fold(data, list_labels, path_fold, result, rule):
     # ConfusionMatrix multilabel
     list_confusion_matrix_multilabel = result[0]['confusion_matrix_multilabel']
     save_confusion_matrix_multilabel(list_confusion_matrix_multilabel, list_labels, path_confusion_matrix, rule)
+
+    filename_compress = os.path.join(path_fold, 'confusion_matrix.tar.gz')
+    foldername = os.path.join(path_fold, 'confusion_matrix')
+    compress_folder(filename_compress, foldername)
+    print('[CONFUSION MATRIX] compress folder %s' % foldername)
+
+    shutil.rmtree(foldername)
+    print('[CONFUSION MATRIX] delete folder %s' % foldername)
 
 
 def save_confusion_matrix_normal(confusion_matrix, path_confusion_matrix, rule, xticklabels, yticklabels,
@@ -268,7 +280,7 @@ def save_confusion_matrix(confusion_matrix, filename, title, figsize=(5, 5), fon
 
 def italic_string_plot(string):
     string = string.replace('\"', '')
-    return f'$\\it{{{string}}}$'
+    return '$\\it{{%s}}$' % string
 
 
 def get_string_confusion_matrix(string):
@@ -291,5 +303,5 @@ def get_list_label(filename):
         lines = [l for l in lines if len(l) > 0]
         return [get_string_confusion_matrix(l) for l in lines if len(l.split(';')) > 0]
     except FileNotFoundError:
-        print(f'{filename} not exits exists')
+        print('%s not exits exists' % filename)
         raise

@@ -41,10 +41,10 @@ list_params = {
 }
 
 list_classifiers = [
-    DecisionTreeClassifier(random_state=cfg_classifier['seed']),
-    KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
+    # DecisionTreeClassifier(random_state=cfg_classifier['seed']),
+    # KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
     MLPClassifier(random_state=cfg_classifier['seed']),
-    RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs']),
+    # RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs']),
     # SVC(random_state=cfg_classifier['seed'], verbose=True, probability=True, max_iter=500)
 ]
 
