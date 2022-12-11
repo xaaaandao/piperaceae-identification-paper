@@ -75,7 +75,7 @@ def check_has_result(result):
 
 
 def get_info(path):
-    dataset = search_info(['george', 'sp', 'specieslink', 'br', 'brasil', 'regioes'], str(path))
+    dataset = search_info(['george', 'sp', 'specieslink', 'br', 'brasil', 'regioes', 'iwssip'], str(path))
     color_mode = search_info(['grayscale', 'rgb'], str(path))
     segmented = search_info(['manual', 'unet'], str(path))
     dim = search_info(['256', '400', '512'], str(path))
