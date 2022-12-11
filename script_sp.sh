@@ -9,7 +9,8 @@ do
 		do
 			for segmented in manual unet
 			do
-				${py} main.py -i ../../imagens_sp/features/${color}/segmented_${segmented}/${res}/patch\=3/${e}/horizontal -l ../../imagens_sp/imagens/${color}/segmented_${segmented}/${res}/label2.txt -m ${metric}
+			    echo ${res} ${e} ${color} ${segmented}
+				${py} main.py -i ../dataset_gimp/imagens_sp/features/${color}/segmented_${segmented}/${res}/patch\=3/${e}/horizontal -l ../dataset_gimp/imagens_sp/imagens/${color}/segmented_${segmented}/${res}/label2.txt -m ${metric}
 			done
 		done
 	done
