@@ -1,7 +1,7 @@
-import csv
 import itertools
 import os
 import pathlib
+import shutil
 
 import numpy as np
 import pandas as pd
@@ -10,7 +10,7 @@ import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib import ticker
 
-from save.save_files import save_df
+from save.save_files import save_df, compress_folder
 
 
 def save_info_top_k(index, path, rule, values):
@@ -39,6 +39,14 @@ def save_top_k_rule(path_fold, result, rule):
         save_info_top_k(index, path_top_k, rule, values)
         save_top_k(path_top_k, rule, top_k)
 
+        filename_compress = os.path.join(path_fold, 'top_k.tar.gz')
+        foldername = os.path.join(path_fold, 'top_k')
+        compress_folder(filename_compress, foldername)
+        print('[TOP-K] compress folder %s' % foldername)
+
+        shutil.rmtree(foldername)
+        print('[TOP-K] delete folder %s' % foldername)
+
 
 def get_info_top_k(result):
     top_k = result['top_k']
@@ -53,7 +61,7 @@ def save_plot_top_k(fold, max_top_k, min_top_k, path_fold, rule, top_k, y_true):
     result_top_k = save_top_k_three_and_five(fold, max_top_k, min_top_k, path_fold, rule, top_k, y_true)
 
     filename = os.path.join(path_fold, 'top_k_%s.png' % rule)
-    title = f'All top $k$'
+    title = 'All top $k$'
     plot_top_k(filename, 'top_k_accuracy', result_top_k, max_top_k, min_top_k, title, y_true)
 
 
