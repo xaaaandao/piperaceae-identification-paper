@@ -143,12 +143,28 @@ def get_size(list_labels, normalized=True):
         return get_size_list_labels_between_twenty_one_and_thirty_four(normalized)
     elif size_list_labels_between_thirty_five_and_fifty_five(list_labels):
         return get_size_list_labels_between_thirty_five_and_fifty_five(normalized)
+    elif size_list_labels_between_sixty_and_seventy_one(list_labels):
+        return get_size_list_labels_between_sixty_and_seventy_one(normalized)
     elif size_list_labels_between_one_hundred_and_one_hundred_ten(list_labels):
         return get_size_list_labels_one_hundred_and_one_hundred_ten(normalized)
     elif size_list_labels_between_one_hundred_sixty_and_one_hundred_seventy(list_labels):
         return get_size_list_labels_one_hundred_sixty_and_one_hundred_seventy(normalized)
     elif size_list_labels_between_two_hundred_thirty_and_two_hundred_fourty(list_labels):
         return get_size_list_labels_two_hundred_thirty_and_two_hundred_fourty(normalized)
+
+
+def size_list_labels_between_sixty_and_seventy_one(list_labels):
+    return 60 <= len(list_labels) <= 71
+
+
+def get_size_list_labels_between_sixty_and_seventy_one(normalized):
+    fontsize_title = 48
+    fontsize_tick = 15
+    fontsize_label = 30
+    figsize = (45, 45)
+    if not normalized:
+        figsize = (35, 35)
+    return figsize, fontsize_title, fontsize_tick, fontsize_label
 
 
 def get_size_list_labels_between_one_and_five(normalized):
