@@ -1,4 +1,6 @@
 import csv
+import shutil
+
 import click
 import datetime
 
@@ -95,7 +97,7 @@ def fill_sheet_mean_std(classifier, date, df, filename, image_size, extractor, n
     mean_time_train_valid = sheet_mean.loc['mean_time_train_valid'][1]
     std = sheet_mean.loc['std_%s_sum' % metric][1]
 
-    filename_mean_top_k_sum = str(filename).replace(filename_mean, 'mean_top_k/mean_top_k_sum.csv')
+    filename_mean_top_k_sum = str(filename).replace(filename_mean, 'mean_top_k/mean_top_sum.csv')
     if os.path.exists(filename_mean_top_k_sum):
         sheet_mean_top_k_sum = get_csv(filename_mean_top_k_sum, header=0)
         top_k = sheet_mean_top_k_sum.iloc[1]['top_k']
@@ -108,6 +110,9 @@ def fill_sheet_mean_std(classifier, date, df, filename, image_size, extractor, n
         total_top_k = sheet_info_top_k_sum.loc['total'][1]
     else:
         total_top_k = 0
+
+    print('top_k: %s' % total_top_k)
+    print('total_top_k: %s' % total_top_k)
 
     index_mean = extractor + '_' + n_features + '_' + 'mean'
     index_std = extractor + '_' + n_features + '_' + 'std'
@@ -213,9 +218,26 @@ def main(color, input, taxon, threshold, output):
                        'SVC']
     list_dim = [256, 400, 512]
 
-    list_segmented = ['unet', 'manual']
+    list_segmented = ['unet'] # manual
 
     df = create_df(list_classifier, list_extractor, list_dim, list_segmented)
+
+
+    import tarfile
+    for filename in pathlib.Path(input).rglob('top_k.tar.gz'):
+        try:
+            t = tarfile.open(filename.absolute(), 'r')
+        except IOError as e:
+            print(e)
+        else:
+            t.extractall(members=[m for m in t.getmembers() if 'info_top_k_sum.csv' in m.name])
+
+
+    path_zip = './out'
+    for folder in pathlib.Path(path_zip).glob('*'):
+        os.system('rsync -av %s %s' % (folder, input))
+
+    shutil.rmtree(path_zip)
 
     plot = []
     for file in sorted(list_files):
