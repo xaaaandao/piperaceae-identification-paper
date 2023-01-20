@@ -1,3 +1,4 @@
+import multiprocessing
 import time
 
 from sklearn.ensemble import RandomForestClassifier
@@ -43,8 +44,8 @@ list_params = {
 list_classifiers = [
     # DecisionTreeClassifier(random_state=cfg_classifier['seed']),
     # KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
-    MLPClassifier(random_state=cfg_classifier['seed']),
-    # RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs']),
+    # MLPClassifier(random_state=cfg_classifier['seed']),
+    RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs']),
     # SVC(random_state=1234, verbose=True, probability=True)
 ]
 
@@ -54,7 +55,7 @@ def find_best_classifier_and_params(cfg, classifier, data, metric):
 
     print(f'[GRIDSEARCH CV] find best params of {classifier_name}')
 
-    classifier_best_params = GridSearchCV(classifier, list_params[classifier_name], scoring=metric, cv=cfg['fold'], n_jobs=cfg_classifier['n_jobs'], verbose=cfg['verbose'])
+    classifier_best_params = GridSearchCV(classifier, list_params[classifier_name], scoring=metric, cv=cfg['fold'], pre_dispatch=int(multiprocessing.cpu_count()), verbose=cfg['verbose'])
 
     start_search_best_params = time.time()
     classifier_best_params.fit(data['x'], data['y'])

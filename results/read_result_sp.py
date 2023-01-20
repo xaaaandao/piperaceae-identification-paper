@@ -76,9 +76,6 @@ def get_top_k(top_k, total_top_k):
 
 
 def insert_sheet(column, date, df, index_folder, index_gridsearch, index_mean, index_std, index_top_k, index_train_test, mean, mean_time_search_best_params, mean_time_train_valid, std, top_k, total_top_k):
-    print(mean)
-    print(index_mean)
-    print(column)
     df['mean'].loc[index_mean, column] = round_mean(mean)
     df['mean'].loc[index_std, column] = plus_minus_std(std)
     df['mean'].loc[index_top_k, column] = get_top_k(top_k, total_top_k)
@@ -94,7 +91,7 @@ def get_csv(filename, header=None):
 def fill_sheet_mean_std(classifier, date, df, filename, image_size, extractor, n_features, n_patch, plot, segmented):
     sheet_mean = get_csv(filename)
     filename_mean = 'mean.csv'
-    metric = 'f1'
+    metric = 'accuracy'
     mean = sheet_mean.loc['mean_%s_sum' % metric][1]
     mean_time_search_best_params = sheet_mean.loc['mean_time_search_best_params'][1]
     mean_time_train_valid = sheet_mean.loc['mean_time_train_valid'][1]
@@ -113,9 +110,6 @@ def fill_sheet_mean_std(classifier, date, df, filename, image_size, extractor, n
         total_top_k = sheet_info_top_k_sum.loc['total'][1]
     else:
         total_top_k = 0
-
-    print(top_k)
-    print(total_top_k)
 
     index_mean = extractor + '_' + n_features + '_' + 'mean'
     index_std = extractor + '_' + n_features + '_' + 'std'
@@ -222,8 +216,8 @@ def main(color, input, taxon, threshold, output):
                        'SVC']
     list_dim = [256, 400, 512]
 
-    list_segmented = ['unet']
-    # list_segmented = ['unet', 'manual']
+    # list_segmented = ['unet']
+    list_segmented = ['unet', 'manual']
 
     df = create_df(list_classifier, list_extractor, list_dim, list_segmented)
 
@@ -259,7 +253,7 @@ def main(color, input, taxon, threshold, output):
         segmented = get_type_segmented(file)
         date = get_date(file)
 
-        print(file_threshold, classifier, image_size, color, extractor, n_features, n_patch, slice_patch, segmented, date)
+        # print(file_threshold, classifier, image_size, color, extractor, n_features, n_patch, slice_patch, segmented, date)
 
         if threshold == file_threshold:
             fill_sheet_mean_std(classifier, date, df, file, image_size, extractor, n_features, n_patch, plot, segmented)
