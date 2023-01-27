@@ -44,8 +44,8 @@ list_params = {
 list_classifiers = [
     # DecisionTreeClassifier(random_state=cfg_classifier['seed']),
     # KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
-    # MLPClassifier(random_state=cfg_classifier['seed']),
-    RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs']),
+    MLPClassifier(random_state=cfg_classifier['seed']),
+    # RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs']),
     # SVC(random_state=1234, verbose=True, probability=True)
 ]
 

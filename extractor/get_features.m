@@ -1,34 +1,48 @@
 function get_features()
-%     path_in = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/imagens/grayscale/genus/256/2/matlab";
-%     path_out = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/features/grayscale/segmented_unet/256/patch=1/genus/2";
-    path_in = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/imagens/grayscale/segmented_unet/400/matlab";
-    path_out = "/home/xandao/Documentos/GitHub/dataset_gimp/imagens_sp/features/grayscale/segmented_unet/400/patch=1/";
+    res = "512";
+    threshold = "20";
+    taxon = "specific_epithet";
+    n_classes = 40;
+    regiao = "Sudeste";
+
+    path_base = "/home/xandao/Documentos/dataset_gimp/imagens_regioes/imagens/grayscale/" + res + "/" + regiao + "/" + threshold + "/";
+    path_out = "/home/xandao/Documentos/dataset_gimp/imagens_regioes/features/grayscale/segmented_unet/" + res + "/patch=1/" + regiao + "/" + taxon + "/" + threshold;
+
+    % br
+%     path_base = "/home/xandao/Documentos/dataset_gimp/imagens_br/imagens/grayscale/" + res + "/" + threshold + "/";
+%     path_out = "/home/xandao/Documentos/dataset_gimp/imagens_br/features/grayscale/segmented_unet/" + res + "/patch=1/" + taxon + "/" + threshold;
+
+    % george
+%     path_base = "/home/xandao/Documentos/dataset_gimp/imagens_george/imagens/grayscale/" + taxon + "/" + res + "/" + threshold + "/";
+%     path_out = "/home/xandao/Documentos/dataset_gimp/imagens_george/features/grayscale/segmented_unet/" + res + "/patch=1/" + taxon + "/" + threshold;
+
+    % sp
+%     path_base = "/home/xandao/Documentos/dataset_gimp/imagens_sp/imagens/grayscale/segmented_manual/"+res+"/";
+%     path_out = "/home/xandao/Documentos/dataset_gimp/imagens_sp/features/grayscale/segmented_manual/"+res+"/patch=1/";
     delete_file_exists();
-    list_dir = sort_by_name(dir(path_in));
-    
-    %{
-        quando lista o diretorio os dois primeiros valores sao '.' e '..'
-        e o terceiro valor eh o nome das pastas ou arquivo
-    %}
-    for i=1:height(list_dir)
-        filename = list_dir.name(i);
-        if contains(list_dir.name(i), "jpeg", "IgnoreCase", true) && filename{1}(1) ~= "_"
-            path_img = append(list_dir.folder(i), "/", filename);
-            disp(path_img);            
-            img = imread(path_img, "jpeg");
-            label = get_label(filename);
-            
-            feature = lbp(img);
-            filename_lbp = append(path_out, "/" , "lbp.txt");
-            fileout(filename_lbp, feature, string(label));
-    
-            feature = surf(img, 64);
-            filename_surf = append(path_out, "/" , "surf64.txt");
-            fileout(filename_surf, feature, string(label));
-            
-            feature = surf(img, 128);
-            filename_surf = append(path_out, "/", "surf128.txt");
-            fileout(filename_surf, feature, string(label));
+    for j=1:n_classes
+        path_to_img = path_base + "f" + j;
+        disp(path_to_img);
+        list_dir = sort_by_name(dir(path_to_img));
+        for i=1:height(list_dir)
+            filename = list_dir.name(i);
+            if contains(list_dir.name(i), "jpeg", "IgnoreCase", true)
+                path_img = append(list_dir.folder(i), "/", filename);
+                disp(path_img);            
+                img = imread(path_img, "jpeg");
+                
+                feature = lbp(img);
+                filename_lbp = append(path_out, "/" , "lbp.txt");
+                fileout(filename_lbp, feature, string(j));
+        
+                feature = surf(img, 64);
+                filename_surf = append(path_out, "/" , "surf64.txt");
+                fileout(filename_surf, feature, string(j));
+                
+                feature = surf(img, 128);
+                filename_surf = append(path_out, "/", "surf128.txt");
+                fileout(filename_surf, feature, string(j));
+            end
         end
     end
 end
