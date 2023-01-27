@@ -24,10 +24,13 @@ def run_all_classifiers(cfg, current_datetime, data, handcraft, list_labels, met
         list_time = []
 
         path = create_path_base(cfg, classifier_name, current_datetime, data)
-        split = get_cv(cfg, data)
+        if cfg['only_find_best_model']:
+            save_best_model(best['classifier'], -1, path)
+        else:
+            split = get_cv(cfg, data)
 
-        run_folds(best, classifier_name, data, handcraft, list_labels, list_result_fold, list_time, path, split, time_find_best_params)
-        save(best['params'], cfg, data, list_labels, list_result_fold, list_time, metric, path)
+            run_folds(best, classifier_name, data, handcraft, list_labels, list_result_fold, list_time, path, split, time_find_best_params)
+            save(best['params'], cfg, data, list_labels, list_result_fold, list_time, metric, path)
 
 
 def run_folds(best, classifier_name, data, handcraft, list_labels, list_result_fold, list_time, path, split, time_find_best_params):
