@@ -1,9 +1,9 @@
 import os
+import sys
 import time
 
 from classifier import list_classifiers, find_best_classifier_and_params
 from data import show_info_data, get_cv, show_info_data_train_test, split_train_test, load_data
-from kill_process import kill_process
 from result import insert_result_fold_and_time, get_result
 from save.save import create_path_base, save
 from save.save_samples import save_info_samples
@@ -12,10 +12,18 @@ from save.save_model import save_best_model
 
 def run_test(cfg, current_datetime, list_labels, list_input, list_extractor, metric, handcraft=False):
     list_data = load_data(cfg, list_extractor, list_input, handcraft=handcraft)
+    print('[INFO] tamanho da lista (bytes): %d' % sys.getsizeof(list_data))
 
     for data in list_data:
         show_info_data(data)
         run_all_classifiers(cfg, current_datetime, data, handcraft, list_labels, metric)
+
+        if len(list_data) > 1:
+            list_data = list_data[1:]
+            print('[INFO] tamanho da lista: %d' % len(list_data))
+            print('[INFO] tamanho da lista (bytes): %d' % sys.getsizeof(list_data))
+
+    del list_data
 
 
 def run_all_classifiers(cfg, current_datetime, data, handcraft, list_labels, metric):

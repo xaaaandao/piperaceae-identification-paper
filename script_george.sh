@@ -18,9 +18,9 @@ DIR_LABEL=../dataset_gimp/imagens_george/imagens
 # 	done
 # done
 
-for img_size in 256 400 512; do
-	for file in lbp surf128 surf64; do
-		for threshold in 5 10 20; do
+for img_size in 256; do
+	for file in surf64; do
+		for threshold in 10; do
 			color=grayscale
 			segmented=unet
 			${PY} main.py -i ${DIR_FEATURES}/${color}/segmented_${segmented}/${img_size}/patch=1/${TAXON}/${threshold}/${file}.txt -l ${DIR_LABEL}/${color}/${TAXON}/${img_size}/${threshold}/label2.txt -m ${METRIC}

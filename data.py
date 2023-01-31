@@ -1,5 +1,4 @@
 import collections
-import math
 
 import numpy as np
 import pathlib
@@ -121,12 +120,12 @@ def get_x_y(cfg, color_mode, data, dataset, extractor, file, image_size, list_da
             slice_patch):
     n_samples, n_features = data.shape
     x, y = data[0:, 0:n_features - 1], data[:, n_features - 1]
-
-    if data_contains_nan(x):
-        raise ValueError(f'data contain nan')
-
     n_labels = len(np.unique(y))
     x_normalized = StandardScaler().fit_transform(x)
+
+    # if data_contains_nan(x_normalized):
+    #     raise ValueError(f'data contain nan')
+
     list_data.append(add_data(color_mode, dataset, file, extractor, image_size, n_features - 1, n_labels, n_patch,
                               n_samples, segmented, slice_patch, x_normalized, y))
     data_with_pca(cfg, color_mode, file, dataset, extractor, image_size, list_data, list_extractor, n_features,

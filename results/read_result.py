@@ -1,4 +1,3 @@
-
 import csv
 import shutil
 
@@ -68,19 +67,19 @@ def get_date(path):
     return None
 
 
-def get_top_k(top_k, total_top_k):
+def get_top_k(std_top_k, top_k, total_top_k):
     if int(top_k) > 0 and int(total_top_k) > 0:
         percentage = int(top_k) / int(total_top_k)
         percentage = str(round(percentage * 100, 1))
-        return str(percentage).replace('.', ',')
+        return str(percentage).replace('.', ',') + '\n(' + std_top_k + ')'
     return str(0)
     # return str(top_k)
 
 
-def insert_sheet(column, date, df, index_folder, index_gridsearch, index_mean, index_std, index_top_k, index_train_test, mean, mean_time_search_best_params, mean_time_train_valid, std, top_k, total_top_k):
+def insert_sheet(column, date, df, index_folder, index_gridsearch, index_mean, index_std, index_top_k, index_train_test, mean, mean_time_search_best_params, mean_time_train_valid, std, std_top_k, top_k, total_top_k):
     df['mean'].loc[index_mean, column] = round_mean(mean)
     df['mean'].loc[index_std, column] = plus_minus_std(std)
-    df['mean'].loc[index_top_k, column] = get_top_k(top_k, total_top_k)
+    df['mean'].loc[index_top_k, column] = get_top_k(std_top_k, top_k, total_top_k)
     df['time'].loc[index_train_test, column] = round_time(mean_time_train_valid)
     df['time'].loc[index_gridsearch, column] = round_time(mean_time_search_best_params)
     df['folder'].loc[index_folder, column] = date
@@ -103,8 +102,17 @@ def fill_sheet_mean_std(classifier, date, df, filename, image_size, extractor, n
     if os.path.exists(filename_mean_top_k_sum):
         sheet_mean_top_k_sum = get_csv(filename_mean_top_k_sum, header=0)
         top_k = sheet_mean_top_k_sum.iloc[0]['top_k']
+        means = sheet_mean_top_k_sum.iloc[0]['values']
+        means = str(means).replace('[', '').replace(']', '').replace(' ', '')
+        means = means.split(',')
+        means = [int(m) for m in means]
+        std_top_k = np.std(means)
+        std_top_k = plus_minus_std(std_top_k)
+        print(means, std_top_k)
     else:
         top_k = 0
+    # import sys
+    # sys.exit()
 
     filename_info_top_k_sum = str(filename).replace(filename_mean, '0/top_k/sum/info_top_k_sum.csv')
     if os.path.exists(filename_info_top_k_sum):
@@ -133,7 +141,7 @@ def fill_sheet_mean_std(classifier, date, df, filename, image_size, extractor, n
     })
 
 
-    insert_sheet(column, date, df, index_folder, index_gridsearch, index_mean, index_std, index_top_k, index_train_test, mean, mean_time_search_best_params, mean_time_train_valid, std, top_k, total_top_k)
+    insert_sheet(column, date, df, index_folder, index_gridsearch, index_mean, index_std, index_top_k, index_train_test, mean, mean_time_search_best_params, mean_time_train_valid, std, std_top_k, top_k, total_top_k)
 
 
 def get_list_mean(extractor, image_size, n_features, plot):
