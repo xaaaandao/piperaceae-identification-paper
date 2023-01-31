@@ -100,7 +100,7 @@ def fill_sheet_mean_std(classifier, date, df, filename, image_size, extractor, n
     filename_mean_top_k_sum = str(filename).replace(filename_mean, 'mean_top_k/mean_top_sum.csv')
     if os.path.exists(filename_mean_top_k_sum):
         sheet_mean_top_k_sum = get_csv(filename_mean_top_k_sum, header=0)
-        top_k = sheet_mean_top_k_sum.iloc[1]['top_k']
+        top_k = sheet_mean_top_k_sum.iloc[0]['top_k']
     else:
         top_k = 0
 

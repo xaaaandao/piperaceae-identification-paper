@@ -3,6 +3,7 @@ import time
 
 from classifier import list_classifiers, find_best_classifier_and_params
 from data import show_info_data, get_cv, show_info_data_train_test, split_train_test, load_data
+from kill_process import kill_process
 from result import insert_result_fold_and_time, get_result
 from save.save import create_path_base, save
 from save.save_samples import save_info_samples
@@ -24,13 +25,10 @@ def run_all_classifiers(cfg, current_datetime, data, handcraft, list_labels, met
         list_time = []
 
         path = create_path_base(cfg, classifier_name, current_datetime, data)
-        if cfg['only_find_best_model']:
-            save_best_model(best['classifier'], -1, path)
-        else:
-            split = get_cv(cfg, data)
+        split = get_cv(cfg, data)
 
-            run_folds(best, classifier_name, data, handcraft, list_labels, list_result_fold, list_time, path, split, time_find_best_params)
-            save(best['params'], cfg, data, list_labels, list_result_fold, list_time, metric, path)
+        run_folds(best, classifier_name, data, handcraft, list_labels, list_result_fold, list_time, path, split, time_find_best_params)
+        save(best['params'], cfg, data, list_labels, list_result_fold, list_time, metric, path)
 
 
 def run_folds(best, classifier_name, data, handcraft, list_labels, list_result_fold, list_time, path, split, time_find_best_params):

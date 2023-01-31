@@ -8,7 +8,6 @@ cfg = {
     'fold': 5,
     'n_jobs': -1,
     'seed': 1234,
-    'only_find_best_model': False,
     'dir_input': '../dataset/features',
     'dir_output': './out',
     'verbose': 42
