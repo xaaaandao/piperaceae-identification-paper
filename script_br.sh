@@ -19,7 +19,7 @@ for img_size in 256 400 512; do
 done
 
 # for img_size in 256 400 512; do
-# 	for file in lbp surf surf64; do
+# 	for file in lbp surf128 surf64; do
 # 		for threshold in 5 10 20; do
 # 			color=grayscale
 # 			segmented=unet
