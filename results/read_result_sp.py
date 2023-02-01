@@ -10,7 +10,7 @@ import os.path
 import pandas as pd
 import pathlib
 
-ROUND_VALUE = 3
+ROUND_VALUE = 2
 
 
 def get_index_time(list_extractor):

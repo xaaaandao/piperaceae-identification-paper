@@ -35,7 +35,8 @@ def list_input_is_empty(list_input):
 @click.option('-i', '--list_user_input', multiple=True, default=['/home/xandao/Documentos/resultados_gimp/identificacao_george/especie/20'])
 @click.option('-l', '--labels', default=['/home/xandao/Documentos/GitHub/dataset_gimp/imagens_george/imagens/RGB/specific_epithet/256/20/label2.txt'])
 @click.option('-m', '--metric', type=click.Choice(['f1_weighted', 'accuracy']), default='f1_weighted')
-def main(list_user_input, labels, metric):
+@click.option('-p', '--pca', is_flag=True, default=False)
+def main(list_user_input, labels, metric, pca):
     current_datetime = datetime.datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
     list_data_input = []
 
@@ -47,7 +48,7 @@ def main(list_user_input, labels, metric):
     list_labels = get_list_label(labels)
 
     if check_if_has_data_and_list_labels(list_data_input, list_labels):
-        check_input(cfg, current_datetime, list_labels, list_data_input, list_extractor, metric)
+        check_input(cfg, current_datetime, list_labels, list_data_input, list_extractor, metric, pca)
 
 
 def check_if_has_data_and_list_labels(list_data_input, list_labels):

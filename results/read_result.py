@@ -10,7 +10,7 @@ import os.path
 import pandas as pd
 import pathlib
 
-ROUND_VALUE = 3
+ROUND_VALUE = 2
 
 
 def get_index_time(list_extractor):
@@ -71,7 +71,7 @@ def get_top_k(std_top_k, top_k, total_top_k):
     if int(top_k) > 0 and int(total_top_k) > 0:
         percentage = int(top_k) / int(total_top_k)
         percentage = str(round(percentage * 100, 1))
-        return str(percentage).replace('.', ',') + '\n(' + std_top_k + ')'
+        return str(percentage).replace('.', ',') + '-' + std_top_k
     return str(0)
     # return str(top_k)
 
@@ -89,10 +89,9 @@ def get_csv(filename, header=None):
     return pd.read_csv(filename, sep=';', index_col=0, header=header)
 
 
-def fill_sheet_mean_std(classifier, date, df, filename, image_size, extractor, n_features, n_patch, plot, segmented):
+def fill_sheet_mean_std(classifier, date, df, filename, image_size, extractor, metric, n_features, n_patch, plot, segmented):
     sheet_mean = get_csv(filename)
     filename_mean = 'mean.csv'
-    metric = 'f1'
     mean = sheet_mean.loc['mean_%s_sum' % metric][1]
     mean_time_search_best_params = sheet_mean.loc['mean_time_search_best_params'][1]
     mean_time_train_valid = sheet_mean.loc['mean_time_train_valid'][1]
@@ -200,11 +199,17 @@ def get_threshold(dir_input, taxon):
     required=True
 )
 @click.option(
+    '--metric',
+    type=click.Choice(['f1', 'accuracy']),
+    required=True
+)
+@click.option(
     '--threshold',
     type=int,
     required=True
 )
-def main(color, input, taxon, threshold, output):
+@click.option('--segmented', is_flag=True, default=False)
+def main(color, input, metric, output, segmented, taxon, threshold):
     if not os.path.exists(input):
         raise NotADirectoryError('directory %s not exists' % input)
 
@@ -229,11 +234,13 @@ def main(color, input, taxon, threshold, output):
                        'SVC']
     list_dim = [256, 400, 512]
 
-    list_segmented = ['unet']
-    # list_segmented = ['unet', 'manual']
+    if segmented:
+        list_segmented = ['unet', 'manual']
+    else:
+        list_segmented = ['unet']
+
 
     df = create_df(list_classifier, list_extractor, list_dim, list_segmented)
-
 
     import tarfile
     for filename in pathlib.Path(input).rglob('top_k.tar.gz'):
@@ -269,7 +276,7 @@ def main(color, input, taxon, threshold, output):
         print(file_threshold, classifier, image_size, color, extractor, n_features, n_patch, slice_patch, segmented, date)
 
         if threshold == file_threshold:
-            fill_sheet_mean_std(classifier, date, df, file, image_size, extractor, n_features, n_patch, plot, segmented)
+            fill_sheet_mean_std(classifier, date, df, file, image_size, extractor, metric, n_features, n_patch, plot, segmented)
 
     save_df(color, df, output)
 

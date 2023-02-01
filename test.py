@@ -10,8 +10,8 @@ from save.save_samples import save_info_samples
 from save.save_model import save_best_model
 
 
-def run_test(cfg, current_datetime, list_labels, list_input, list_extractor, metric, handcraft=False):
-    list_data = load_data(cfg, list_extractor, list_input, handcraft=handcraft)
+def run_test(cfg, current_datetime, list_labels, list_input, list_extractor, metric, pca, handcraft=False):
+    list_data = load_data(cfg, list_extractor, list_input, pca, handcraft=handcraft)
     print('[INFO] tamanho da lista (bytes): %d' % sys.getsizeof(list_data))
 
     for data in list_data:
@@ -58,10 +58,10 @@ def run_folds(best, classifier_name, data, handcraft, list_labels, list_result_f
         insert_result_fold_and_time(end_time_train_valid, fold, list_result_fold, list_time, result_max_rule, result_prod_rule, result_sum_rule, start_time_train_valid, time_find_best_params)
 
 
-def check_input(cfg, current_datetime, list_labels, list_input, list_extractor, metric):
+def check_input(cfg, current_datetime, list_labels, list_input, list_extractor, metric, pca):
     list_dir = [d for d in list_input if os.path.isdir(d) and len(os.listdir(d)) > 0]
     list_files = [file for file in list_input if os.path.isfile(file)]
     if len(list_dir) > 0:
-        run_test(cfg, current_datetime, list_labels, list_input, list_extractor, metric)
+        run_test(cfg, current_datetime, list_labels, list_input, list_extractor, metric, pca)
     if len(list_files) > 0:
-        run_test(cfg, current_datetime, list_labels, list_input, list_extractor, metric, handcraft=True)
+        run_test(cfg, current_datetime, list_labels, list_input, list_extractor, metric, pca, handcraft=True)

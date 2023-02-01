@@ -116,7 +116,7 @@ def data_contains_nan(x):
     return np.isnan(x).any()
 
 
-def get_x_y(cfg, color_mode, data, dataset, extractor, file, image_size, list_data, list_extractor, n_patch, segmented,
+def get_x_y(cfg, color_mode, data, dataset, extractor, file, image_size, list_data, list_extractor, n_patch, pca, segmented,
             slice_patch):
     n_samples, n_features = data.shape
     x, y = data[0:, 0:n_features - 1], data[:, n_features - 1]
@@ -128,7 +128,9 @@ def get_x_y(cfg, color_mode, data, dataset, extractor, file, image_size, list_da
 
     list_data.append(add_data(color_mode, dataset, file, extractor, image_size, n_features - 1, n_labels, n_patch,
                               n_samples, segmented, slice_patch, x_normalized, y))
-    data_with_pca(cfg, color_mode, file, dataset, extractor, image_size, list_data, list_extractor, n_features,
+
+    if pca:
+        data_with_pca(cfg, color_mode, file, dataset, extractor, image_size, list_data, list_extractor, n_features,
                   n_labels, n_patch, n_samples, segmented, slice_patch, x_normalized, y)
 
 
@@ -162,28 +164,28 @@ def split_train_test_handcraft(data, index_test, index_train):
     return x_test, x_train, y_test, y_train
 
 
-def load_data(cfg, list_extractor, list_inputs, handcraft=False):
-    return check_data(cfg, handcraft, list_extractor, list_inputs)
+def load_data(cfg, list_extractor, list_inputs, pca, handcraft=False):
+    return check_data(cfg, handcraft, list_extractor, list_inputs, pca)
 
 
-def check_data(cfg, handcraft, list_extractor, list_inputs):
-    return data_is_a_file_handcraft(cfg, list_extractor, list_inputs) if handcraft else data_is_a_dir_non_handcraft(cfg, list_extractor, list_inputs)
+def check_data(cfg, handcraft, list_extractor, list_inputs, pca):
+    return data_is_a_file_handcraft(cfg, list_extractor, list_inputs, pca) if handcraft else data_is_a_dir_non_handcraft(cfg, list_extractor, list_inputs, pca)
 
 
-def data_is_a_dir_non_handcraft(cfg, list_extractor, list_inputs):
+def data_is_a_dir_non_handcraft(cfg, list_extractor, list_inputs, pca):
     list_data = []
     for d in list_inputs:
         dataset, color_mode, segmented, image_size, extractor, slice_patch = get_info(d)
         data, n_patch = merge_all_files_of_dir(d)
         get_x_y(cfg, color_mode, np.array(data), dataset, extractor, d, image_size, list_data, list_extractor, n_patch,
-                segmented, slice_patch)
+                pca, segmented, slice_patch)
     return list_data
 
 
-def data_is_a_file_handcraft(cfg, list_extractor, list_inputs):
+def data_is_a_file_handcraft(cfg, list_extractor, list_inputs, pca):
     list_data = []
     for file in list_inputs:
         dataset, color_mode, segmented, image_size, extractor, slice_patch = get_info(file)
         get_x_y(cfg, color_mode, np.loadtxt(file), dataset, extractor, file, image_size, list_data, list_extractor, 1,
-                segmented, slice_patch)
+                pca, segmented, slice_patch)
     return list_data
