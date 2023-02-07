@@ -12,7 +12,7 @@ from matplotlib import ticker
 
 from save.save_files import save_df, compress_folder
 
-matplotlib.use('Qt5Agg')
+matplotlib.use('agg')
 
 
 def save_info_top_k(index, path, rule, values):

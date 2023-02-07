@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 from save.save_files import compress_folder
 
-matplotlib.use('Qt5Agg')
+matplotlib.use('agg')
 
 
 def save_confusion_matrix_sheet(confusion_matrix, filename, xticklabels, yticklabels):
