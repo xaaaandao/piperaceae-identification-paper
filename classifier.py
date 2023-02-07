@@ -58,6 +58,10 @@ def find_best_classifier_and_params(cfg, classifier, data, metric):
     classifier_best_params = GridSearchCV(classifier, list_params[classifier_name], scoring=metric, cv=cfg['fold'], pre_dispatch=cfg_classifier['n_jobs'], verbose=cfg['verbose'])
 
     start_search_best_params = time.time()
+
+    if 'SVC' in classifier_name:
+        classifier_best_params.probability = True
+
     classifier_best_params.fit(data['x'], data['y'])
     end_search_best_params = time.time()
     time_search_best_params = end_search_best_params - start_search_best_params
