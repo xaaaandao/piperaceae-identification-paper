@@ -2,7 +2,7 @@
 
 ### requirements
 ```
-$ conda install numpy mkl mkl-service
+$ conda install numpy nomkl mkl mkl-service
 $ conda update conda
 ```
 
@@ -10,5 +10,5 @@ $ conda update conda
 ### to run
 
 ```
-$ python -i file.txt|dir -l file.txt -m f1_weighted|accuracy
+$ python main.py -i file.txt|dir -l file.txt -m f1_weighted|accuracy
 ```
