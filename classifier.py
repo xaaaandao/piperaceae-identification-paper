@@ -31,10 +31,10 @@ list_params = {
         'momentum': [0.9, 0.4, 0.1]
     },
     'RandomForestClassifier': {
-        'n_estimators': [200, 400, 600, 800, 1000],
+        'n_estimators': [100],
         'max_features': ['sqrt', 'log2'],
         'criterion': ['gini', 'entropy'],
-        'max_depth': [10, 100, 1000]
+        'max_depth': [10]
     },
     'SVC': {
         'kernel': ['linear', 'poly', 'rbf', 'sigmoid'],
@@ -55,7 +55,7 @@ def find_best_classifier_and_params(cfg, classifier, data, metric):
 
     print(f'[GRIDSEARCH CV] find best params of {classifier_name}')
 
-    classifier_best_params = GridSearchCV(classifier, list_params[classifier_name], scoring=metric, cv=cfg['fold'], pre_dispatch=cfg_classifier['n_jobs'], verbose=cfg['verbose'])
+    classifier_best_params = GridSearchCV(classifier, list_params[classifier_name], scoring=metric, cv=cfg['fold'], n_jobs=cfg_classifier['n_jobs'], verbose=cfg['verbose'])
 
     start_search_best_params = time.time()
 

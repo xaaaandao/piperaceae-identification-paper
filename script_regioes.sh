@@ -4,7 +4,7 @@ METRIC=f1_weighted
 DIR_FEATURES=../dataset_gimp/imagens_regioes/features
 DIR_LABEL=../dataset_gimp/imagens_regioes/imagens
 
-for img_size in 256 400; do
+for img_size in 256 400 512; do
 	for color in RGB; do
 			for patch in 3; do
 				for threshold in 5 10 20; do
