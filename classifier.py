@@ -31,15 +31,13 @@ list_params = {
         'momentum': [0.9, 0.4, 0.1]
     },
     'RandomForestClassifier': {
-        'n_estimators': [25, 50, 75, 100],
+        'n_estimators': [200, 400, 600, 800, 1000],
         'max_features': ['sqrt', 'log2'],
         'criterion': ['gini', 'entropy'],
-        'max_depth': [5, 10]
+        'max_depth': [10, 100, 1000]
     },
     'SVC': {
-        'C': [1, 10],
-        'kernel': ['poly', 'rbf', 'sigmoid'],
-        'tol': [1e-3, 1e-4, 1e-5]
+        'kernel': ['linear', 'poly', 'rbf', 'sigmoid'],
     }
 }
 
@@ -48,7 +46,7 @@ list_classifiers = [
     # KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
     # MLPClassifier(random_state=cfg_classifier['seed']),
     # RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs'], verbose=100),
-    # SVC(random_state=1234, verbose=True, probability=True)
+    SVC(random_state=1234, verbose=True, probability=True)
 ]
 
 

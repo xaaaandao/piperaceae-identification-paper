@@ -4,7 +4,7 @@ METRIC=f1_weighted
 DIR_FEATURES=../dataset_gimp/imagens_george/features
 DIR_LABEL=../dataset_gimp/imagens_george/imagens
 
-for img_size in 512; do
+for img_size in 256 400 512; do
 	for cnn in vgg16; do
 		for color in RGB; do
 			for patch in 3; do
