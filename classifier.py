@@ -40,10 +40,6 @@ list_params = {
         'C': [1, 10],
         'kernel': ['poly', 'rbf', 'sigmoid'],
         'tol': [1e-3, 1e-4, 1e-5]
-    },
-    'LinearSVC': {
-        'C': [1, 10],
-        'tol': [1e-3, 1e-4, 1e-5]
     }
 }
 
@@ -52,8 +48,7 @@ list_classifiers = [
     # KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
     # MLPClassifier(random_state=cfg_classifier['seed']),
     # RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs'], verbose=100),
-    SVC(random_state=1234, verbose=True, probability=True),
-    LinearSVC(random_state=1234, verbose=True)
+    # SVC(random_state=1234, verbose=True, probability=True)
 ]
 
 
