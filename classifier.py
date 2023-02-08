@@ -43,7 +43,6 @@ list_params = {
     },
     'LinearSVC': {
         'C': [1, 10],
-        'kernel': ['poly', 'rbf', 'sigmoid'],
         'tol': [1e-3, 1e-4, 1e-5]
     }
 }
