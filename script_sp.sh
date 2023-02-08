@@ -17,11 +17,11 @@ for img_size in 256 400 512; do
 	done
 done
 
-for img_size in 256 400 512; do
-	for segmented in manual unet; do
-		for file in lbp surf64 surf128; do
-			color=grayscale
-			python main.py -i ${DIR_FEATURES}/${color}/segmented_${segmented}/${img_size}/patch=1/${file}.txt -l ${DIR_LABEL}/${color}/segmented_${segmented}/${img_size}/label2.txt -m ${METRIC} --pca
-		done
-	done
-done
+# for img_size in 256 400 512; do
+# 	for segmented in manual unet; do
+# 		for file in lbp surf64; do
+# 			color=grayscale
+# 			python main.py -i ${DIR_FEATURES}/${color}/segmented_${segmented}/${img_size}/patch=1/${file}.txt -l ${DIR_LABEL}/${color}/segmented_${segmented}/${img_size}/label2.txt -m ${METRIC} --pca
+# 		done
+# 	done
+# done

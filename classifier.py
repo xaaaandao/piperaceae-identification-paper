@@ -37,16 +37,16 @@ list_params = {
         'max_depth': [10]
     },
     'SVC': {
-        'kernel': ['linear', 'poly', 'rbf', 'sigmoid'],
+        'kernel': ['poly', 'rbf', 'sigmoid'],
     }
 }
 
 list_classifiers = [
-    # DecisionTreeClassifier(random_state=cfg_classifier['seed']),
-    # KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
+    DecisionTreeClassifier(random_state=cfg_classifier['seed']),
+    KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
     MLPClassifier(random_state=cfg_classifier['seed']),
-    # RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs'], verbose=100),
-    # SVC(random_state=1234, verbose=True)
+    RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs'], verbose=100),
+    SVC(random_state=1234, verbose=True)
 ]
 
 
