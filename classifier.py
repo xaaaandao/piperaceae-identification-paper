@@ -5,7 +5,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
-from sklearn.svm import SVC
+from sklearn.svm import SVC, LinearSVC
 from sklearn.tree import DecisionTreeClassifier
 
 cfg_classifier = {
@@ -37,16 +37,24 @@ list_params = {
         'max_depth': [5, 10]
     },
     'SVC': {
+        'float': [1, 10],
         'kernel': ['poly', 'rbf', 'sigmoid'],
+        'tol': [1e-3, 1e-4, 1e-5]
+    },
+    'LinearSVC': {
+        'float': [1, 10],
+        'kernel': ['poly', 'rbf', 'sigmoid'],
+        'tol': [1e-3, 1e-4, 1e-5]
     }
 }
 
 list_classifiers = [
-    # DecisionTreeClassifier(random_state=cfg_classifier['seed']),
-    # KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
+    DecisionTreeClassifier(random_state=cfg_classifier['seed']),
+    KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
     # MLPClassifier(random_state=cfg_classifier['seed']),
-    RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs'], verbose=100),
-    SVC(random_state=1234, verbose=True)
+    # RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs'], verbose=100),
+    # SVC(random_state=1234, verbose=True, probability=True),
+    # LinearSVC(random_state=1234, verbose=True)
 ]
 
 
@@ -58,10 +66,6 @@ def find_best_classifier_and_params(cfg, classifier, data, metric):
     classifier_best_params = GridSearchCV(classifier, list_params[classifier_name], scoring=metric, cv=cfg['fold'], pre_dispatch=cfg_classifier['n_jobs'], verbose=cfg['verbose'])
 
     start_search_best_params = time.time()
-
-    if 'SVC' in classifier_name:
-        classifier_best_params.probability = True
-
     classifier_best_params.fit(data['x'], data['y'])
     end_search_best_params = time.time()
     time_search_best_params = end_search_best_params - start_search_best_params

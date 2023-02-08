@@ -46,10 +46,6 @@ def run_folds(best, classifier_name, data, handcraft, list_labels, list_result_f
         show_info_data_train_test(classifier_name, fold, x_test, x_train, y_test, y_train)
 
         start_time_train_valid = time.time()
-
-        if 'SVC' in classifier_name:
-            best['classifier'].probability = True
-
         best['classifier'].fit(x_train, y_train)
         y_pred = best['classifier'].predict_proba(x_test)
 
