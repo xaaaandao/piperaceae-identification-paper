@@ -9,6 +9,7 @@ from save.save import create_path_base, save
 from save.save_samples import save_info_samples
 from save.save_model import save_best_model
 
+from sklearn.svm import SVC
 
 def run_test(cfg, current_datetime, list_labels, list_input, list_extractor, metric, pca, handcraft=False):
     list_data = load_data(cfg, list_extractor, list_input, pca, handcraft=handcraft)
@@ -28,7 +29,13 @@ def run_test(cfg, current_datetime, list_labels, list_input, list_extractor, met
 
 def run_all_classifiers(cfg, current_datetime, data, handcraft, list_labels, metric):
     for classifier in list_classifiers:
-        best, classifier_name, time_find_best_params = find_best_classifier_and_params(cfg, classifier, data, metric)
+        # best, classifier_name, time_find_best_params = find_best_classifier_and_params(cfg, classifier, data, metric)
+        best = {
+            'classifier': SVC(random_state=1234, verbose=True, probability=True, cache_size=8000, kernel='linear'),
+            'best_params': None
+        }
+        classifier_name = 'SVC'
+        time_find_best_params = -1
         list_result_fold = []
         list_time = []
 
