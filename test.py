@@ -32,7 +32,7 @@ def run_all_classifiers(cfg, current_datetime, data, handcraft, list_labels, met
         # best, classifier_name, time_find_best_params = find_best_classifier_and_params(cfg, classifier, data, metric)
         best = {
             'classifier': SVC(random_state=1234, verbose=True, probability=True, cache_size=8000, kernel='linear'),
-            'best_params': None
+            'params': None
         }
         classifier_name = 'SVC'
         time_find_best_params = -1
