@@ -17,7 +17,6 @@ def run_test(cfg, current_datetime, list_labels, list_input, list_extractor, met
     print('[INFO] tamanho da lista (bytes): %d' % sys.getsizeof(list_data))
 
     for data in list_data:
-        # /if data['n_features'] == 128:
         show_info_data(data)
         run_all_classifiers(cfg, current_datetime, data, handcraft, list_labels, metric)
 

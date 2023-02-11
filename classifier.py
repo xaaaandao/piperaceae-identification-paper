@@ -6,7 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
-from sklearn.svm import SVC, LinearSVC
+from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 
 cfg_classifier = {
@@ -32,10 +32,10 @@ list_params = {
         'momentum': [0.9, 0.4, 0.1]
     },
     'RandomForestClassifier': {
-        'n_estimators': [200, 400, 600, 800, 1000],
+        'n_estimators': [200, 400, 600],
         'max_features': ['sqrt', 'log2'],
         'criterion': ['gini', 'entropy'],
-        'max_depth': [10, 100, 1000]
+        # 'max_depth': [10, 100]
     },
     'SVC': {
         'kernel': ['linear', 'poly', 'rbf', 'sigmoid']
@@ -43,11 +43,11 @@ list_params = {
 }
 
 list_classifiers = [
-    DecisionTreeClassifier(random_state=cfg_classifier['seed']),
-    KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
-    MLPClassifier(random_state=cfg_classifier['seed']),
-    RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs'], verbose=100),
-    SVC(random_state=1234, verbose=True, cache_size=4000, C=0.1)
+    # DecisionTreeClassifier(random_state=cfg_classifier['seed']),
+    # KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
+    # MLPClassifier(random_state=cfg_classifier['seed']),
+    # RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs'], verbose=100, max_depth=10),
+    SVC(random_state=1234, verbose=True, cache_size=2000, C=0.1)
 ]
 
 
