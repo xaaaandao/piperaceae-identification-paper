@@ -12,7 +12,7 @@ from matplotlib import ticker
 
 from save.save_files import save_df, compress_folder
 
-mplstyle.use(['agg', 'fast'])
+mplstyle.use(['ggplot', 'fast'])
 
 
 def save_info_top_k(index, path, rule, values):

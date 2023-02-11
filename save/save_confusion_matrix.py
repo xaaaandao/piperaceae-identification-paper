@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 from save.save_files import compress_folder
 
-mplstyle.use(['agg', 'fast'])
+mplstyle.use(['ggplot', 'fast'])
 
 
 
