@@ -47,7 +47,7 @@ list_classifiers = [
     # KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
     # MLPClassifier(random_state=cfg_classifier['seed']),
     # RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs'], verbose=100, max_depth=10),
-    SVC(random_state=1234, verbose=True, cache_size=2000, C=0.1)
+    SVC(random_state=1234, verbose=True, cache_size=2000, C=0.01)
 ]
 
 
