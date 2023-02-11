@@ -6,13 +6,13 @@ import shutil
 import numpy as np
 import pandas as pd
 
-import matplotlib
+import matplotlib.style as mplstyle
 from matplotlib import pyplot as plt
 from matplotlib import ticker
 
 from save.save_files import save_df, compress_folder
 
-matplotlib.use('agg')
+mplstyle.use(['agg', 'fast'])
 
 
 def save_info_top_k(index, path, rule, values):

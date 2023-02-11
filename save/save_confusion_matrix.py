@@ -7,12 +7,13 @@ import shutil
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import matplotlib
+import matplotlib.style as mplstyle
 import matplotlib.pyplot as plt
 
 from save.save_files import compress_folder
 
-matplotlib.use('agg')
+mplstyle.use(['agg', 'fast'])
+
 
 
 def save_confusion_matrix_sheet(confusion_matrix, filename, xticklabels, yticklabels):
