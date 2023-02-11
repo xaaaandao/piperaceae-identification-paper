@@ -4,7 +4,7 @@ import pathlib
 import numpy as np
 import pandas as pd
 
-path = '/media/xandao/c2f58d30-ff2c-47f7-95af-91ad6fd69760/resultados/'
+path = '/media/xandao/c2f58d30-ff2c-47f7-95af-91ad6fd69760/resultados/br'
 list_files_xlsx = [p for p in pathlib.Path(path).rglob('*.xlsx') if p.is_file()]
 
 
@@ -53,7 +53,7 @@ def lines_rgb(classifier, classifier_fullname, df, image_size, metric, segmented
 
 
 def get_mean(classifier_fullname, df, extractor, image_size, metric, segmented):
-    if 'top_k' in metric:
+    if 'top_k_tres' in metric or 'top_k_cinco' in metric:
         values = df.loc[f'{extractor}_{metric}', f'{classifier_fullname}_{image_size}_{segmented}']
         if not 'nan' in str(values):
             return values.split('-')[0]
@@ -62,7 +62,7 @@ def get_mean(classifier_fullname, df, extractor, image_size, metric, segmented):
 
 
 def get_std(classifier_fullname, df, extractor, image_size, metric, segmented):
-    if 'top_k' in metric:
+    if 'top_k_tres' in metric or 'top_k_cinco' in metric:
         values = df.loc[f'{extractor}_{metric}', f'{classifier_fullname}_{image_size}_{segmented}']
         if not 'nan' in str(values):
             return values.split('-')[1]
@@ -109,7 +109,7 @@ for color_mode in ['rgb', 'grayscale']:
     for file in list_filename:
         print(file)
         df = pd.read_excel(str(file.resolve()), header=0, index_col=0)
-        for metric in ['mean', 'top_k']:
+        for metric in ['mean', 'top_k_tres', 'top_k_cinco']:
             all = ""
             folder = os.path.join(str(file.parents[0]), 'tex')
             pathlib.Path(folder).mkdir(exist_ok=True, parents=True)

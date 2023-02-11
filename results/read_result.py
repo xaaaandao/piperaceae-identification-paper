@@ -76,10 +76,11 @@ def get_top_k(std_top_k, top_k, total_top_k):
     # return str(top_k)
 
 
-def insert_sheet(column, date, df, index_folder, index_gridsearch, index_mean, index_std, index_top_k, index_train_test, mean, mean_time_search_best_params, mean_time_train_valid, std, std_top_k, top_k, total_top_k):
+def insert_sheet(column, date, df, index_folder, index_gridsearch, index_mean, index_std, index_top_k_tres, index_top_k_cinco, index_train_test, mean, mean_time_search_best_params, mean_time_train_valid, std, std_top_k_tres, std_top_k_cinco, top_k_tres, top_k_cinco, total_top_k):
     df['mean'].loc[index_mean, column] = round_mean(mean)
     df['mean'].loc[index_std, column] = plus_minus_std(std)
-    df['mean'].loc[index_top_k, column] = get_top_k(std_top_k, top_k, total_top_k)
+    df['mean'].loc[index_top_k_tres, column] = get_top_k(std_top_k_tres, top_k_tres, total_top_k)
+    df['mean'].loc[index_top_k_cinco, column] = get_top_k(std_top_k_cinco, top_k_cinco, total_top_k)
     df['time'].loc[index_train_test, column] = round_time(mean_time_train_valid)
     df['time'].loc[index_gridsearch, column] = round_time(mean_time_search_best_params)
     df['folder'].loc[index_folder, column] = date
@@ -100,18 +101,25 @@ def fill_sheet_mean_std(classifier, date, df, filename, image_size, extractor, m
     filename_mean_top_k_sum = str(filename).replace(filename_mean, 'mean_top_k/mean_top_sum.csv')
     if os.path.exists(filename_mean_top_k_sum):
         sheet_mean_top_k_sum = get_csv(filename_mean_top_k_sum, header=0)
-        top_k = sheet_mean_top_k_sum.iloc[0]['top_k']
+        top_k_tres = sheet_mean_top_k_sum.iloc[0]['top_k']
         means = sheet_mean_top_k_sum.iloc[0]['values']
         means = str(means).replace('[', '').replace(']', '').replace(' ', '')
         means = means.split(',')
         means = [int(m) for m in means]
-        std_top_k = np.std(means)
-        std_top_k = plus_minus_std(std_top_k)
-        print(means, std_top_k)
+        std_top_k_tres = np.std(means)
+        std_top_k_tres = plus_minus_std(std_top_k_tres)
+
+        top_k_cinco = sheet_mean_top_k_sum.iloc[2]['top_k']
+        means = sheet_mean_top_k_sum.iloc[2]['values']
+        means = str(means).replace('[', '').replace(']', '').replace(' ', '')
+        means = means.split(',')
+        means = [int(m) for m in means]
+        std_top_k_cinco = np.std(means)
+        std_top_k_cinco = plus_minus_std(std_top_k_cinco)
     else:
-        top_k = 0
-    # import sys
-    # sys.exit()
+        top_k_tres = 0
+        top_k_cinco = 0
+    
 
     filename_info_top_k_sum = str(filename).replace(filename_mean, '0/top_k/sum/info_top_k_sum.csv')
     if os.path.exists(filename_info_top_k_sum):
@@ -119,13 +127,11 @@ def fill_sheet_mean_std(classifier, date, df, filename, image_size, extractor, m
         total_top_k = sheet_info_top_k_sum.loc['total'][1]
     else:
         total_top_k = 0
-    # total_top_k = 1
-    print(top_k)
-    print(total_top_k)
-
+    
     index_mean = extractor + '_' + n_features + '_' + 'mean'
     index_std = extractor + '_' + n_features + '_' + 'std'
-    index_top_k = extractor + '_' + n_features + '_' + 'top_k'
+    index_top_k_tres = extractor + '_' + n_features + '_' + 'top_k_tres'
+    index_top_k_cinco = extractor + '_' + n_features + '_' + 'top_k_cinco'
     index_train_test = extractor + '_' + n_features + '_' + 'train_test'
     index_gridsearch = extractor + '_' + n_features + '_' + 'gridsearch'
     index_folder = extractor + '_' + n_features + '_' + 'folder'
@@ -140,7 +146,7 @@ def fill_sheet_mean_std(classifier, date, df, filename, image_size, extractor, m
     })
 
 
-    insert_sheet(column, date, df, index_folder, index_gridsearch, index_mean, index_std, index_top_k, index_train_test, mean, mean_time_search_best_params, mean_time_train_valid, std, std_top_k, top_k, total_top_k)
+    insert_sheet(column, date, df, index_folder, index_gridsearch, index_mean, index_std, index_top_k_tres, index_top_k_cinco, index_train_test, mean, mean_time_search_best_params, mean_time_train_valid, std, std_top_k_tres, std_top_k_cinco, top_k_tres, top_k_cinco, total_top_k)
 
 
 def get_list_mean(extractor, image_size, n_features, plot):
@@ -288,7 +294,7 @@ def get_columns(list_classifier, list_dim, list_segmented):
 
 def get_index_mean(list_extractor):
     return [e + '_' + str(d) + '_' + m for e in list_extractor.keys() for d in reversed(list_extractor[e]) for m in
-             ['mean', 'std', 'top_k']]
+             ['mean', 'std', 'top_k_tres', 'top_k_cinco']]
 
 
 def plot_mean(output, plot):

@@ -1,4 +1,5 @@
 import multiprocessing
+import sklearn
 import time
 
 from sklearn.ensemble import RandomForestClassifier
@@ -37,16 +38,16 @@ list_params = {
         'max_depth': [10, 100, 1000]
     },
     'SVC': {
-        'kernel': ['linear', 'poly', 'rbf', 'sigmoid'],
+        'kernel': ['linear', 'poly', 'rbf', 'sigmoid']
     }
 }
 
 list_classifiers = [
-    # DecisionTreeClassifier(random_state=cfg_classifier['seed']),
-    # KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
-    # MLPClassifier(random_state=cfg_classifier['seed']),
-    # RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs'], verbose=100),
-    SVC(random_state=1234, verbose=True, probability=True, cache_size=8000)
+    DecisionTreeClassifier(random_state=cfg_classifier['seed']),
+    KNeighborsClassifier(n_jobs=cfg_classifier['n_jobs']),
+    MLPClassifier(random_state=cfg_classifier['seed']),
+    RandomForestClassifier(random_state=cfg_classifier['seed'], n_jobs=cfg_classifier['n_jobs'], verbose=100),
+    SVC(random_state=1234, verbose=True, cache_size=4000, C=0.1)
 ]
 
 
@@ -55,12 +56,22 @@ def find_best_classifier_and_params(cfg, classifier, data, metric):
 
     print(f'[GRIDSEARCH CV] find best params of {classifier_name}')
 
+    if isinstance(classifier, SVC):
+        params = dict(probability=False)
+        classifier.set_params(**params)
+
     classifier_best_params = GridSearchCV(classifier, list_params[classifier_name], scoring=metric, cv=cfg['fold'], pre_dispatch=cfg_classifier['n_jobs'], verbose=cfg['verbose'])
 
     start_search_best_params = time.time()
+
     classifier_best_params.fit(data['x'], data['y'])
+
     end_search_best_params = time.time()
     time_search_best_params = end_search_best_params - start_search_best_params
+
+    if isinstance(classifier, SVC):
+        params = dict(probability=True)
+        classifier_best_params.best_estimator_.set_params(**params)
 
     best_classifier = classifier_best_params.best_estimator_
     best_params = classifier_best_params.best_params_
