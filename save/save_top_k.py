@@ -86,7 +86,6 @@ def plot_top_k(filename, key, list_top_k, max_top_k, min_top_k, title, y_test):
     fontsize_label = 14
 
     plot_size = (10, 10)
-    matplotlib.use('Agg')
 
     figure, axis = plt.subplots(figsize=plot_size)
     plt.plot(x, y, marker='o', color='green')
