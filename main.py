@@ -100,16 +100,14 @@ def main():
                 clf.fit(x, y)
 
             for fold, (index_train, index_test) in enumerate(index):
-                print(index_train)
                 x_train, y_train = split_dataset(index_train, n_features, patch, x, y)
                 x_test, y_test = split_dataset(index_test, n_features, patch, x, y)
 
-                print(collections.Counter(y_test))
-                print(np.unique(y_test))
-                print('fold %d classifier name %s' % (fold, classifier.__class__.__name__))
-                print('x_train.shape %s y_train.shape %s' % (str(x_train.shape), str(y_train.shape)))
-                print('x_test.shape %s y_test.shape %s' % (str(x_test.shape), str(y_test.shape)))
-
+                # print(collections.Counter(y_test))
+                # print(np.unique(y_test))
+                print('fold %d classifier name: %s' % (fold, classifier.__class__.__name__))
+                print('x_train.shape: %s y_train.shape: %s' % (str(x_train.shape), str(y_train.shape)))
+                print('x_test.shape: %s y_test.shape: %s' % (str(x_test.shape), str(y_test.shape)))
 
                 clf.best_estimator_.fit(x_train, y_train)
                 y_pred_proba = clf.best_estimator_.predict_proba(x_test)
@@ -117,12 +115,18 @@ def main():
 
                 y_pred_mult_rule = mult_rule(n_test, n_labels, patch, y_pred_proba)
                 y_pred_sum_rule = sum_rule(n_test, n_labels, patch, y_pred_proba)
-                # y_true = y_true_no_patch(n_test, patch, y_test)
+                # print(y_test)
+                y_true = y_true_no_patch(n_test, patch, y_test)
+                # print(y_true)
+                print('y_pred_sum_rule.shape: %s' % str(y_pred_sum_rule.shape))
+                print('y_pred_mult_rule.shape %s' % str(y_pred_mult_rule.shape))
+                print('y_true.shape %s' % str(y_true.shape))
+
                 #
-                # results = {
-                #     'mult': evaluate(y_pred_mult_rule, y_true),
-                #     'sum': evaluate(y_pred_sum_rule, y_true)
-                # }
+                results = {
+                    'mult': evaluate(y_pred_mult_rule, y_true),
+                    'sum': evaluate(y_pred_sum_rule, y_true)
+                }
                 #
                 # list_results.append(results)
                 # path_fold = os.path.join(path, str(fold))
@@ -145,7 +149,6 @@ def evaluate(y_pred, y_true):
     f1 = f1_score(y_true, y_pred, average='weighted')
     topk_three = None #top_k_accuracy_score(y_true, k=3, normalize=True)
     topk_five = None #top_k_accuracy_score(y_true, k=5, normalize=True)
-    print(y_pred.shape, y_true.shape)
     cm = confusion_matrix(y_true, y_pred)
     print(cm)
     return {'f1': f1, 'topk_three': topk_three, 'topk_five': topk_five, 'confusion_matrix': cm}
@@ -169,7 +172,6 @@ def read_dataset_informations(input):
     if not os.path.exists(input_path):
         raise SystemExit('input path %s not exists' % input_path)
 
-    print(input_path)
     info_level = [f for f in pathlib.Path(input_path).rglob('info_levels.csv') if f.is_file()]
 
     if len(info_dataset) == 0:
@@ -206,8 +208,8 @@ def split_folds(n_features, n_samples, patch, y):
     x = np.random.rand(int(n_samples/patch), n_features)
     y = [np.repeat(k, int(v/patch)) for k, v in dict(collections.Counter(y)).items()]
     y = np.array(list(itertools.chain(*y)))
-    print('StratifiedKFold x.shape %s' % str(x.shape))
-    print('StratifiedKFold y.shape %s' % str(y.shape))
+    print('StratifiedKFold x.shape: %s' % str(x.shape))
+    print('StratifiedKFold y.shape: %s' % str(y.shape))
     kf = StratifiedKFold(n_splits=FOLDS, shuffle=True, random_state=SEED)
     return kf.split(x, y)
 
