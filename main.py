@@ -13,11 +13,13 @@ from sklearn.metrics import confusion_matrix, f1_score, top_k_accuracy_score
 from sklearn.model_selection import StratifiedKFold, GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import SVC
 
 from a import mult_rule, split_dataset, sum_rule, y_true_no_patch
-from save import save_mean, save_best_mean, save_fold, save_info, save_best_classifier, save_confusion_matrix
+from save import save_mean, save_best_mean, save_fold, save_best_classifier, save_confusion_matrix, \
+    mean_metrics, save_best_fold, save_info, save_info_best_classifier
 
-FOLDS = 5
+FOLDS = 2
 METRIC = 'f1_weighted'
 N_JOBS = -1
 PCA = False
@@ -65,7 +67,7 @@ list_classifiers = [
 
 def main():
     # input='lbp.txt'
-    input = '/home/xandao/Imagens/pr_dataset_features/RGB/256/specific_epithet_trusted/20/vgg16'
+    input = '/home/xandao/Imagens/pr_dataset_features/RGB/256/specific_epithet_trusted/5/vgg16'
     if input.endswith('.txt') and os.path.isfile(input):
         data = np.loadtxt(input)
         n_samples, n_features = data.shape
@@ -84,7 +86,6 @@ def main():
     else:
         extractor, list_info_level, n_features, n_samples, patch = read_dataset_informations(input)
         index, x, y = prepare_data(input, n_features, n_samples, patch)
-        # print(np.unique(y))
         for classifier in list_classifiers:
             list_results = []
             output_folder_name = '%s+%s+%s' % (classifier.__class__.__name__, extractor, str(n_features))
@@ -99,58 +100,59 @@ def main():
             with joblib.parallel_backend('ray', n_jobs=N_JOBS):
                 clf.fit(x, y)
 
-            for fold, (index_train, index_test) in enumerate(index):
+            if isinstance(clf.best_estimator_, SVC):
+                params = dict(probability=True)
+                clf.best_estimator_.set_params(**params)
+
+            for fold, (index_train, index_test) in enumerate(index, start=1):
+                print('[INFO] fold %d classifier name: %s' % (fold, classifier.__class__.__name__))
                 x_train, y_train = split_dataset(index_train, n_features, patch, x, y)
                 x_test, y_test = split_dataset(index_test, n_features, patch, x, y)
 
-                # print(collections.Counter(y_test))
-                # print(np.unique(y_test))
-                print('fold %d classifier name: %s' % (fold, classifier.__class__.__name__))
-                print('x_train.shape: %s y_train.shape: %s' % (str(x_train.shape), str(y_train.shape)))
-                print('x_test.shape: %s y_test.shape: %s' % (str(x_test.shape), str(y_test.shape)))
+                print('[INFO] x_train.shape: %s y_train.shape: %s' % (str(x_train.shape), str(y_train.shape)))
+                print('[INFO] x_test.shape: %s y_test.shape: %s' % (str(x_test.shape), str(y_test.shape)))
 
-                clf.best_estimator_.fit(x_train, y_train)
+                with joblib.parallel_backend('ray', n_jobs=N_JOBS):
+                    clf.best_estimator_.fit(x_train, y_train)
+
                 y_pred_proba = clf.best_estimator_.predict_proba(x_test)
                 n_test, n_labels = y_pred_proba.shape
-
-                y_pred_mult_rule = mult_rule(n_test, n_labels, patch, y_pred_proba)
-                y_pred_sum_rule = sum_rule(n_test, n_labels, patch, y_pred_proba)
-                # print(y_test)
+                y_pred_mult_rule, y_score_mult = mult_rule(n_test, n_labels, patch, y_pred_proba)
+                y_pred_sum_rule, y_score_sum = sum_rule(n_test, n_labels, patch, y_pred_proba)
                 y_true = y_true_no_patch(n_test, patch, y_test)
-                # print(y_true)
-                print('y_pred_sum_rule.shape: %s' % str(y_pred_sum_rule.shape))
-                print('y_pred_mult_rule.shape %s' % str(y_pred_mult_rule.shape))
-                print('y_true.shape %s' % str(y_true.shape))
+                print('[INFO] y_pred_sum_rule.shape: %s y_score_sum: %s' % (str(y_pred_sum_rule.shape), str(y_score_sum.shape)))
+                print('[INFO] y_pred_mult_rule.shape: %s y_score_mult: %s' % (str(y_pred_mult_rule.shape), str(y_score_mult.shape)))
+                print('[INFO] y_true.shape: %s' % str(y_true.shape))
 
-                #
                 results = {
-                    'mult': evaluate(y_pred_mult_rule, y_true),
-                    'sum': evaluate(y_pred_sum_rule, y_true)
+                    'fold': fold,
+                    'mult': evaluate(y_pred_mult_rule, y_score_mult, y_true),
+                    'sum': evaluate(y_pred_sum_rule, y_score_sum, y_true),
+                    # 'sum': evaluate(y_pred_sum_rule, y_true)
                 }
-                #
-                # list_results.append(results)
-                # path_fold = os.path.join(path, str(fold))
-                #
-                # if not os.path.exists(path_fold):
-                #     os.makedirs(path_fold)
 
-                # save_fold(fold, path_fold, results)
-                # save_best_classifier(clf, path_fold)
-                # save_confusion_matrix(list_info_level, path_fold, results)
-                break
-            break
-            # save_mean(list_results, path)
-            # save_best_fold(list_results, path)
-            # save_best_mean(list_results, path)
-            # save_info(classifier.__class__.__name__, extractor, n_features, n_samples, path, patch)
+                list_results.append(results)
+                path_fold = os.path.join(path, str(fold))
+
+                if not os.path.exists(path_fold):
+                    os.makedirs(path_fold)
+
+                save_fold(fold, path_fold, results)
+                save_best_classifier(clf, path_fold)
+                save_confusion_matrix(list_info_level, path_fold, results)
+            means = mean_metrics(list_results)
+            save_mean(means, path)
+            save_best_fold(list_results, path)
+            save_best_mean(means, path)
+            save_info(classifier.__class__.__name__, extractor, n_features, n_samples, path, patch)
+            save_info_best_classifier(clf, path)
 
 
-def evaluate(y_pred, y_true):
-    f1 = f1_score(y_true, y_pred, average='weighted')
-    topk_three = None #top_k_accuracy_score(y_true, k=3, normalize=True)
-    topk_five = None #top_k_accuracy_score(y_true, k=5, normalize=True)
-    cm = confusion_matrix(y_true, y_pred)
-    print(cm)
+def evaluate(y_pred, y_score, y_true):
+    f1 = f1_score(y_true=y_true, y_pred=y_pred, average='weighted')
+    topk_three = top_k_accuracy_score(y_true, y_score, k=3, normalize=True)
+    topk_five = top_k_accuracy_score(y_true, y_score, k=5, normalize=True)
+    cm = confusion_matrix(y_true=y_true, y_pred=y_pred)
     return {'f1': f1, 'topk_three': topk_three, 'topk_five': topk_five, 'confusion_matrix': cm}
 
 
@@ -184,18 +186,18 @@ def read_dataset_informations(input):
 
 
 def prepare_data(input, n_features, n_samples, patch):
-    x = np.empty(shape=(n_samples, n_features), dtype=np.float64)
+    x = np.empty(shape=(0, n_features), dtype=np.float64)
     y = []
 
     for file in sorted(pathlib.Path(input).rglob('*.npz')):
         if file.is_file():
             d = np.load(file)
-            np.vstack((x, d['x']))
+            x = np.append(x, d['x'], axis=0)
             y.append(d['y'])
 
     y = np.array(list(itertools.chain(*y)), dtype=np.int16)
-    print('dataset contains x.shape: %s' % str(x.shape))
-    print('dataset contains y.shape: %s' % str(y.shape))
+    print('[INFO] dataset contains x.shape: %s' % str(x.shape))
+    print('[INFO] dataset contains y.shape: %s' % str(y.shape))
 
     index = split_folds(n_features, n_samples, patch, y)
     scaler = StandardScaler()
@@ -205,11 +207,11 @@ def prepare_data(input, n_features, n_samples, patch):
 
 def split_folds(n_features, n_samples, patch, y):
     np.random.seed(SEED)
-    x = np.random.rand(int(n_samples/patch), n_features)
-    y = [np.repeat(k, int(v/patch)) for k, v in dict(collections.Counter(y)).items()]
+    x = np.random.rand(int(n_samples / patch), n_features)
+    y = [np.repeat(k, int(v / patch)) for k, v in dict(collections.Counter(y)).items()]
     y = np.array(list(itertools.chain(*y)))
-    print('StratifiedKFold x.shape: %s' % str(x.shape))
-    print('StratifiedKFold y.shape: %s' % str(y.shape))
+    print('[INFO] StratifiedKFold x.shape: %s' % str(x.shape))
+    print('[INFO] StratifiedKFold y.shape: %s' % str(y.shape))
     kf = StratifiedKFold(n_splits=FOLDS, shuffle=True, random_state=SEED)
     return kf.split(x, y)
 
