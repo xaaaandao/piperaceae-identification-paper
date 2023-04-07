@@ -1,4 +1,3 @@
-extractor/
-out/*
-resultados/
 __pycache__/
+*.cc
+*.so
