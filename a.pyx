@@ -6,10 +6,6 @@ import numpy as np
 cimport cython
 cimport numpy as np
 
-def next_sequence(start, end, step):
-    cdef int i
-    for i in range(start, end, step):
-        yield i, i + step
 
 @cython.boundscheck(False)
 @cython.wraparound(False)

@@ -9,7 +9,8 @@ import pathlib
 import ray
 
 from ray.util.joblib import register_ray
-from sklearn.metrics import confusion_matrix, f1_score, top_k_accuracy_score
+from sklearn.metrics import confusion_matrix, f1_score, top_k_accuracy_score, multilabel_confusion_matrix, \
+    classification_report
 from sklearn.model_selection import StratifiedKFold, GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
@@ -69,22 +70,9 @@ def main():
     # input='lbp.txt'
     input = '/home/xandao/Imagens/pr_dataset_features/RGB/256/specific_epithet_trusted/5/vgg16'
     if input.endswith('.txt') and os.path.isfile(input):
-        data = np.loadtxt(input)
-        n_samples, n_features = data.shape
-        x, y = data[0:, 0:n_features - 1], data[:, n_features - 1]
-
-        if np.isnan(x):
-            raise SystemExit('dataset %s contains nan' % input)
-
-        kf = StratifiedKFold(n_splits=FOLDS, shuffle=True, random_state=SEED)
-        index = kf.split(x, y)
-        for fold, (index_train, index_test) in enumerate(index):
-            print('fold: %d' % fold)
-            x_train, y_train = x[index_train], y[index_train]
-            x_test, y_test = x[index_test], y[index_test]
-
+        pass
     else:
-        extractor, list_info_level, n_features, n_samples, patch = read_dataset_informations(input)
+        extractor, list_info_level, n_features, n_samples, patch = load_dataset_informations(input)
         index, x, y = prepare_data(input, n_features, n_samples, patch)
         for classifier in list_classifiers:
             list_results = []
@@ -100,6 +88,7 @@ def main():
             with joblib.parallel_backend('ray', n_jobs=N_JOBS):
                 clf.fit(x, y)
 
+            # enable to use predict_proba
             if isinstance(clf.best_estimator_, SVC):
                 params = dict(probability=True)
                 clf.best_estimator_.set_params(**params)
@@ -126,9 +115,8 @@ def main():
 
                 results = {
                     'fold': fold,
-                    'mult': evaluate(y_pred_mult_rule, y_score_mult, y_true),
-                    'sum': evaluate(y_pred_sum_rule, y_score_sum, y_true),
-                    # 'sum': evaluate(y_pred_sum_rule, y_true)
+                    'mult': evaluate(list_info_level, n_labels, y_pred_mult_rule, y_score_mult, y_true),
+                    'sum': evaluate(list_info_level, n_labels, y_pred_sum_rule, y_score_sum, y_true),
                 }
 
                 list_results.append(results)
@@ -147,15 +135,27 @@ def main():
             save_info(classifier.__class__.__name__, extractor, n_features, n_samples, path, patch)
 
 
-def evaluate(y_pred, y_score, y_true):
+def evaluate(list_info_level, n_labels, y_pred, y_score, y_true):
     f1 = f1_score(y_true=y_true, y_pred=y_pred, average='weighted')
     topk_three = top_k_accuracy_score(y_true, y_score, k=3, normalize=True)
     topk_five = top_k_accuracy_score(y_true, y_score, k=5, normalize=True)
+    accuracy = accuracy_score(y_pred=y_pred, y_true=y_true)
     cm = confusion_matrix(y_true=y_true, y_pred=y_pred)
-    return {'f1': f1, 'topk_three': topk_three, 'topk_five': topk_five, 'confusion_matrix': cm}
+    cm_normalized = confusion_matrix(y_true=y_true, y_pred=y_pred, normalize=True)
+    cm_multilabel = multilabel_confusion_matrix(y_pred=y_pred, y_true=y_true)
+    cr = classification_report(y_pred=y_pred, y_true=y_true, labels=np.arange(1, len(list_info_level) + 1),
+                               zero_division=0, output_dict=True)
+    list_top_k = [
+        {'k': k,
+         'top_k_accuracy': top_k_accuracy_score(y_true=y_true, y_score=y_score, normalize=False,
+                                                k=k, labels=np.arange(1, len(list_info_level) + 1))}
+        for k in range(3, n_labels)
+    ]
+    return {'f1': f1, 'topk_three': topk_three, 'topk_five': topk_five, 'confusion_matrix': confusion_matrix,
+            'confusion_matrix_normalized': cm_normalized, 'confusion_matrix_multilabel': cm_multilabel, 'classification_report': cr, 'list_top_k': list_top_k, 'accuracy': accuracy}
 
 
-def read_dataset_informations(input):
+def load_dataset_informations(input):
     info_dataset = [f for f in pathlib.Path(input).rglob('info.csv') if f.is_file()]
 
     if len(info_dataset) == 0:

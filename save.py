@@ -69,7 +69,7 @@ def save_csv(df, filename, header=True, index=True):
 
 
 def save_model_best_classifier(classifier, path):
-    filename = os.path.join(path, 'model.pkl')
+    filename = os.path.join(path, 'best_model.pkl')
     print('[JOBLIB] %s created' % filename)
     try:
         with open(filename, 'wb') as file:
@@ -151,8 +151,13 @@ def save_confusion_matrix(list_info_level, path, results):
 
 
 def save_fold(fold, path, results):
-    index = ['fold', 'results_f1_mult', 'results_f1_sum', 'results_topk_mult', 'results_topk_sum']
-    data = [fold, results['mult']['f1'], results['sum']['f1'], results['mult']['topk_three'], results['sum']['topk_five']]
+    index = ['fold']
+    data = [fold]
+    for rule in ['mult', 'sum']:
+        for metric in ['f1', 'topk_three', 'topk_five']:
+            data.append(results[rule][metric])
+            index.append('%s_%s' % (metric, rule))
+
     df = pd.DataFrame(data, index=index)
     filename = os.path.join(path, 'fold.csv')
     save_csv(df, filename, header=False, index=index)
