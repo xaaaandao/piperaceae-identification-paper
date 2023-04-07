@@ -19,12 +19,15 @@ def mean_topk(results):
 def mean_metrics(list_results):
     means = []
     for rule in ['mult', 'sum']:
-        results = [result[rule] for result in list_results]
-        mean_f1, std_f1 = mean_std(results, 'f1')
-        mean_topk_five, mean_topk_three, std_topk_five, std_topk_three = mean_topk(results)
+        results = [result for result in list_results if result[rule] == rule]
+        mean_f1, std_f1 = mean_std(results[rule], 'f1')
+        mean_time, std_time = mean_std(results, 'time')
+        mean_topk_five, mean_topk_three, std_topk_five, std_topk_three = mean_topk(results[rule])
         means.append({'rule': rule,
                           'mean_f1': mean_f1,
                           'std_f1': std_f1,
+                          'mean_time': mean_time,
+                          'std_time': std_time,
                           'mean_topk_three': mean_topk_three,
                           'std_topk_three': std_topk_three,
                           'mean_topk_five': mean_topk_five,
@@ -37,6 +40,8 @@ def save_mean(means, path):
     data = {
         'mean_f1': [m['mean_f1'] for m in means for rule in rules if m['rule'] == rule],
         'std_f1': [m['std_f1'] for m in means for rule in rules if m['rule'] == rule],
+        'mean_time': [m['mean_time'] for m in means for rule in rules if m['rule'] == rule],
+        'std_time': [m['std_time'] for m in means for rule in rules if m['rule'] == rule],
         'mean_topk_three': [m['mean_topk_three'] for m in means for rule in rules if m['rule'] == rule],
         'std_topk_three': [m['std_topk_three'] for m in means for rule in rules if m['rule'] == rule],
         'mean_topk_five': [m['mean_topk_five'] for m in means for rule in rules if m['rule'] == rule],
@@ -52,6 +57,7 @@ def save_best_mean(means, path):
     mean_sum = [m for m in means if m['rule'] == 'sum']
 
     best_f1_mean, best_f1_rule = best_mean_and_rule(mean_mult, mean_sum, 'mean_f1')
+    best_f1_mean, best_f1_rule = best_mean_and_rule(mean_mult, mean_sum, 'mean_time')
     best_topk_three_mean, best_topk_three_rule = best_mean_and_rule(mean_mult, mean_sum, 'mean_topk_three')
     best_topk_five_mean, best_topk_five_rule = best_mean_and_rule(mean_mult, mean_sum, 'mean_topk_five')
 
@@ -184,6 +190,9 @@ def save_best_fold(results, path):
     data = []
     index = []
     for rule in ['mult', 'sum']:
+        best = min(results, key=lambda x: x['time'])
+        data.append(best['time'])
+        index.append('best_time')
         for metric in ['f1', 'topk_three', 'topk_five']:
             best = max(results, key=lambda x: x[rule][metric])
             data.append(best['fold'])

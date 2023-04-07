@@ -37,9 +37,9 @@ class TestCython(unittest.TestCase):
         list_equal = []
         for i in range(10):
             y_pred_proba = np.random.random_sample((self.patch, self.n_labels))
-            my_y_pred = sum_rule(3, self.n_labels, self.patch, y_pred_proba)
+            my_y_pred, my_y_score = sum_rule(3, self.n_labels, self.patch, y_pred_proba)
             y_pred_proba = np.sum(y_pred_proba, axis=0)
-            y_pred = np.array([np.argmax(y_pred_proba)])
+            y_pred = np.array([np.argmax(y_pred_proba)+1])
             list_equal.append(np.array_equal(my_y_pred, y_pred))
 
         self.assertEqual(True, all(equal for equal in list_equal))
@@ -48,9 +48,10 @@ class TestCython(unittest.TestCase):
         list_equal = []
         for i in range(10):
             y_pred_proba = np.random.random_sample((self.patch, self.n_labels))
-            my_y_pred = mult_rule(3, self.n_labels, self.patch, y_pred_proba)
+            my_y_pred, my_y_score = mult_rule(3, self.n_labels, self.patch, y_pred_proba)
             y_pred_proba = np.prod(y_pred_proba, axis=0)
-            y_pred = np.array([np.argmax(y_pred_proba)])
+            # +1 because not exists label 0
+            y_pred = np.array([np.argmax(y_pred_proba)+1])
             list_equal.append(np.array_equal(my_y_pred, y_pred))
 
         self.assertEqual(True, all(equal for equal in list_equal))

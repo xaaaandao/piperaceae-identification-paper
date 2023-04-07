@@ -7,10 +7,11 @@ import os.path
 import pandas as pd
 import pathlib
 import ray
+import timeit
 
 from ray.util.joblib import register_ray
 from sklearn.metrics import confusion_matrix, f1_score, top_k_accuracy_score, multilabel_confusion_matrix, \
-    classification_report
+    classification_report, accuracy_score
 from sklearn.model_selection import StratifiedKFold, GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
@@ -101,10 +102,13 @@ def main():
                 print('[INFO] x_train.shape: %s y_train.shape: %s' % (str(x_train.shape), str(y_train.shape)))
                 print('[INFO] x_test.shape: %s y_test.shape: %s' % (str(x_test.shape), str(y_test.shape)))
 
+                start_timeit = timeit.default_timer()
                 with joblib.parallel_backend('ray', n_jobs=N_JOBS):
                     clf.best_estimator_.fit(x_train, y_train)
 
                 y_pred_proba = clf.best_estimator_.predict_proba(x_test)
+                end_timeit = timeit.default_timer() - start_timeit
+
                 n_test, n_labels = y_pred_proba.shape
                 y_pred_mult_rule, y_score_mult = mult_rule(n_test, n_labels, patch, y_pred_proba)
                 y_pred_sum_rule, y_score_sum = sum_rule(n_test, n_labels, patch, y_pred_proba)
@@ -117,6 +121,7 @@ def main():
                     'fold': fold,
                     'mult': evaluate(list_info_level, n_labels, y_pred_mult_rule, y_score_mult, y_true),
                     'sum': evaluate(list_info_level, n_labels, y_pred_sum_rule, y_score_sum, y_true),
+                    'time': end_timeit
                 }
 
                 list_results.append(results)
