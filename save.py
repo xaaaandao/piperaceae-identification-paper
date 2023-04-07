@@ -35,17 +35,16 @@ def mean_metrics(list_results):
 def save_mean(means, path):
     rules = sorted(['sum', 'mult'])
     data = {
-        'rule': [m['rule'] for m in means for rule in rules if m['rule'] == rule],
-        'mean_f1': [m['rule'] for m in means for rule in rules if m['rule'] == rule],
+        'mean_f1': [m['mean_f1'] for m in means for rule in rules if m['rule'] == rule],
         'std_f1': [m['std_f1'] for m in means for rule in rules if m['rule'] == rule],
         'mean_topk_three': [m['mean_topk_three'] for m in means for rule in rules if m['rule'] == rule],
         'std_topk_three': [m['std_topk_three'] for m in means for rule in rules if m['rule'] == rule],
         'mean_topk_five': [m['mean_topk_five'] for m in means for rule in rules if m['rule'] == rule],
         'std_topk_five': [m['std_topk_five'] for m in means for rule in rules if m['rule'] == rule]
     }
-    df = pd.DataFrame(data.values(), index=data.keys())
+    df = pd.DataFrame(data.values(), index=data.keys(), columns=rules)
     filename = os.path.join(path, 'mean.csv')
-    save_csv(df, filename, header=False, index=data.keys())
+    save_csv(df, filename, header=True, index=data.keys())
 
 
 def save_best_mean(means, path):

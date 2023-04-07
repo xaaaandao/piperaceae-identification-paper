@@ -138,14 +138,13 @@ def main():
                     os.makedirs(path_fold)
 
                 save_fold(fold, path_fold, results)
-                save_best_classifier(clf, path_fold)
                 save_confusion_matrix(list_info_level, path_fold, results)
             means = mean_metrics(list_results)
             save_mean(means, path)
+            save_best_classifier(clf, path)
             save_best_fold(list_results, path)
             save_best_mean(means, path)
             save_info(classifier.__class__.__name__, extractor, n_features, n_samples, path, patch)
-            save_info_best_classifier(clf, path)
 
 
 def evaluate(y_pred, y_score, y_true):
