@@ -13,9 +13,12 @@ import ray
 import timeit
 
 from ray.util.joblib import register_ray
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix, f1_score, top_k_accuracy_score, multilabel_confusion_matrix, \
     classification_report, accuracy_score
 from sklearn.model_selection import StratifiedKFold, GridSearchCV
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
@@ -68,11 +71,11 @@ parameters = {
 
 def selected_classifier(classifiers_selected):
     classifiers = [
-        # KNeighborsClassifier(n_jobs=N_JOBS),
-        # MLPClassifier(random_state=SEED),
-        # RandomForestClassifier(random_state=SEED, n_jobs=N_JOBS, verbose=100, max_depth=10),
-        # SVC(random_state=SEED, verbose=True, cache_size=2000, C=0.01)
         DecisionTreeClassifier(random_state=SEED),
+        KNeighborsClassifier(n_jobs=N_JOBS),
+        MLPClassifier(random_state=SEED),
+        RandomForestClassifier(random_state=SEED, n_jobs=N_JOBS, verbose=100, max_depth=10),
+        SVC(random_state=SEED, verbose=True, cache_size=2000, C=0.01)
     ]
     return [c for cs in classifiers_selected for c in classifiers if cs == c.__class__.__name__]
 
@@ -89,10 +92,9 @@ def main(classifiers, input, metric, pca):
     classifiers_choosed = selected_classifier(classifiers)
 
     if len(classifiers_choosed) == 0:
-        logging.error('classfiers choosed not found %s' % str(classifiers_choosed))
         raise SystemExit('classifiers choosed not found')
 
-    logging.info('%s classifiers was choosed' % str(len(classifiers_choosed)))
+    logging.info('[INFO] %s classifiers was choosed' % str(len(classifiers_choosed)))
 
     if not os.path.exists(input):
         raise SystemExit('input %s not found' % input)
@@ -221,7 +223,7 @@ def load_dataset_informations(input):
     height = int(df.loc['height'][1])
     width = int(df.loc['width'][1])
     patch = int(df.loc['patch'][1])
-    logging.info('n_samples: %s n_features: %s patch: %s' % (n_samples, n_features, patch))
+    logging.info('[INFO] n_samples: %s n_features: %s patch: %s' % (n_samples, n_features, patch))
 
     # input_path = input_path.replace('/media/kingston500/mestrado/dataset', '/home/xandao/Imagens/')
     if not os.path.exists(input_path):
@@ -235,7 +237,7 @@ def load_dataset_informations(input):
     df = pd.read_csv(info_level[0], header=0, sep=';')
     list_info_level = df[['levels', 'count', 'f']].to_dict()
 
-    logging.info('n_levels: %s' % str(len(df['levels'])))
+    logging.info('[INFO] n_levels: %s' % str(len(df['levels'])))
 
     return extractor, (height, width), list_info_level, n_features, n_samples, patch
 
