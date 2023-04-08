@@ -104,6 +104,9 @@ def main():
                 x_train, y_train = split_dataset(index_train, n_features, patch, x, y)
                 x_test, y_test = split_dataset(index_test, n_features, patch, x, y)
 
+                print(sorted(collections.Counter(y_test)))
+                print(sorted(collections.Counter(y_test)))
+
                 logging.info('[INFO] x_train.shape: %s y_train.shape: %s' % (str(x_train.shape), str(y_train.shape)))
                 logging.info('[INFO] x_test.shape: %s y_test.shape: %s' % (str(x_test.shape), str(y_test.shape)))
 

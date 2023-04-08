@@ -21,10 +21,31 @@ args_confusion_matrix = [{
     'figure': {'figsize': (30, 30)}
 },
     {'n_labels': ['23'],
-     'label': {'fontsize': 48},
-     'ticks': {'fontsize': 24},
-     'title': {'fontsize': 84,
+     'label': {'fontsize': 28},
+     'ticks': {'fontsize': 16},
+     'title': {'fontsize': 60,
                'pad': 32},
-     'figure': {'figsize': (30, 30)}
+     'figure': {'figsize': (20, 20)}
+     },
+    {'n_labels': ['235'],
+     'label': {'fontsize': 28},
+     'ticks': {'fontsize': 16},
+     'title': {'fontsize': 48,
+               'pad': 32},
+     'figure': {'figsize': (18, 18)}
+     },
+    {'n_labels': ['235'],
+     'label': {'fontsize': 28},
+     'ticks': {'fontsize': 16},
+     'title': {'fontsize': 48,
+               'pad': 32},
+     'figure': {'figsize': (18, 18)}
+     },
+    {'n_labels': ['235'],
+     'label': {'fontsize': 28},
+     'ticks': {'fontsize': 16},
+     'title': {'fontsize': 72,
+               'pad': 32},
+     'figure': {'figsize': (20, 20)}
      },
 ]

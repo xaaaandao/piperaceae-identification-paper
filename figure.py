@@ -42,7 +42,7 @@ def figure_confusion_matrix(key, list_info_level, path, results, title):
         posix_xtick = [i + 0.5 for i in range(len(list_info_level['levels'].values()))]
         posix_ytick = [i + 0.5 for i in range(len(list_info_level['levels'].values()))]
         xtick_labels = list_info_level['levels'].values()
-        ytick_labels = ['$' + i[0] + '$ (%s)' % i[1] for i in
+        ytick_labels = ['$' + i[0] + '$\n(%s)' % i[1] for i in
                         zip(list_info_level['levels'].values(), list_info_level['count'].values())]
 
         axis.set_xticks(posix_xtick, labels=xtick_labels, rotation=90,  **args[0]['ticks'])

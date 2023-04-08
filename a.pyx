@@ -42,7 +42,7 @@ def sum_rule(n_test: int, n_labels:int, patch: int, np.ndarray[np.float64_t, ndi
         y_score[k] = sum
         y_pred[k] = np.argmax(sum)+1
 
-    return y_pred, y_score
+    return np.sort(y_pred, kind='mergesort'), y_score
 
 
 @cython.boundscheck(False)
@@ -60,7 +60,7 @@ def mult_rule(n_test: int, n_labels:int, patch: int, np.ndarray[np.float64_t, nd
         y_score[k] = mult
         y_pred[k] = np.argmax(mult)+1
 
-    return y_pred, y_score
+    return np.sort(y_pred, kind='mergesort'), y_score
 
 
 @cython.boundscheck(False)
@@ -75,7 +75,7 @@ def y_true_no_patch(n_test: int, patch: int, np.ndarray[np.int16_t, ndim=1] y_tr
             y_true_no_patch[s] = k
             s+=1
 
-    return y_true_no_patch
+    return np.sort(y_true_no_patch, kind='mergesort')
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
