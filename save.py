@@ -1,88 +1,124 @@
 import joblib
-import matplotlib.pyplot as plt
+import logging
 import numpy as np
 import os
 import pandas as pd
-import seaborn as sns
+
+from figure import figure_confusion_matrix, figure_topk
+
+logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S', level=logging.INFO)
 
 
 def mean_std(list_results, metric):
     return np.mean([result[metric] for result in list_results]), np.std([result[metric] for result in list_results])
 
 
-def mean_topk(results):
-    mean_topk_three, std_topk_three = mean_std(results, 'topk_three')
-    mean_topk_five, std_topk_five = mean_std(results, 'topk_five')
-    return mean_topk_five, mean_topk_three, std_topk_five, std_topk_three
+def mean_std_topk(results, n_labels):
+    k = []
+    mean = []
+    std = []
+    for kk in range(3, n_labels):
+        k.append(kk)
+        mean.append(np.mean([topk['top_k_accuracy'] for result in results for topk in result['list_topk'] if topk['k'] == kk]))
+        std.append(np.std([topk['top_k_accuracy'] for result in results for topk in result['list_topk'] if topk['k'] == kk]))
+    return {
+        'k': k,
+        'mean': mean,
+        'std': std
+    }
 
 
-def mean_metrics(list_results):
+def mean_metrics(list_results, n_labels):
     means = []
     for rule in ['mult', 'sum']:
-        results = [result for result in list_results if result[rule] == rule]
-        mean_f1, std_f1 = mean_std(results[rule], 'f1')
-        mean_time, std_time = mean_std(results, 'time')
-        mean_topk_five, mean_topk_three, std_topk_five, std_topk_three = mean_topk(results[rule])
+        results = [result[rule] for result in list_results]
+        mean_f1, std_f1 = mean_std(results, 'f1')
+        topk = mean_std_topk(results, n_labels)
         means.append({'rule': rule,
-                          'mean_f1': mean_f1,
-                          'std_f1': std_f1,
-                          'mean_time': mean_time,
-                          'std_time': std_time,
-                          'mean_topk_three': mean_topk_three,
-                          'std_topk_three': std_topk_three,
-                          'mean_topk_five': mean_topk_five,
-                          'std_topk_five': std_topk_five})
+                      'mean_f1': mean_f1,
+                      'std_f1': std_f1,
+                      'topk': topk})
     return means
 
 
-def save_mean(means, path):
-    rules = sorted(['sum', 'mult'])
+def save_mean_time(path, results):
+    mean_time, std_time = mean_std(results, 'time')
     data = {
-        'mean_f1': [m['mean_f1'] for m in means for rule in rules if m['rule'] == rule],
-        'std_f1': [m['std_f1'] for m in means for rule in rules if m['rule'] == rule],
-        'mean_time': [m['mean_time'] for m in means for rule in rules if m['rule'] == rule],
-        'std_time': [m['std_time'] for m in means for rule in rules if m['rule'] == rule],
-        'mean_topk_three': [m['mean_topk_three'] for m in means for rule in rules if m['rule'] == rule],
-        'std_topk_three': [m['std_topk_three'] for m in means for rule in rules if m['rule'] == rule],
-        'mean_topk_five': [m['mean_topk_five'] for m in means for rule in rules if m['rule'] == rule],
-        'std_topk_five': [m['std_topk_five'] for m in means for rule in rules if m['rule'] == rule]
+        'mean_time': mean_time,
+        'std_time': std_time
     }
-    df = pd.DataFrame(data.values(), index=data.keys(), columns=rules)
-    filename = os.path.join(path, 'mean.csv')
-    save_csv(df, filename, header=True, index=data.keys())
+    filename = os.path.join(path, 'mean_time.csv')
+    df = pd.DataFrame(data.values(), index=list(data.keys()))
+    save_csv(df, filename, index=True, header=False)
+
+
+def save_mean_topk(topk, path, rule):
+    path_topk = os.path.join(path, 'topk')
+    if not os.path.exists(path_topk):
+        os.makedirs(path_topk)
+
+    filename = os.path.join(path_topk, 'mean_topk+%s.png' % rule)
+    figure_topk(filename, 'Mean Top-k', x=topk['k'], y=topk['mean'])
+
+    data = {
+        'k': topk['k'],
+        'mean': topk['mean'],
+        'std': topk['std']
+    }
+    filename = os.path.join(path_topk, 'mean_topk+%s.csv' % rule)
+    df = pd.DataFrame(data)
+    save_csv(df, filename, index=False)
+
+
+def save_mean(means, path, results):
+    path_mean = os.path.join(path, 'mean')
+
+    if not os.path.exists(path_mean):
+        os.makedirs(path_mean)
+
+    save_mean_time(path_mean, results)
+
+    for rule in ['mult', 'sum']:
+        mean = [mean for mean in means if mean['rule'] == rule]
+        save_mean_topk(mean[0]['topk'], path_mean, rule)
+        data = {
+            'mean_f1': mean[0]['mean_f1'],
+            'std_f1': mean[0]['std_f1']
+        }
+
+        df = pd.DataFrame(data.values(), index=list(data.keys()))
+        filename = os.path.join(path_mean, 'mean+%s.csv' % rule)
+        save_csv(df, filename, header=False, index=True)
 
 
 def save_best_mean(means, path):
     mean_mult = [m for m in means if m['rule'] == 'mult']
     mean_sum = [m for m in means if m['rule'] == 'sum']
+    best_mean, best_rule = best_mean_and_rule(mean_mult, mean_sum, 'mean_f1')
+    data = {
+        'best_f1_mean': best_mean,
+        'best_f1_rule': best_rule,
+    }
 
-    best_f1_mean, best_f1_rule = best_mean_and_rule(mean_mult, mean_sum, 'mean_f1')
-    best_f1_mean, best_f1_rule = best_mean_and_rule(mean_mult, mean_sum, 'mean_time')
-    best_topk_three_mean, best_topk_three_rule = best_mean_and_rule(mean_mult, mean_sum, 'mean_topk_three')
-    best_topk_five_mean, best_topk_five_rule = best_mean_and_rule(mean_mult, mean_sum, 'mean_topk_five')
-
-    data = [best_f1_mean, best_f1_rule, best_topk_three_mean, best_topk_three_rule, best_topk_five_mean, best_topk_five_rule]
-    index = ['best_f1_mean', 'best_f1_rule', 'best_topk_three_mean', 'best_topk_three_rule', 'best_topk_five_mean', 'best_topk_five_rule']
-
-    df = pd.DataFrame(data, index=index)
+    df = pd.DataFrame(data.values(), index=list(data.keys()))
     filename = os.path.join(path, 'best_mean.csv')
-    save_csv(df, filename, header=False, index=index)
+    save_csv(df, filename, header=False, index=True)
 
 
 def save_csv(df, filename, header=True, index=True):
-    print('[CSV] %s created' % filename)
+    logging.info('[CSV] %s created' % filename)
     df.to_csv(filename, sep=';', index=index, header=header, lineterminator='\n', doublequote=True)
 
 
 def save_model_best_classifier(classifier, path):
     filename = os.path.join(path, 'best_model.pkl')
-    print('[JOBLIB] %s created' % filename)
+    logging.info('[JOBLIB] %s created' % filename)
     try:
         with open(filename, 'wb') as file:
             joblib.dump(classifier, file, compress=3)
         file.close()
     except FileExistsError:
-        print('problems in save model (%s)' % filename)
+        logging.warning('problems in save model (%s)' % filename)
 
 
 def save_best_classifier(classifier, path):
@@ -96,77 +132,64 @@ def save_info_best_classifier(classifier, path):
     save_csv(df, filename, index=False)
 
 
-def save_cm_figure(list_info_level, path, results):
-    for rule in ['sum', 'mult']:
-        cm = results[rule]['confusion_matrix']
-        figsize = (25, 25)
-        fig, axis = plt.subplots(figsize=figsize)
-        filename = os.path.join(path, 'cm+%s.png' % rule)
-        print('[PNG] confusion matrix %s created' % filename)
-
-        off_diag_mask = np.eye(*cm.shape, dtype=bool)
-
-        figure, axis = plt.subplots(figsize=(10, 10))
-
-        parameters = {
-            'annot': True,
-            'mask': ~off_diag_mask,
-            'cmap': 'Reds',
-            'fmt': '.2g',
-            'vmin': np.min(cm),
-            'vmax': np.max(cm),
-            'ax': axis,
-        }
-        axis = sns.heatmap(cm, **parameters)
-
-        parameters.update({'mask': off_diag_mask, 'cbar': False, 'annot_kws': {}})
-        axis = sns.heatmap(cm, **parameters)
-
-        posix_xtick = [i + 0.5 for i in range(len(list_info_level['levels'].values()))]
-        posix_ytick = [i + 0.5 for i in range(len(list_info_level['levels'].values()))]
-        xtick_labels = list_info_level['levels'].values()
-        ytick_labels = [i[0] + ' (%s)' % i[1] for i in zip(list_info_level['levels'].values(), list_info_level['count'].values())]
-
-        axis.set_xticks(posix_xtick, labels=xtick_labels, fontsize=8, rotation=90)
-        axis.set_yticks(posix_ytick, labels=ytick_labels, fontsize=8, rotation=0)
-        axis.set_xlabel('True label', fontsize=14)
-        axis.set_ylabel('Prediction label', fontsize=14)
-        axis.set_facecolor('white')
-        axis.set_title('test', fontsize=24, pad=32)
-
-        plt.ioff()
-        plt.tight_layout()
-        plt.savefig(filename, format='png', dpi=300)
-        plt.cla()
-        plt.clf()
-        plt.close(fig)
-
-
-def save_cm_csv(list_info_level, path, results):
+def save_confusion_matrix_csv(list_info_level, path, results):
     for rule in ['sum', 'mult']:
         header = list(list_info_level['levels'].values())
-        index = [i[0] + ' (%s)' % i[1] for i in zip(list_info_level['levels'].values(), list_info_level['count'].values())]
+        index = [i[0] + ' (%s)' % i[1] for i in
+                 zip(list_info_level['levels'].values(), list_info_level['count'].values())]
         df = pd.DataFrame(results[rule]['confusion_matrix'], index=index, columns=header)
         filename = os.path.join(path, 'cm+%s.csv' % rule)
         save_csv(df, filename)
 
 
 def save_confusion_matrix(list_info_level, path, results):
-    save_cm_figure(list_info_level, path, results)
-    save_cm_csv(list_info_level, path, results)
+    path_confusion_matrix = os.path.join(path, 'confusion_matrix')
+
+    if not os.path.exists(path_confusion_matrix):
+        os.makedirs(path_confusion_matrix)
+
+    figure_confusion_matrix(list_info_level, path_confusion_matrix, results)
+    save_confusion_matrix_csv(list_info_level, path_confusion_matrix, results)
+
+
+def save_topk(list_topk, path, rule):
+    path_topk = os.path.join(path, 'topk')
+
+    if not os.path.exists(path_topk):
+        os.makedirs(path_topk)
+
+    save_topk_csv(list_topk, path_topk, rule)
+
+    filename = os.path.join(path_topk, 'topk+%s.png' % rule)
+    x = [top_k['k'] for top_k in list_topk]
+    y = [topk['top_k_accuracy'] for topk in list_topk]
+    figure_topk(filename, 'Top-k', x, y)
+
+
+def save_topk_csv(list_topk, path, rule):
+    data = {
+        'k': [topk['k'] for topk in list_topk],
+        'top': [topk['top_k_accuracy'] for topk in list_topk]
+    }
+    df = pd.DataFrame(data, index=None)
+    filename = os.path.join(path, 'topk+%s.csv' % rule)
+    save_csv(df, filename, index=False)
 
 
 def save_fold(fold, path, results):
-    index = ['fold']
-    data = [fold]
     for rule in ['mult', 'sum']:
-        for metric in ['f1', 'topk_three', 'topk_five']:
-            data.append(results[rule][metric])
-            index.append('%s_%s' % (metric, rule))
+        data = {
+            'fold': fold,
+            'time': results['time'],
+            'f1': results[rule]['f1'],
+            'acccuracy': results[rule]['accuracy'],
+        }
+        
+        df = pd.DataFrame(data.values(), index=list(data.keys()))
+        filename = os.path.join(path, 'fold+%s.csv' % rule)
+        save_csv(df, filename, header=False, index=True)
 
-    df = pd.DataFrame(data, index=index)
-    filename = os.path.join(path, 'fold.csv')
-    save_csv(df, filename, header=False, index=index)
+        save_topk(results[rule]['list_topk'], path, rule)
 
 
 def best_mean_and_rule(mean_mult, mean_sum, metric):
@@ -183,23 +206,60 @@ def save_info(classifier_name, extractor, n_features, n_samples, path, patch):
     data = [classifier_name, extractor, n_features, n_samples, path, patch]
     df = pd.DataFrame(data, index=index)
     filename = os.path.join(path, 'info.csv')
-    save_csv(df, filename, header=False, index=index)
+    save_csv(df, filename, header=False, index=True)
 
 
 def save_best_fold(results, path):
-    data = []
-    index = []
     for rule in ['mult', 'sum']:
-        best = min(results, key=lambda x: x['time'])
-        data.append(best['time'])
-        index.append('best_time')
-        for metric in ['f1', 'topk_three', 'topk_five']:
-            best = max(results, key=lambda x: x[rule][metric])
-            data.append(best['fold'])
-            data.append(best[rule][metric])
-            index.append('best_%s_%s_fold' % (metric, rule))
-            index.append('best_%s_%s' % (metric, rule))
+        best = max(results, key=lambda x: x[rule]['f1'])
+        data = {
+            'fold': best['fold'],
+            'time': best['time'],
+            'f1': best[rule]['f1']
+        }
 
-    df = pd.DataFrame(data, index=index)
-    filename = os.path.join(path, 'best_fold.csv')
-    save_csv(df, filename, header=False, index=index)
+        df = pd.DataFrame(data.values(), index=list(data.keys()))
+        filename = os.path.join(path, 'best_fold_%s.csv' % rule)
+        save_csv(df, filename, header=False, index=True)
+
+
+def save_df_main(classifiers, results, path_out):
+    extractors = ['mobilenetv2', 'vgg16', 'resnet50v2', 'lbp', 'surf64', 'surf128']
+    image_size = [256, 400, 512]
+    dimensions = {
+        'mobilenetv2': [1280, 1024, 512, 256, 128],
+        'vgg16': [512, 256, 128],
+        'resnet50v2': [2048, 1024, 512, 256, 128],
+        'lbp': [59],
+        'surf64': [257, 256, 128],
+        'surf128': [513, 512, 256, 128]
+    }
+    columns = ['%s+%s' % (classifier.__class__.__name__, image) for classifier in classifiers for image in image_size]
+    index = ['%s+%s+%s' % (extractor, dimension, metric) for extractor in extractors for dimension in
+             dimensions[extractor] for metric in ['mean', 'std']]
+
+    filename = os.path.join(path_out, 'results_final.csv')
+    if os.path.exists(filename):
+        df = pd.read_csv(filename, names=columns, index_col=0, sep=';')
+    else:
+        df = pd.DataFrame(index=index, columns=columns)
+
+    for result in results:
+        my_column = '%s+%s' % (result['classifier_name'], result['image_size'])
+        my_index_mean = '%s+%s+mean' % (result['extractor'], result['n_features'])
+        my_index_std = '%s+%s+std' % (result['extractor'], result['n_features'])
+
+        mean_sum = [m for m in result['means'] if m['rule'] == 'sum']
+        df[my_column][my_index_mean] = mean_sum[0]['mean_f1']
+        df[my_column][my_index_std] = mean_sum[0]['std_f1']
+
+    save_csv(df, filename, header=True, index=True)
+
+
+def save_best(clf, means, path, results_fold):
+    path_best = os.path.join(path, 'best')
+    if not os.path.exists(path_best):
+        os.makedirs(path_best)
+    save_best_classifier(clf, path_best)
+    save_best_fold(results_fold, path_best)
+    save_best_mean(means, path_best)

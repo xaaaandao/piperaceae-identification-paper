@@ -1,6 +1,7 @@
 import collections
 import joblib
 import itertools
+import logging
 import multiprocessing
 import numpy as np
 import os.path
@@ -18,8 +19,10 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 
 from a import mult_rule, split_dataset, sum_rule, y_true_no_patch
-from save import save_mean, save_best_mean, save_fold, save_best_classifier, save_confusion_matrix, \
-    mean_metrics, save_best_fold, save_info, save_info_best_classifier
+from save import save_mean, save_fold, save_confusion_matrix, \
+    mean_metrics, save_info, save_df_main, save_best
+
+logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S', level=logging.INFO)
 
 FOLDS = 2
 METRIC = 'f1_weighted'
@@ -58,7 +61,7 @@ parameters = {
     }
 }
 
-list_classifiers = [
+classifiers = [
     # KNeighborsClassifier(n_jobs=N_JOBS),
     # MLPClassifier(random_state=SEED),
     # RandomForestClassifier(random_state=SEED, n_jobs=N_JOBS, verbose=100, max_depth=10),
@@ -73,10 +76,12 @@ def main():
     if input.endswith('.txt') and os.path.isfile(input):
         pass
     else:
-        extractor, list_info_level, n_features, n_samples, patch = load_dataset_informations(input)
+        extractor, image_size, list_info_level, n_features, n_samples, patch = load_dataset_informations(input)
         index, x, y = prepare_data(input, n_features, n_samples, patch)
-        for classifier in list_classifiers:
-            list_results = []
+        list_results_classifiers = []
+
+        for classifier in classifiers:
+            results_fold = []
             output_folder_name = '%s+%s+%s' % (classifier.__class__.__name__, extractor, str(n_features))
             path = os.path.join(OUTPUT, output_folder_name)
 
@@ -95,12 +100,12 @@ def main():
                 clf.best_estimator_.set_params(**params)
 
             for fold, (index_train, index_test) in enumerate(index, start=1):
-                print('[INFO] fold %d classifier name: %s' % (fold, classifier.__class__.__name__))
+                logging.info('[INFO] fold: %d classifier name: %s' % (fold, classifier.__class__.__name__))
                 x_train, y_train = split_dataset(index_train, n_features, patch, x, y)
                 x_test, y_test = split_dataset(index_test, n_features, patch, x, y)
 
-                print('[INFO] x_train.shape: %s y_train.shape: %s' % (str(x_train.shape), str(y_train.shape)))
-                print('[INFO] x_test.shape: %s y_test.shape: %s' % (str(x_test.shape), str(y_test.shape)))
+                logging.info('[INFO] x_train.shape: %s y_train.shape: %s' % (str(x_train.shape), str(y_train.shape)))
+                logging.info('[INFO] x_test.shape: %s y_test.shape: %s' % (str(x_test.shape), str(y_test.shape)))
 
                 start_timeit = timeit.default_timer()
                 with joblib.parallel_backend('ray', n_jobs=N_JOBS):
@@ -113,9 +118,11 @@ def main():
                 y_pred_mult_rule, y_score_mult = mult_rule(n_test, n_labels, patch, y_pred_proba)
                 y_pred_sum_rule, y_score_sum = sum_rule(n_test, n_labels, patch, y_pred_proba)
                 y_true = y_true_no_patch(n_test, patch, y_test)
-                print('[INFO] y_pred_sum_rule.shape: %s y_score_sum: %s' % (str(y_pred_sum_rule.shape), str(y_score_sum.shape)))
-                print('[INFO] y_pred_mult_rule.shape: %s y_score_mult: %s' % (str(y_pred_mult_rule.shape), str(y_score_mult.shape)))
-                print('[INFO] y_true.shape: %s' % str(y_true.shape))
+                logging.info('[INFO] y_pred_sum_rule.shape: %s y_score_sum: %s' % (
+                    str(y_pred_sum_rule.shape), str(y_score_sum.shape)))
+                logging.info('[INFO] y_pred_mult_rule.shape: %s y_score_mult: %s' % (
+                    str(y_pred_mult_rule.shape), str(y_score_mult.shape)))
+                logging.info('[INFO] y_true.shape: %s' % str(y_true.shape))
 
                 results = {
                     'fold': fold,
@@ -124,7 +131,7 @@ def main():
                     'time': end_timeit
                 }
 
-                list_results.append(results)
+                results_fold.append(results)
                 path_fold = os.path.join(path, str(fold))
 
                 if not os.path.exists(path_fold):
@@ -132,32 +139,39 @@ def main():
 
                 save_fold(fold, path_fold, results)
                 save_confusion_matrix(list_info_level, path_fold, results)
-            means = mean_metrics(list_results)
-            save_mean(means, path)
-            save_best_classifier(clf, path)
-            save_best_fold(list_results, path)
-            save_best_mean(means, path)
+            means = mean_metrics(results_fold, n_labels)
+            save_mean(means, path, results_fold)
+            save_best(clf, means, path, results_fold)
             save_info(classifier.__class__.__name__, extractor, n_features, n_samples, path, patch)
+            list_results_classifiers.append({
+                'classifier_name': classifier.__class__.__name__,
+                'image_size': str(image_size[0]),
+                'extractor': extractor,
+                'n_features': str(n_features),
+                'means': means
+            })
+        save_df_main(classifiers, list_results_classifiers, OUTPUT)
 
 
 def evaluate(list_info_level, n_labels, y_pred, y_score, y_true):
     f1 = f1_score(y_true=y_true, y_pred=y_pred, average='weighted')
-    topk_three = top_k_accuracy_score(y_true, y_score, k=3, normalize=True)
-    topk_five = top_k_accuracy_score(y_true, y_score, k=5, normalize=True)
     accuracy = accuracy_score(y_pred=y_pred, y_true=y_true)
     cm = confusion_matrix(y_true=y_true, y_pred=y_pred)
-    cm_normalized = confusion_matrix(y_true=y_true, y_pred=y_pred, normalize=True)
+    cm_normalized = confusion_matrix(y_true=y_true, y_pred=y_pred, normalize='true')
     cm_multilabel = multilabel_confusion_matrix(y_pred=y_pred, y_true=y_true)
-    cr = classification_report(y_pred=y_pred, y_true=y_true, labels=np.arange(1, len(list_info_level) + 1),
+    cr = classification_report(y_pred=y_pred, y_true=y_true, labels=np.arange(1, len(list_info_level['levels']) + 1),
                                zero_division=0, output_dict=True)
-    list_top_k = [
+    list_topk = [
         {'k': k,
          'top_k_accuracy': top_k_accuracy_score(y_true=y_true, y_score=y_score, normalize=False,
-                                                k=k, labels=np.arange(1, len(list_info_level) + 1))}
+                                                k=k, labels=np.arange(1, len(list_info_level['levels']) + 1))}
         for k in range(3, n_labels)
     ]
-    return {'f1': f1, 'topk_three': topk_three, 'topk_five': topk_five, 'confusion_matrix': confusion_matrix,
-            'confusion_matrix_normalized': cm_normalized, 'confusion_matrix_multilabel': cm_multilabel, 'classification_report': cr, 'list_top_k': list_top_k, 'accuracy': accuracy}
+    return {'f1': f1,
+            'confusion_matrix': cm,
+            'confusion_matrix_normalized': cm_normalized,
+            'confusion_matrix_multilabel': cm_multilabel,
+            'classification_report': cr, 'list_topk': list_topk, 'accuracy': accuracy}
 
 
 def load_dataset_informations(input):
@@ -171,8 +185,10 @@ def load_dataset_informations(input):
     input_path = df.loc['input_path'][1]
     n_features = int(df.loc['n_features'][1])
     n_samples = int(df.loc['total_samples'][1])
+    height = int(df.loc['height'][1])
+    width = int(df.loc['width'][1])
     patch = int(df.loc['patch'][1])
-    print('n_samples: %s n_features: %s patch: %s' % (n_samples, n_features, patch))
+    logging.info('n_samples: %s n_features: %s patch: %s' % (n_samples, n_features, patch))
 
     input_path = input_path.replace('/media/kingston500/mestrado/dataset', '/home/xandao/Imagens/')
     if not os.path.exists(input_path):
@@ -186,7 +202,7 @@ def load_dataset_informations(input):
     df = pd.read_csv(info_level[0], header=0, sep=';')
     list_info_level = df[['levels', 'count', 'f']].to_dict()
 
-    return extractor, list_info_level, n_features, n_samples, patch
+    return extractor, (height, width), list_info_level, n_features, n_samples, patch
 
 
 def prepare_data(input, n_features, n_samples, patch):
@@ -200,8 +216,8 @@ def prepare_data(input, n_features, n_samples, patch):
             y.append(d['y'])
 
     y = np.array(list(itertools.chain(*y)), dtype=np.int16)
-    print('[INFO] dataset contains x.shape: %s' % str(x.shape))
-    print('[INFO] dataset contains y.shape: %s' % str(y.shape))
+    logging.info('[INFO] dataset contains x.shape: %s' % str(x.shape))
+    logging.info('[INFO] dataset contains y.shape: %s' % str(y.shape))
 
     index = split_folds(n_features, n_samples, patch, y)
     scaler = StandardScaler()
@@ -214,8 +230,8 @@ def split_folds(n_features, n_samples, patch, y):
     x = np.random.rand(int(n_samples / patch), n_features)
     y = [np.repeat(k, int(v / patch)) for k, v in dict(collections.Counter(y)).items()]
     y = np.array(list(itertools.chain(*y)))
-    print('[INFO] StratifiedKFold x.shape: %s' % str(x.shape))
-    print('[INFO] StratifiedKFold y.shape: %s' % str(y.shape))
+    logging.info('[INFO] StratifiedKFold x.shape: %s' % str(x.shape))
+    logging.info('[INFO] StratifiedKFold y.shape: %s' % str(y.shape))
     kf = StratifiedKFold(n_splits=FOLDS, shuffle=True, random_state=SEED)
     return kf.split(x, y)
 
