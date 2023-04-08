@@ -4,8 +4,6 @@ import numpy as np
 import os
 import pandas as pd
 
-from figure import figure_confusion_matrix, figure_topk
-
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S', level=logging.INFO)
 
 
@@ -33,10 +31,13 @@ def mean_metrics(list_results, n_labels):
     for rule in ['mult', 'sum']:
         results = [result[rule] for result in list_results]
         mean_f1, std_f1 = mean_std(results, 'f1')
+        mean_accuracy, std_accuracy = mean_std(results, 'accuracy')
         topk = mean_std_topk(results, n_labels)
         means.append({'rule': rule,
                       'mean_f1': mean_f1,
                       'std_f1': std_f1,
+                      'mean_accuracy': mean_accuracy,
+                      'std_accuracy': std_accuracy,
                       'topk': topk})
     return means
 
@@ -56,9 +57,6 @@ def save_mean_topk(topk, path, rule):
     path_topk = os.path.join(path, 'topk')
     if not os.path.exists(path_topk):
         os.makedirs(path_topk)
-
-    filename = os.path.join(path_topk, 'mean_topk+%s.png' % rule)
-    figure_topk(filename, 'Mean Top-$k$', x=topk['k'], y=topk['mean'])
 
     data = {
         'k': topk['k'],
@@ -81,14 +79,20 @@ def save_mean(means, path, results):
     for rule in ['mult', 'sum']:
         mean = [mean for mean in means if mean['rule'] == rule]
         save_mean_topk(mean[0]['topk'], path_mean, rule)
-        data = {
-            'mean_f1': mean[0]['mean_f1'],
-            'std_f1': mean[0]['std_f1']
-        }
+        for metric in ['f1', 'accuracy']:
+            path_metric = os.path.join(path_mean, metric)
 
-        df = pd.DataFrame(data.values(), index=list(data.keys()))
-        filename = os.path.join(path_mean, 'mean+%s.csv' % rule)
-        save_csv(df, filename, header=False, index=True)
+            if not os.path.exists(path_metric):
+                os.makedirs(path_metric)
+
+            data = {
+                'mean_f1': mean[0]['mean_%s' % metric],
+                'std_f1': mean[0]['std_%s' % metric]
+            }
+
+            df = pd.DataFrame(data.values(), index=list(data.keys()))
+            filename = os.path.join(path_metric, 'mean+%s+%s.csv' % (metric, rule))
+            save_csv(df, filename, header=False, index=True)
 
 
 def save_best_mean(means, path):
@@ -132,14 +136,23 @@ def save_info_best_classifier(classifier, path):
     save_csv(df, filename, index=False)
 
 
-def save_confusion_matrix_csv(list_info_level, path, results):
-    for rule in ['sum', 'mult']:
-        header = list(list_info_level['levels'].values())
-        index = [i[0] + ' (%s)' % i[1] for i in
-                 zip(list_info_level['levels'].values(), list_info_level['count'].values())]
-        df = pd.DataFrame(results[rule]['confusion_matrix'], index=index, columns=header)
-        filename = os.path.join(path, 'cm+%s.csv' % rule)
-        save_csv(df, filename)
+def save_confusion_matrix_csv(confusion_matrix, columns, fname, index, path):
+    df = pd.DataFrame(confusion_matrix, index=index, columns=columns)
+    filename = os.path.join(path, fname)
+    save_csv(df, filename)
+
+
+def save_confusion_matrix_multilabel(confusion_matrix, count, levels, path, rule):
+    path_multilabel = os.path.join(path, 'multilabel')
+
+    if not os.path.exists(path_multilabel):
+        os.makedirs(path_multilabel)
+
+    for i, cm in enumerate(confusion_matrix):
+        label = levels[i]
+        columns = index = ['Positive', 'Negative']
+        filename = 'confusion_matrix+%s+%s.csv' % (label, rule)
+        save_confusion_matrix_csv(cm, columns, filename, index, path_multilabel)
 
 
 def save_confusion_matrix(list_info_level, path, results):
@@ -148,11 +161,24 @@ def save_confusion_matrix(list_info_level, path, results):
     if not os.path.exists(path_confusion_matrix):
         os.makedirs(path_confusion_matrix)
 
-    if len(list_info_level['levels']) < 60:
-        figure_confusion_matrix('confusion_matrix', list_info_level, path_confusion_matrix, results, title='Confusion Matrix')
-        figure_confusion_matrix('confusion_matrix_normalized', list_info_level, path_confusion_matrix, results,
-                                title='Confusion Matrix', fmt='.2f')
-    save_confusion_matrix_csv(list_info_level, path_confusion_matrix, results)
+    levels = list_info_level['levels']
+    count = list_info_level['count']
+    for rule in ['mult', 'sum']:
+        for type_confusion_matrix in ['confusion_matrix', 'confusion_matrix_normalized', 'confusion_matrix_multilabel']:
+            confusion_matrix = results[rule][type_confusion_matrix]
+            if type_confusion_matrix == 'confusion_matrix_multilabel':
+                save_confusion_matrix_multilabel(confusion_matrix, count, levels, path_confusion_matrix, rule)
+            else:
+                save_confusion_matrix_and_normalized(confusion_matrix, count, levels, list_info_level,
+                                                     path_confusion_matrix, rule, type_confusion_matrix)
+
+
+def save_confusion_matrix_and_normalized(confusion_matrix, count, levels, list_info_level, path_confusion_matrix, rule,
+                                         type_confusion_matrix):
+    columns = list(list_info_level['levels'].values())
+    index = [i[0] + ' (%s)' % i[1] for i in zip(levels.values(), count.values())]
+    filename = '%s+%s.csv' % (type_confusion_matrix, rule)
+    save_confusion_matrix_csv(confusion_matrix, columns, filename, index, path_confusion_matrix)
 
 
 def save_topk(list_topk, path, rule):
@@ -163,11 +189,6 @@ def save_topk(list_topk, path, rule):
 
     save_topk_csv(list_topk, path_topk, rule)
 
-    filename = os.path.join(path_topk, 'topk+%s.png' % rule)
-    x = [top_k['k'] for top_k in list_topk]
-    y = [topk['top_k_accuracy'] for topk in list_topk]
-    figure_topk(filename, 'Top-$k$', x, y)
-
 
 def save_topk_csv(list_topk, path, rule):
     data = {
@@ -177,6 +198,17 @@ def save_topk_csv(list_topk, path, rule):
     df = pd.DataFrame(data, index=None)
     filename = os.path.join(path, 'topk+%s.csv' % rule)
     save_csv(df, filename, index=False)
+
+
+def save_classification_report(classification_report, path, rule):
+    path_classification_report = os.path.join(path, 'classification_report')
+
+    if not os.path.exists(path_classification_report):
+        os.makedirs(path_classification_report)
+
+    df = pd.DataFrame(classification_report).transpose()
+    filename = os.path.join(path_classification_report, 'classification_report+%s.csv' % rule)
+    save_csv(df, filename)
 
 
 def save_fold(fold, path, results):
@@ -193,6 +225,7 @@ def save_fold(fold, path, results):
         save_csv(df, filename, header=False, index=True)
 
         save_topk(results[rule]['list_topk'], path, rule)
+        save_classification_report(results[rule]['classification_report'], path, rule)
 
 
 def best_mean_and_rule(mean_mult, mean_sum, metric):

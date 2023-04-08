@@ -23,10 +23,10 @@ from a import mult_rule, split_dataset, sum_rule, y_true_no_patch
 from save import save_mean, save_fold, save_confusion_matrix, \
     mean_metrics, save_info, save_df_main, save_best
 
-datefmt =  '%d-%m-%Y+%H-%M-%S'
+datefmt = '%d-%m-%Y+%H-%M-%S'
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S', level=logging.INFO)
 
-FOLDS = 2
+FOLDS = 5
 METRIC = 'f1_weighted'
 N_JOBS = -1
 PCA = False
@@ -84,7 +84,8 @@ def main():
 
         for classifier in classifiers:
             results_fold = []
-            output_folder_name = '%s+img_size=%s+%s+n_ft=%s' % (classifier.__class__.__name__, str(image_size[0]), extractor, str(n_features))
+            output_folder_name = '%s+img_size=%s+%s+n_ft=%s' % (
+            classifier.__class__.__name__, str(image_size[0]), extractor, str(n_features))
             dateandtime = datetime.datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
             path = os.path.join(OUTPUT, dateandtime, output_folder_name)
 
@@ -167,10 +168,13 @@ def evaluate(list_info_level, n_labels, y_pred, y_score, y_true):
     cm_normalized = confusion_matrix(y_true=y_true, y_pred=y_pred, normalize='true')
     cm_multilabel = multilabel_confusion_matrix(y_pred=y_pred, y_true=y_true)
     cr = classification_report(y_pred=y_pred, y_true=y_true, labels=np.arange(1, len(list_info_level['levels']) + 1),
-                               zero_division=0, output_dict=True)
+                               target_names=['label_%s+%s' % (i, label) for i, label in
+                                             enumerate(list_info_level['levels'].values(), start=1)], zero_division=0,
+                               output_dict=True)
     list_topk = [
         {'k': k,
-         'top_k_accuracy': top_k_accuracy_score(y_true=y_true, y_score=y_score, normalize=False, k=k, labels=np.arange(1, len(list_info_level['levels']) + 1))}
+         'top_k_accuracy': top_k_accuracy_score(y_true=y_true, y_score=y_score, normalize=False, k=k,
+                                                labels=np.arange(1, len(list_info_level['levels']) + 1))}
         for k in range(3, n_labels)
     ]
     return {'f1': f1,
@@ -208,7 +212,7 @@ def load_dataset_informations(input):
     df = pd.read_csv(info_level[0], header=0, sep=';')
     list_info_level = df[['levels', 'count', 'f']].to_dict()
 
-    logging.info('n_levels: %s' % str(len(df['levels'])) )
+    logging.info('n_levels: %s' % str(len(df['levels'])))
 
     return extractor, (height, width), list_info_level, n_features, n_samples, patch
 
