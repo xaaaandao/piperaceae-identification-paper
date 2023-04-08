@@ -72,7 +72,7 @@ classifiers = [
 
 def main():
     # input='lbp.txt'
-    input = '/home/xandao/Imagens/pr_dataset_features/RGB/256/specific_epithet_trusted/5/vgg16'
+    input = '/home/xandao/Imagens/pr_dataset_features/RGB/256/specific_epithet_trusted/20/vgg16'
     if input.endswith('.txt') and os.path.isfile(input):
         pass
     else:
@@ -163,8 +163,7 @@ def evaluate(list_info_level, n_labels, y_pred, y_score, y_true):
                                zero_division=0, output_dict=True)
     list_topk = [
         {'k': k,
-         'top_k_accuracy': top_k_accuracy_score(y_true=y_true, y_score=y_score, normalize=False,
-                                                k=k, labels=np.arange(1, len(list_info_level['levels']) + 1))}
+         'top_k_accuracy': top_k_accuracy_score(y_true=y_true, y_score=y_score, normalize=False, k=k, labels=np.arange(1, len(list_info_level['levels']) + 1))}
         for k in range(3, n_labels)
     ]
     return {'f1': f1,
@@ -201,6 +200,8 @@ def load_dataset_informations(input):
 
     df = pd.read_csv(info_level[0], header=0, sep=';')
     list_info_level = df[['levels', 'count', 'f']].to_dict()
+
+    logging.info('n_levels: %s' % str(len(df['levels'])) )
 
     return extractor, (height, width), list_info_level, n_features, n_samples, patch
 

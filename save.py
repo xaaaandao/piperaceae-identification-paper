@@ -58,7 +58,7 @@ def save_mean_topk(topk, path, rule):
         os.makedirs(path_topk)
 
     filename = os.path.join(path_topk, 'mean_topk+%s.png' % rule)
-    figure_topk(filename, 'Mean Top-k', x=topk['k'], y=topk['mean'])
+    figure_topk(filename, 'Mean Top-$k$', x=topk['k'], y=topk['mean'])
 
     data = {
         'k': topk['k'],
@@ -148,7 +148,8 @@ def save_confusion_matrix(list_info_level, path, results):
     if not os.path.exists(path_confusion_matrix):
         os.makedirs(path_confusion_matrix)
 
-    figure_confusion_matrix(list_info_level, path_confusion_matrix, results)
+    figure_confusion_matrix('confusion_matrix', list_info_level, path_confusion_matrix, results, title='Confusion Matrix')
+    figure_confusion_matrix('confusion_matrix_normalized', list_info_level, path_confusion_matrix, results, title='Confusion Matrix')
     save_confusion_matrix_csv(list_info_level, path_confusion_matrix, results)
 
 
@@ -163,7 +164,7 @@ def save_topk(list_topk, path, rule):
     filename = os.path.join(path_topk, 'topk+%s.png' % rule)
     x = [top_k['k'] for top_k in list_topk]
     y = [topk['top_k_accuracy'] for topk in list_topk]
-    figure_topk(filename, 'Top-k', x, y)
+    figure_topk(filename, 'Top-$k$', x, y)
 
 
 def save_topk_csv(list_topk, path, rule):
