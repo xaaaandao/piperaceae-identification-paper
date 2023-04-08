@@ -28,7 +28,7 @@ def mean_std_topk(results, n_labels):
 
 def mean_metrics(list_results, n_labels):
     means = []
-    for rule in ['mult', 'sum']:
+    for rule in ['max', 'mult', 'sum']:
         results = [result[rule] for result in list_results]
         mean_f1, std_f1 = mean_std(results, 'f1')
         mean_accuracy, std_accuracy = mean_std(results, 'accuracy')
@@ -76,7 +76,7 @@ def save_mean(means, path, results):
 
     save_mean_time(path_mean, results)
 
-    for rule in ['mult', 'sum']:
+    for rule in ['max', 'mult', 'sum']:
         mean = [mean for mean in means if mean['rule'] == rule]
         save_mean_topk(mean[0]['topk'], path_mean, rule)
         for metric in ['f1', 'accuracy']:
@@ -163,7 +163,7 @@ def save_confusion_matrix(list_info_level, path, results):
 
     levels = list_info_level['levels']
     count = list_info_level['count']
-    for rule in ['mult', 'sum']:
+    for rule in ['max', 'mult', 'sum']:
         for type_confusion_matrix in ['confusion_matrix', 'confusion_matrix_normalized', 'confusion_matrix_multilabel']:
             confusion_matrix = results[rule][type_confusion_matrix]
             if type_confusion_matrix == 'confusion_matrix_multilabel':
@@ -212,7 +212,7 @@ def save_classification_report(classification_report, path, rule):
 
 
 def save_fold(fold, path, results):
-    for rule in ['mult', 'sum']:
+    for rule in ['max', 'mult', 'sum']:
         data = {
             'fold': fold,
             'time': results['time'],
@@ -246,7 +246,7 @@ def save_info(classifier_name, extractor, n_features, n_samples, path, patch):
 
 
 def save_best_fold(results, path):
-    for rule in ['mult', 'sum']:
+    for rule in ['max', 'mult', 'sum']:
         best = max(results, key=lambda x: x[rule]['f1'])
         data = {
             'fold': best['fold'],

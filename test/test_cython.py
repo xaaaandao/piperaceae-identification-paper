@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from a import split_dataset, sum_rule, mult_rule
+from a import split_dataset, sum_rule, mult_rule, max_rule
 
 
 class TestCython(unittest.TestCase):
@@ -56,6 +56,13 @@ class TestCython(unittest.TestCase):
 
         self.assertEqual(True, all(equal for equal in list_equal))
 
+    def test_max_rule(self):
+        y_pred_proba = np.arange(69, dtype=np.float64).reshape(3, 23)
+        my_y_pred, my_y_pred_score = max_rule(3, 23, 3, y_pred_proba)
+        y_pred = [23]
+        y_pred_score = np.array([y_pred_proba[2]])
+        self.assertEqual(True, np.array_equal(my_y_pred, y_pred))
+        self.assertEqual(True, np.array_equal(my_y_pred_score, y_pred_score))
 
 if __name__ == '__main__':
     unittest.main()

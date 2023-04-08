@@ -19,7 +19,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 
-from a import mult_rule, split_dataset, sum_rule, y_true_no_patch
+from a import mult_rule, split_dataset, sum_rule, y_true_no_patch, max_rule
 from save import save_mean, save_fold, save_confusion_matrix, \
     mean_metrics, save_info, save_df_main, save_best
 
@@ -122,6 +122,7 @@ def main():
                 end_timeit = timeit.default_timer() - start_timeit
 
                 n_test, n_labels = y_pred_proba.shape
+                y_pred_max_rule, y_score_max = max_rule(n_test, n_labels, patch, y_pred_proba)
                 y_pred_mult_rule, y_score_mult = mult_rule(n_test, n_labels, patch, y_pred_proba)
                 y_pred_sum_rule, y_score_sum = sum_rule(n_test, n_labels, patch, y_pred_proba)
                 y_true = y_true_no_patch(n_test, patch, y_test)
@@ -134,6 +135,7 @@ def main():
 
                 results = {
                     'fold': fold,
+                    'max': evaluate(list_info_level, n_labels, y_pred_max_rule, y_score_max, y_true),
                     'mult': evaluate(list_info_level, n_labels, y_pred_mult_rule, y_score_mult, y_true),
                     'sum': evaluate(list_info_level, n_labels, y_pred_sum_rule, y_score_sum, y_true),
                     'time': end_timeit

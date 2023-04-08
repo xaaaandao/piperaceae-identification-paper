@@ -65,6 +65,23 @@ def mult_rule(n_test: int, n_labels:int, patch: int, np.ndarray[np.float64_t, nd
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
+def max_rule(n_test: int, n_labels:int, patch: int, np.ndarray[np.float64_t, ndim=2] y_pred_proba):
+    cdef np.ndarray[np.int16_t, ndim = 1] y_pred = np.zeros((int(n_test/patch),), dtype=np.int16)
+    cdef np.ndarray[np.float64_t, ndim = 2] y_score = np.zeros((int(n_test/patch), n_labels), dtype=np.float64)
+
+    for k, y in enumerate(range(0, n_test, patch)):
+        max_indices = [np.argmax(y_pred_proba[i])+1 for i in range(y, y+patch)]
+        patch_max_value = np.argmax(np.max(y_pred_proba[y:y+patch], axis=1))
+        for i in range(0, n_labels):
+            y_score[k][i] = y_pred_proba[y+patch_max_value][i]
+        counter = collections.Counter(max_indices)
+        y_pred[k] = max(counter, key=counter.get)
+
+    return y_pred, y_score
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
 def y_true_no_patch(n_test: int, patch: int, np.ndarray[np.int16_t, ndim=1] y_true):
     cdef np.ndarray[np.int16_t, ndim = 1] y_true_no_patch = \
         np.empty((int(n_test/patch),), dtype=np.int16)
