@@ -1,4 +1,5 @@
 import collections
+import datetime
 import joblib
 import itertools
 import logging
@@ -22,6 +23,7 @@ from a import mult_rule, split_dataset, sum_rule, y_true_no_patch
 from save import save_mean, save_fold, save_confusion_matrix, \
     mean_metrics, save_info, save_df_main, save_best
 
+datefmt =  '%d-%m-%Y+%H-%M-%S'
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S', level=logging.INFO)
 
 FOLDS = 2
@@ -29,7 +31,7 @@ METRIC = 'f1_weighted'
 N_JOBS = -1
 PCA = False
 SEED = 1234
-OUTPUT = '/home/xandao/Documentos/resultados'
+OUTPUT = '/home/xandao/Documentos/results'
 
 ray.init(num_gpus=1, num_cpus=int(multiprocessing.cpu_count() / 2))
 register_ray()
@@ -82,8 +84,9 @@ def main():
 
         for classifier in classifiers:
             results_fold = []
-            output_folder_name = '%s+%s+%s' % (classifier.__class__.__name__, extractor, str(n_features))
-            path = os.path.join(OUTPUT, output_folder_name)
+            output_folder_name = '%s+img_size=%s+%s+n_ft=%s' % (classifier.__class__.__name__, str(image_size[0]), extractor, str(n_features))
+            dateandtime = datetime.datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
+            path = os.path.join(OUTPUT, dateandtime, output_folder_name)
 
             if not os.path.exists(path):
                 os.makedirs(path)
@@ -104,8 +107,8 @@ def main():
                 x_train, y_train = split_dataset(index_train, n_features, patch, x, y)
                 x_test, y_test = split_dataset(index_test, n_features, patch, x, y)
 
-                print(sorted(collections.Counter(y_test)))
-                print(sorted(collections.Counter(y_test)))
+                logging.debug(sorted(collections.Counter(y_train).items()))
+                logging.debug(sorted(collections.Counter(y_test).items()))
 
                 logging.info('[INFO] x_train.shape: %s y_train.shape: %s' % (str(x_train.shape), str(y_train.shape)))
                 logging.info('[INFO] x_test.shape: %s y_test.shape: %s' % (str(x_test.shape), str(y_test.shape)))
@@ -121,6 +124,7 @@ def main():
                 y_pred_mult_rule, y_score_mult = mult_rule(n_test, n_labels, patch, y_pred_proba)
                 y_pred_sum_rule, y_score_sum = sum_rule(n_test, n_labels, patch, y_pred_proba)
                 y_true = y_true_no_patch(n_test, patch, y_test)
+
                 logging.info('[INFO] y_pred_sum_rule.shape: %s y_score_sum: %s' % (
                     str(y_pred_sum_rule.shape), str(y_score_sum.shape)))
                 logging.info('[INFO] y_pred_mult_rule.shape: %s y_score_mult: %s' % (

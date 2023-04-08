@@ -148,8 +148,10 @@ def save_confusion_matrix(list_info_level, path, results):
     if not os.path.exists(path_confusion_matrix):
         os.makedirs(path_confusion_matrix)
 
-    figure_confusion_matrix('confusion_matrix', list_info_level, path_confusion_matrix, results, title='Confusion Matrix')
-    figure_confusion_matrix('confusion_matrix_normalized', list_info_level, path_confusion_matrix, results, title='Confusion Matrix')
+    if len(list_info_level['levels']) < 60:
+        figure_confusion_matrix('confusion_matrix', list_info_level, path_confusion_matrix, results, title='Confusion Matrix')
+        figure_confusion_matrix('confusion_matrix_normalized', list_info_level, path_confusion_matrix, results,
+                                title='Confusion Matrix', fmt='.2f')
     save_confusion_matrix_csv(list_info_level, path_confusion_matrix, results)
 
 

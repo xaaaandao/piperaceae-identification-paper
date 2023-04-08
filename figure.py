@@ -9,7 +9,7 @@ from matplotlib import ticker
 from config import args_topk, args_save, args_confusion_matrix
 
 
-def figure_confusion_matrix(key, list_info_level, path, results, title):
+def figure_confusion_matrix(key, list_info_level, path, results, title, fmt='.2g'):
     args = [a for a in args_confusion_matrix if str(len(list_info_level['levels'])) in a['n_labels']]
 
     if len(args) == 0:
@@ -28,7 +28,7 @@ def figure_confusion_matrix(key, list_info_level, path, results, title):
             'annot': True,
             'mask': ~off_diag_mask,
             'cmap': 'Reds',
-            'fmt': '.2g',
+            'fmt': fmt,
             'vmin': np.min(cm),
             'vmax': np.max(cm),
             'ax': axis,
