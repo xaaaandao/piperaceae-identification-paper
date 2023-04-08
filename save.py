@@ -259,9 +259,16 @@ def save_best_fold(results, path):
         save_csv(df, filename, header=False, index=True)
 
 
-def save_df_main(classifiers, results, path_out):
+def save_df_main(results, path_out):
     extractors = ['mobilenetv2', 'vgg16', 'resnet50v2', 'lbp', 'surf64', 'surf128']
     image_size = [256, 400, 512]
+    classifiers_name = [
+        'KNeighborsClassifier',
+        'MLPClassifier',
+        'RandomForestClassifier',
+        'SVC',
+        'DecisionTreeClassifier',
+    ]
     dimensions = {
         'mobilenetv2': [1280, 1024, 512, 256, 128],
         'vgg16': [512, 256, 128],
@@ -270,7 +277,7 @@ def save_df_main(classifiers, results, path_out):
         'surf64': [257, 256, 128],
         'surf128': [513, 512, 256, 128]
     }
-    columns = ['%s+%s' % (classifier.__class__.__name__, image) for classifier in classifiers for image in image_size]
+    columns = ['%s+%s' % (name, image) for name in classifiers_name for image in image_size]
     index = ['%s+%s+%s' % (extractor, dimension, metric) for extractor in extractors for dimension in
              dimensions[extractor] for metric in ['mean', 'std']]
 

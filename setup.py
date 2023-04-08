@@ -7,8 +7,8 @@ from Cython.Build import cythonize
 
 ext_modules = [
     Extension(
-        r'a',
-        [r'a.pyx']
+        r'arrays',
+        [r'arrays.pyx']
     ),
 ]
 

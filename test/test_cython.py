@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from a import split_dataset, sum_rule, mult_rule, max_rule
+from arrays import split_dataset, sum_rule, mult_rule, max_rule
 
 
 class TestCython(unittest.TestCase):
@@ -63,6 +63,7 @@ class TestCython(unittest.TestCase):
         y_pred_score = np.array([y_pred_proba[2]])
         self.assertEqual(True, np.array_equal(my_y_pred, y_pred))
         self.assertEqual(True, np.array_equal(my_y_pred_score, y_pred_score))
+
 
 if __name__ == '__main__':
     unittest.main()

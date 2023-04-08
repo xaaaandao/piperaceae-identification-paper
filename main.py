@@ -1,3 +1,4 @@
+import click
 import collections
 import datetime
 import joblib
@@ -19,12 +20,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 
-from a import mult_rule, split_dataset, sum_rule, y_true_no_patch, max_rule
+from arrays import mult_rule, split_dataset, sum_rule, y_true_no_patch, max_rule
 from save import save_mean, save_fold, save_confusion_matrix, \
     mean_metrics, save_info, save_df_main, save_best
-
-datefmt = '%d-%m-%Y+%H-%M-%S'
-logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S', level=logging.INFO)
 
 FOLDS = 5
 METRIC = 'f1_weighted'
@@ -32,6 +30,10 @@ N_JOBS = -1
 PCA = False
 SEED = 1234
 OUTPUT = '/home/xandao/Documentos/results'
+
+datefmt = '%d-%m-%Y+%H-%M-%S'
+dateandtime = datetime.datetime.now().strftime(datefmt)
+logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S', level=logging.INFO)
 
 ray.init(num_gpus=1, num_cpus=int(multiprocessing.cpu_count() / 2))
 register_ray()
@@ -63,18 +65,38 @@ parameters = {
     }
 }
 
-classifiers = [
-    # KNeighborsClassifier(n_jobs=N_JOBS),
-    # MLPClassifier(random_state=SEED),
-    # RandomForestClassifier(random_state=SEED, n_jobs=N_JOBS, verbose=100, max_depth=10),
-    # SVC(random_state=SEED, verbose=True, cache_size=2000, C=0.01)
-    DecisionTreeClassifier(random_state=SEED),
-]
+
+def selected_classifier(classifiers_selected):
+    classifiers = [
+        # KNeighborsClassifier(n_jobs=N_JOBS),
+        # MLPClassifier(random_state=SEED),
+        # RandomForestClassifier(random_state=SEED, n_jobs=N_JOBS, verbose=100, max_depth=10),
+        # SVC(random_state=SEED, verbose=True, cache_size=2000, C=0.01)
+        DecisionTreeClassifier(random_state=SEED),
+    ]
+    return [c for cs in classifiers_selected for c in classifiers if cs == c.__class__.__name__]
 
 
-def main():
-    # input='lbp.txt'
-    input = '/home/xandao/Imagens/pr_dataset_features/RGB/256/specific_epithet_trusted/20/vgg16'
+@click.command()
+@click.option('-c', '--classifiers', multiple=True, type=click.Choice(
+    ['DecisionTreeClassifier', 'RandomForestClassifier', 'KNeighborsClassifier', 'MLPClassifier', 'SVC']),
+              default=['DecisionTreeClassifier'])
+@click.option('-i', '--input',
+              default='/home/xandao/Imagens/pr_dataset_features/RGB/256/specific_epithet_trusted/20/vgg16')
+@click.option('-m', '--metric', type=click.Choice(['f1_weighted', 'accuracy']), default='f1_weighted')
+@click.option('-p', '--pca', is_flag=True, default=False)
+def main(classifiers, input, metric, pca):
+    classifiers_choosed = selected_classifier(classifiers)
+
+    if len(classifiers_choosed) == 0:
+        logging.error('classfiers choosed not found %s' % str(classifiers_choosed))
+        raise SystemExit('classifiers choosed not found')
+
+    logging.info('%s classifiers was choosed' % str(len(classifiers_choosed)))
+
+    if not os.path.exists(input):
+        raise SystemExit('input %s not found' % input)
+
     if input.endswith('.txt') and os.path.isfile(input):
         pass
     else:
@@ -82,11 +104,10 @@ def main():
         index, x, y = prepare_data(input, n_features, n_samples, patch)
         list_results_classifiers = []
 
-        for classifier in classifiers:
+        for classifier in classifiers_choosed:
             results_fold = []
             output_folder_name = '%s+img_size=%s+%s+n_ft=%s' % (
-            classifier.__class__.__name__, str(image_size[0]), extractor, str(n_features))
-            dateandtime = datetime.datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
+                classifier.__class__.__name__, str(image_size[0]), extractor, str(n_features))
             path = os.path.join(OUTPUT, dateandtime, output_folder_name)
 
             if not os.path.exists(path):
@@ -160,7 +181,7 @@ def main():
                 'n_features': str(n_features),
                 'means': means
             })
-        save_df_main(classifiers, list_results_classifiers, OUTPUT)
+        save_df_main(FOLDS, list_results_classifiers, OUTPUT)
 
 
 def evaluate(list_info_level, n_labels, y_pred, y_score, y_true):
@@ -202,7 +223,7 @@ def load_dataset_informations(input):
     patch = int(df.loc['patch'][1])
     logging.info('n_samples: %s n_features: %s patch: %s' % (n_samples, n_features, patch))
 
-    input_path = input_path.replace('/media/kingston500/mestrado/dataset', '/home/xandao/Imagens/')
+    # input_path = input_path.replace('/media/kingston500/mestrado/dataset', '/home/xandao/Imagens/')
     if not os.path.exists(input_path):
         raise SystemExit('input path %s not exists' % input_path)
 
