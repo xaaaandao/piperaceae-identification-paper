@@ -1,5 +1,5 @@
 #!/bin/bash
-TAXON=specific_epithet
+TAXON=specific_epithet_trusted
 METRIC=f1_weighted
 DIR_INPUT=/home/xandao/Imagens
 
