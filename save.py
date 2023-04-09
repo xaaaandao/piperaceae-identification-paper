@@ -259,7 +259,7 @@ def save_best_fold(results, path):
         save_csv(df, filename, header=False, index=True)
 
 
-def save_df_main(results, path_out):
+def save_df_main(results, path):
     extractors = ['mobilenetv2', 'vgg16', 'resnet50v2', 'lbp', 'surf64', 'surf128']
     image_size = [256, 400, 512]
     classifiers_name = [
@@ -281,7 +281,7 @@ def save_df_main(results, path_out):
     index = ['%s+%s+%s' % (extractor, dimension, metric) for extractor in extractors for dimension in
              dimensions[extractor] for metric in ['mean', 'std']]
 
-    filename = os.path.join(path_out, 'results_final.csv')
+    filename = os.path.join(path, 'results_final.csv')
     if os.path.exists(filename):
         df = pd.read_csv(filename, names=columns, index_col=0, sep=';')
     else:

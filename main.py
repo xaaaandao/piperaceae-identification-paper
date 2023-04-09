@@ -32,7 +32,7 @@ METRIC = 'f1_weighted'
 N_JOBS = -1
 PCA = False
 SEED = 1234
-OUTPUT = '~/results'
+OUTPUT = '/home/xandao/results'
 
 datefmt = '%d-%m-%Y+%H-%M-%S'
 dateandtime = datetime.datetime.now().strftime(datefmt)
