@@ -113,8 +113,7 @@ def main(classifiers, input, pca):
     if input.endswith('.txt') and os.path.isfile(input):
         pass
     else:
-        color, dataset, extractor, image_size, list_info_level, n_features, n_samples, patch = load_dataset_informations(
-            input)
+        color, dataset, extractor, image_size, list_info_level, minimum_image, n_features, n_samples, patch = load_dataset_informations(input)
         index, x, y = prepare_data(input, n_features, n_samples, patch)
         list_results_classifiers = []
 
@@ -207,7 +206,7 @@ def main(classifiers, input, pca):
                     'n_features': str(n_features),
                     'means': means
                 })
-            save_df_main(dimensions, list_results_classifiers, OUTPUT)
+            save_df_main(dimensions, list_results_classifiers, minimum_image, OUTPUT)
 
 
 def evaluate(list_info_level, n_labels, y_pred, y_score, y_true):
@@ -244,6 +243,7 @@ def load_dataset_informations(input):
     color = df.loc['color'][1]
     dataset = df.loc['dataset'][1]
     input_path = df.loc['input_path'][1]
+    minimum_image = int(df.loc['minimum_image'][1])
     n_features = int(df.loc['n_features'][1])
     n_samples = int(df.loc['total_samples'][1])
     height = int(df.loc['height'][1])
@@ -267,7 +267,7 @@ def load_dataset_informations(input):
 
     logging.info('[INFO] n_levels: %s' % str(len(list_info_level['levels'])))
 
-    return color, dataset, extractor, (height, width), list_info_level, n_features, n_samples, patch
+    return color, dataset, extractor, (height, width), list_info_level, minimum_image, n_features, n_samples, patch
 
 
 def prepare_data(input, n_features, n_samples, patch):
