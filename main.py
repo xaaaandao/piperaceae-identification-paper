@@ -31,7 +31,6 @@ from save import save_mean, save_fold, save_confusion_matrix, \
 FOLDS = 5
 METRIC = 'f1_weighted'
 N_JOBS = -1
-PCA = False
 SEED = 1234
 OUTPUT = '/home/xandao/results'
 VERBOSE = 42
@@ -100,6 +99,7 @@ def selected_classifier(classifiers_selected):
               default='/home/xandao/Imagens/pr_dataset_features/RGB/256/specific_epithet_trusted/20/vgg16')
 @click.option('-p', '--pca', is_flag=True, default=False)
 def main(classifiers, input, pca):
+    print(pca)
     classifiers_choosed = selected_classifier(classifiers)
 
     if len(classifiers_choosed) == 0:
