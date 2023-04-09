@@ -28,7 +28,7 @@ from arrays import mult_rule, split_dataset, sum_rule, y_true_no_patch, max_rule
 from save import save_mean, save_fold, save_confusion_matrix, \
     mean_metrics, save_info, save_df_main, save_best
 
-FOLDS = 5
+FOLDS = 2
 METRIC = 'f1_weighted'
 N_JOBS = -1
 SEED = 1234
@@ -188,6 +188,7 @@ def main(classifiers, input, pca):
                     }
 
                     results_fold.append(results)
+                    logging.info('results_fold %s' % str(len(results_fold)))
                     path_fold = os.path.join(path, str(fold))
 
                     if not os.path.exists(path_fold):
