@@ -225,6 +225,7 @@ def load_dataset_informations(input):
     patch = int(df.loc['patch'][1])
     logging.info('[INFO] n_samples: %s n_features: %s patch: %s' % (n_samples, n_features, patch))
 
+    input_path = input_path.replace('_features', '')
     if not os.path.exists(input_path):
         raise SystemExit('input path %s not exists' % input_path)
 
