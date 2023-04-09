@@ -272,6 +272,7 @@ def save_df_main(dataset_name, dimensions, minimum_image, results, path):
         'DecisionTreeClassifier',
     ]
     columns = ['%s+%s' % (name, image) for name in classifiers_name for image in image_size]
+
     index = ['%s+%s+%s' % (extractor, dimension, metric) for extractor in extractors for dimension in
              dimensions[extractor] for metric in ['mean', 'std']]
 
