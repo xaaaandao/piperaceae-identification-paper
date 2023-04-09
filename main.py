@@ -32,7 +32,7 @@ METRIC = 'f1_weighted'
 N_JOBS = -1
 PCA = False
 SEED = 1234
-OUTPUT = '/home/xandao/Documentos/results'
+OUTPUT = '~/results'
 
 datefmt = '%d-%m-%Y+%H-%M-%S'
 dateandtime = datetime.datetime.now().strftime(datefmt)
@@ -183,7 +183,7 @@ def main(classifiers, input, metric, pca):
                 'n_features': str(n_features),
                 'means': means
             })
-        save_df_main(FOLDS, list_results_classifiers, OUTPUT)
+        save_df_main(list_results_classifiers, OUTPUT)
 
 
 def evaluate(list_info_level, n_labels, y_pred, y_score, y_true):
