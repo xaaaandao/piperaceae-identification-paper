@@ -119,7 +119,7 @@ def main(classifiers, input, pca):
         list_results_classifiers = []
 
         if pca:
-            list_x = [PCA(n_components=pca, random_state=SEED).fit_transform(x) for pca in dimensions[extractor]]
+            list_x = [PCA(n_components=dim, random_state=SEED).fit_transform(x) for dim in dimensions[extractor]]
             list_x.append(x)
         else:
             list_x = [x]
