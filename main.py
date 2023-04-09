@@ -96,7 +96,6 @@ def selected_classifier(classifiers_selected):
               default='/home/xandao/Imagens/pr_dataset_features/RGB/256/specific_epithet_trusted/20/vgg16')
 @click.option('-p', '--pca', is_flag=True, default=False)
 def main(classifiers, input, pca):
-    print(pca)
     classifiers_choosed = selected_classifier(classifiers)
 
     if len(classifiers_choosed) == 0:
@@ -111,7 +110,7 @@ def main(classifiers, input, pca):
         pass
     else:
         color, dataset, extractor, image_size, list_info_level, minimum_image, n_features, n_samples, patch = load_dataset_informations(input)
-        index, x, y = prepare_data(input, n_features, n_samples, patch)
+        index, x, y = prepare_data(FOLDS, input, n_features, n_samples, patch, SEED)
         list_results_classifiers = []
 
         if pca:

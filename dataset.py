@@ -1,14 +1,13 @@
 import collections
 import itertools
 import logging
+import os
 import pathlib
 
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler
-
-from main import SEED, FOLDS
 
 
 def load_dataset_informations(input):
@@ -49,7 +48,7 @@ def load_dataset_informations(input):
     return color, dataset, extractor, (height, width), list_info_level, minimum_image, n_features, n_samples, patch
 
 
-def prepare_data(input, n_features, n_samples, patch):
+def prepare_data(folds, input, n_features, n_samples, patch, seed):
     x = np.empty(shape=(0, n_features), dtype=np.float64)
     y = []
 
@@ -63,18 +62,18 @@ def prepare_data(input, n_features, n_samples, patch):
     logging.info('[INFO] dataset contains x.shape: %s' % str(x.shape))
     logging.info('[INFO] dataset contains y.shape: %s' % str(y.shape))
 
-    index = split_folds(n_features, n_samples, patch, y)
+    index = split_folds(folds, n_features, n_samples, patch, seed, y)
     scaler = StandardScaler()
     x = scaler.fit_transform(x)
     return index, x, y
 
 
-def split_folds(n_features, n_samples, patch, y):
-    np.random.seed(SEED)
+def split_folds(folds, n_features, n_samples, patch, seed, y):
+    np.random.seed(seed)
     x = np.random.rand(int(n_samples / patch), n_features)
     y = [np.repeat(k, int(v / patch)) for k, v in dict(collections.Counter(y)).items()]
     y = np.array(list(itertools.chain(*y)))
     logging.info('[INFO] StratifiedKFold x.shape: %s' % str(x.shape))
     logging.info('[INFO] StratifiedKFold y.shape: %s' % str(y.shape))
-    kf = StratifiedKFold(n_splits=FOLDS, shuffle=True, random_state=SEED)
+    kf = StratifiedKFold(n_splits=folds, shuffle=True, random_state=seed)
     return kf.split(x, y)
