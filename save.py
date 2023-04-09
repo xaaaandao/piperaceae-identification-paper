@@ -211,13 +211,15 @@ def save_classification_report(classification_report, path, rule):
     save_csv(df, filename)
 
 
-def save_fold(fold, path, results):
+def save_fold(count_train, count_test, fold, path, results):
     for rule in ['max', 'mult', 'sum']:
         data = {
             'fold': fold,
             'time': results['time'],
             'f1': results[rule]['f1'],
             'acccuracy': results[rule]['accuracy'],
+            'count_train': count_train,
+            'count_test': count_test
         }
         
         df = pd.DataFrame(data.values(), index=list(data.keys()))
@@ -259,7 +261,7 @@ def save_best_fold(results, path):
         save_csv(df, filename, header=False, index=True)
 
 
-def save_df_main(results, path):
+def save_df_main(dimensions, results, path):
     extractors = ['mobilenetv2', 'vgg16', 'resnet50v2', 'lbp', 'surf64', 'surf128']
     image_size = [256, 400, 512]
     classifiers_name = [
@@ -269,14 +271,6 @@ def save_df_main(results, path):
         'SVC',
         'DecisionTreeClassifier',
     ]
-    dimensions = {
-        'mobilenetv2': [1280, 1024, 512, 256, 128],
-        'vgg16': [512, 256, 128],
-        'resnet50v2': [2048, 1024, 512, 256, 128],
-        'lbp': [59],
-        'surf64': [257, 256, 128],
-        'surf128': [513, 512, 256, 128]
-    }
     columns = ['%s+%s' % (name, image) for name in classifiers_name for image in image_size]
     index = ['%s+%s+%s' % (extractor, dimension, metric) for extractor in extractors for dimension in
              dimensions[extractor] for metric in ['mean', 'std']]
