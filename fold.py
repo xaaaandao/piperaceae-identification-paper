@@ -13,7 +13,7 @@ from arrays import split_dataset, mult_rule, max_rule, sum_rule, y_true_no_patch
 from save import save_fold, save_confusion_matrix
 
 
-@ray.remote(num_gpus=0.5)
+@ray.remote
 class Fold:
 
     def __init__(self, classifier, classifier_name, fold, index_train, index_test, list_info_level, n_features, patch,
