@@ -88,6 +88,80 @@ def selected_classifier(classifiers_selected):
     return [c for cs in classifiers_selected for c in classifiers if cs == c.__class__.__name__]
 
 
+@ray.remote
+class Fold:
+
+    def __init__(self, classifier, classifier_name, fold, index_train, index_test, list_info_level, n_features, patch, path, results_fold, x, y):
+        self.classifier = classifier
+        self.classifier_name = classifier_name
+        self.fold = fold
+        self.list_info_level = list_info_level
+        self.index_train = index_train
+        self.index_test = index_test
+        self.n_features = n_features
+        self.patch = patch
+        self.path = path
+        self.results_fold = results_fold
+        self.x = x
+        self.y = y
+
+    def run(self):
+        logging.info('[INFO] fold: %d classifier name: %s' % (self.fold, self.classifier_name))
+        x_train, y_train = split_dataset(self.index_train, self.n_features, self.patch, self.x, self.y)
+        x_test, y_test = split_dataset(self.index_test, self.n_features, self.patch, self.x, self.y)
+
+        count_train = sorted(collections.Counter(y_train).items())
+        count_test = sorted(collections.Counter(y_test).items())
+        logging.info('[INFO] TRAIN: %s ' % str(count_train))
+        logging.info('[INFO] TEST: %s ' % str(count_test))
+
+        logging.info('[INFO] x_train.shape: %s y_train.shape: %s' % (str(x_train.shape), str(y_train.shape)))
+        logging.info('[INFO] x_test.shape: %s y_test.shape: %s' % (str(x_test.shape), str(y_test.shape)))
+
+        start_timeit = timeit.default_timer()
+        # with joblib.parallel_backend('ray', n_jobs=N_JOBS):
+        self.classifier.best_estimator_.fit(x_train, y_train)
+
+        y_pred_proba = self.classifier.best_estimator_.predict_proba(x_test)
+        end_timeit = timeit.default_timer() - start_timeit
+
+        n_test, n_labels = y_pred_proba.shape
+        y_pred_max_rule, y_score_max = max_rule(n_test, n_labels, self.patch, y_pred_proba)
+        y_pred_mult_rule, y_score_mult = mult_rule(n_test, n_labels, self.patch, y_pred_proba)
+        y_pred_sum_rule, y_score_sum = sum_rule(n_test, n_labels, self.patch, y_pred_proba)
+        y_true = y_true_no_patch(n_test, self.patch, y_test)
+
+        logging.info('[INFO] y_pred_sum_rule.shape: %s y_score_sum: %s' % (
+            str(y_pred_sum_rule.shape), str(y_score_sum.shape)))
+        logging.info('[INFO] y_pred_mult_rule.shape: %s y_score_mult: %s' % (
+            str(y_pred_mult_rule.shape), str(y_score_mult.shape)))
+        logging.info('[INFO] y_pred_max_rule.shape: %s y_score_max: %s' % (
+            str(y_pred_max_rule.shape), str(y_score_max.shape)))
+        logging.info('[INFO] y_true.shape: %s' % str(y_true.shape))
+
+        results = {
+            'fold': self.fold,
+            'max': evaluate(self.list_info_level, n_labels, y_pred_max_rule, y_score_max, y_true),
+            'mult': evaluate(self.list_info_level, n_labels, y_pred_mult_rule, y_score_mult, y_true),
+            'sum': evaluate(self.list_info_level, n_labels, y_pred_sum_rule, y_score_sum, y_true),
+            'time': end_timeit
+        }
+
+        logging.info('results_fold %s' % str(len(self.results_fold)))
+
+        path_fold = os.path.join(self.path, str(self.fold))
+
+        if not os.path.exists(path_fold):
+            os.makedirs(path_fold)
+
+        save_fold(count_train, count_test, self.fold, path_fold, results)
+        save_confusion_matrix(self.list_info_level, path_fold, results)
+        return {
+            'results': results,
+            'n_labels': n_labels
+        }
+
+
 @click.command()
 @click.option('-c', '--classifiers', multiple=True, type=click.Choice(
     ['DecisionTreeClassifier', 'RandomForestClassifier', 'KNeighborsClassifier', 'MLPClassifier', 'SVC']),
@@ -136,62 +210,45 @@ def main(classifiers, input, pca):
                 with joblib.parallel_backend('ray', n_jobs=N_JOBS):
                     clf.fit(x, y)
 
-                # enable to use predict_proba
-                if isinstance(clf.best_estimator_, SVC):
-                    params = dict(probability=True)
-                    clf.best_estimator_.set_params(**params)
-
+            #     # enable to use predict_proba
+            #     if isinstance(clf.best_estimator_, SVC):
+            #         params = dict(probability=True)
+            #         clf.best_estimator_.set_params(**params)
+            #
+                folds = []
                 for fold, (index_train, index_test) in enumerate(index, start=1):
-                    logging.info('[INFO] fold: %d classifier name: %s' % (fold, classifier_name))
-                    x_train, y_train = split_dataset(index_train, n_features, patch, x, y)
-                    x_test, y_test = split_dataset(index_test, n_features, patch, x, y)
-
-                    count_train = sorted(collections.Counter(y_train).items())
-                    count_test = sorted(collections.Counter(y_test).items())
-                    logging.info('[INFO] TRAIN: %s ' % str(count_train))
-                    logging.info('[INFO] TEST: %s ' % str(count_test))
-
-                    logging.info('[INFO] x_train.shape: %s y_train.shape: %s' % (str(x_train.shape), str(y_train.shape)))
-                    logging.info('[INFO] x_test.shape: %s y_test.shape: %s' % (str(x_test.shape), str(y_test.shape)))
-
-                    start_timeit = timeit.default_timer()
-                    with joblib.parallel_backend('ray', n_jobs=N_JOBS):
-                        clf.best_estimator_.fit(x_train, y_train)
-
-                    y_pred_proba = clf.best_estimator_.predict_proba(x_test)
-                    end_timeit = timeit.default_timer() - start_timeit
-
-                    n_test, n_labels = y_pred_proba.shape
-                    y_pred_max_rule, y_score_max = max_rule(n_test, n_labels, patch, y_pred_proba)
-                    y_pred_mult_rule, y_score_mult = mult_rule(n_test, n_labels, patch, y_pred_proba)
-                    y_pred_sum_rule, y_score_sum = sum_rule(n_test, n_labels, patch, y_pred_proba)
-                    y_true = y_true_no_patch(n_test, patch, y_test)
-
-                    logging.info('[INFO] y_pred_sum_rule.shape: %s y_score_sum: %s' % (
-                        str(y_pred_sum_rule.shape), str(y_score_sum.shape)))
-                    logging.info('[INFO] y_pred_mult_rule.shape: %s y_score_mult: %s' % (
-                        str(y_pred_mult_rule.shape), str(y_score_mult.shape)))
-                    logging.info('[INFO] y_pred_max_rule.shape: %s y_score_max: %s' % (
-                        str(y_pred_max_rule.shape), str(y_score_max.shape)))
-                    logging.info('[INFO] y_true.shape: %s' % str(y_true.shape))
-
-                    results = {
+                    params = {
+                        'classifier': clf,
+                        'classifier_name': classifier_name,
                         'fold': fold,
-                        'max': evaluate(list_info_level, n_labels, y_pred_max_rule, y_score_max, y_true),
-                        'mult': evaluate(list_info_level, n_labels, y_pred_mult_rule, y_score_mult, y_true),
-                        'sum': evaluate(list_info_level, n_labels, y_pred_sum_rule, y_score_sum, y_true),
-                        'time': end_timeit
+                        'list_info_level': list_info_level,
+                        'index_train': index_train,
+                        'index_test': index_test,
+                        'n_features': n_features,
+                        'patch': patch,
+                        'path': path,
+                        'results_fold': results_fold,
+                        'x': x,
+                        'y': y
                     }
+                    folds.append(Fold.remote(**params))
+                    # folds = [ ]
 
-                    results_fold.append(results)
-                    logging.info('results_fold %s' % str(len(results_fold)))
-                    path_fold = os.path.join(path, str(fold))
+                not_done_ids = [f.run.remote() for f in folds]
 
-                    if not os.path.exists(path_fold):
-                        os.makedirs(path_fold)
+                list_results = []
+                while not_done_ids:
+                    done_ids, not_done_ids = ray.wait(not_done_ids, timeout=.5)
+                    results = ray.get(done_ids)
+                    if len(results) > 0:
+                        list_results.append(results[0])
 
-                    save_fold(count_train, count_test, fold, path_fold, results)
-                    save_confusion_matrix(list_info_level, path_fold, results)
+                if len(list_results) == 0:
+                    raise SystemExit('error ray.wait and ray.get')
+
+                logging.info('[INFO] length of list_results %d' % len(list_results))
+                results_fold = [r['results'] for r in list_results]
+                n_labels = list_results[0]['n_labels']
                 means = mean_metrics(results_fold, n_labels)
                 save_mean(means, path, results_fold)
                 save_best(clf, means, path, results_fold)
@@ -203,6 +260,68 @@ def main(classifiers, input, pca):
                     'n_features': str(n_features),
                     'means': means
                 })
+            #         logging.info('[INFO] fold: %d classifier name: %s' % (fold, classifier_name))
+            #         x_train, y_train = split_dataset(index_train, n_features, patch, x, y)
+            #         x_test, y_test = split_dataset(index_test, n_features, patch, x, y)
+            #
+            #         count_train = sorted(collections.Counter(y_train).items())
+            #         count_test = sorted(collections.Counter(y_test).items())
+            #         logging.info('[INFO] TRAIN: %s ' % str(count_train))
+            #         logging.info('[INFO] TEST: %s ' % str(count_test))
+            #
+            #         logging.info('[INFO] x_train.shape: %s y_train.shape: %s' % (str(x_train.shape), str(y_train.shape)))
+            #         logging.info('[INFO] x_test.shape: %s y_test.shape: %s' % (str(x_test.shape), str(y_test.shape)))
+            #
+            #         start_timeit = timeit.default_timer()
+            #         with joblib.parallel_backend('ray', n_jobs=N_JOBS):
+            #             clf.best_estimator_.fit(x_train, y_train)
+            #
+            #         y_pred_proba = clf.best_estimator_.predict_proba(x_test)
+            #         end_timeit = timeit.default_timer() - start_timeit
+            #
+            #         n_test, n_labels = y_pred_proba.shape
+            #         y_pred_max_rule, y_score_max = max_rule(n_test, n_labels, patch, y_pred_proba)
+            #         y_pred_mult_rule, y_score_mult = mult_rule(n_test, n_labels, patch, y_pred_proba)
+            #         y_pred_sum_rule, y_score_sum = sum_rule(n_test, n_labels, patch, y_pred_proba)
+            #         y_true = y_true_no_patch(n_test, patch, y_test)
+            #
+            #         logging.info('[INFO] y_pred_sum_rule.shape: %s y_score_sum: %s' % (
+            #             str(y_pred_sum_rule.shape), str(y_score_sum.shape)))
+            #         logging.info('[INFO] y_pred_mult_rule.shape: %s y_score_mult: %s' % (
+            #             str(y_pred_mult_rule.shape), str(y_score_mult.shape)))
+            #         logging.info('[INFO] y_pred_max_rule.shape: %s y_score_max: %s' % (
+            #             str(y_pred_max_rule.shape), str(y_score_max.shape)))
+            #         logging.info('[INFO] y_true.shape: %s' % str(y_true.shape))
+            #
+            #         results = {
+            #             'fold': fold,
+            #             'max': evaluate(list_info_level, n_labels, y_pred_max_rule, y_score_max, y_true),
+            #             'mult': evaluate(list_info_level, n_labels, y_pred_mult_rule, y_score_mult, y_true),
+            #             'sum': evaluate(list_info_level, n_labels, y_pred_sum_rule, y_score_sum, y_true),
+            #             'time': end_timeit
+            #         }
+            #
+            #         results_fold.append(results)
+            #         logging.info('results_fold %s' % str(len(results_fold)))
+            #
+            #         path_fold = os.path.join(path, str(fold))
+            #
+            #         if not os.path.exists(path_fold):
+            #             os.makedirs(path_fold)
+            #
+            #         save_fold(count_train, count_test, fold, path_fold, results)
+            #         save_confusion_matrix(list_info_level, path_fold, results)
+            #     means = mean_metrics(results_fold, n_labels)
+            #     save_mean(means, path, results_fold)
+            #     save_best(clf, means, path, results_fold)
+            #     save_info(classifier.__class__.__name__, extractor, n_features, n_samples, path, patch)
+            #     list_results_classifiers.append({
+            #         'classifier_name': classifier.__class__.__name__,
+            #         'image_size': str(image_size[0]),
+            #         'extractor': extractor,
+            #         'n_features': str(n_features),
+            #         'means': means
+            #     })
             save_df_main(dataset, dimensions, minimum_image, list_results_classifiers, OUTPUT)
 
 
