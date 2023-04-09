@@ -105,7 +105,7 @@ def main(classifiers, input, pca):
     index, x, y = prepare_data(FOLDS, input, n_features, n_samples, patch, SEED)
 
     if pca:
-        list_x = [PCA(n_components=dim, random_state=SEED).fit_transform(x) for dim in dimensions[extractor.lower()]]
+        list_x = [PCA(n_components=dim, random_state=SEED).fit_transform(x) for dim in dimensions[extractor.lower()] if dim > n_features]
         list_x.append(x)
     else:
         list_x = [x]
