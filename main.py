@@ -33,6 +33,7 @@ N_JOBS = -1
 PCA = False
 SEED = 1234
 OUTPUT = '/home/xandao/results'
+VERBOSE = 42
 
 datefmt = '%d-%m-%Y+%H-%M-%S'
 dateandtime = datetime.datetime.now().strftime(datefmt)
@@ -74,8 +75,8 @@ def selected_classifier(classifiers_selected):
         DecisionTreeClassifier(random_state=SEED),
         KNeighborsClassifier(n_jobs=N_JOBS),
         MLPClassifier(random_state=SEED),
-        RandomForestClassifier(random_state=SEED, n_jobs=N_JOBS, verbose=100, max_depth=10),
-        SVC(random_state=SEED, verbose=True, cache_size=2000, C=0.01)
+        RandomForestClassifier(random_state=SEED, n_jobs=N_JOBS, verbose=VERBOSE, max_depth=10),
+        SVC(random_state=SEED, verbose=VERBOSE, cache_size=2000, C=0.01)
     ]
     return [c for cs in classifiers_selected for c in classifiers if cs == c.__class__.__name__]
 
@@ -102,21 +103,20 @@ def main(classifiers, input, metric, pca):
     if input.endswith('.txt') and os.path.isfile(input):
         pass
     else:
-        extractor, image_size, list_info_level, n_features, n_samples, patch = load_dataset_informations(input)
+        color, dataset, extractor, image_size, list_info_level, n_features, n_samples, patch = load_dataset_informations(input)
         index, x, y = prepare_data(input, n_features, n_samples, patch)
         list_results_classifiers = []
 
         for classifier in classifiers_choosed:
             results_fold = []
-            output_folder_name = '%s+img_size=%s+%s+n_ft=%s' % (
-                classifier.__class__.__name__, str(image_size[0]), extractor, str(n_features))
+            output_folder_name = 'clf=%s+size=%s+ex=%s+ft=%s+c=%s+dt=%s' % (classifier.__class__.__name__, str(image_size[0]), extractor, str(n_features), color, dataset)
             path = os.path.join(OUTPUT, dateandtime, output_folder_name)
 
             if not os.path.exists(path):
                 os.makedirs(path)
 
             clf = GridSearchCV(classifier, parameters[classifier.__class__.__name__], cv=FOLDS,
-                               scoring=METRIC, n_jobs=N_JOBS, verbose=True)
+                               scoring=METRIC, n_jobs=N_JOBS, verbose=VERBOSE)
 
             with joblib.parallel_backend('ray', n_jobs=N_JOBS):
                 clf.fit(x, y)
@@ -131,8 +131,8 @@ def main(classifiers, input, metric, pca):
                 x_train, y_train = split_dataset(index_train, n_features, patch, x, y)
                 x_test, y_test = split_dataset(index_test, n_features, patch, x, y)
 
-                logging.debug(sorted(collections.Counter(y_train).items()))
-                logging.debug(sorted(collections.Counter(y_test).items()))
+                logging.info(sorted(collections.Counter(y_train).items()))
+                logging.info(sorted(collections.Counter(y_test).items()))
 
                 logging.info('[INFO] x_train.shape: %s y_train.shape: %s' % (str(x_train.shape), str(y_train.shape)))
                 logging.info('[INFO] x_test.shape: %s y_test.shape: %s' % (str(x_test.shape), str(y_test.shape)))
@@ -217,6 +217,8 @@ def load_dataset_informations(input):
 
     df = pd.read_csv(info_dataset[0], index_col=0, header=None, sep=';')
     extractor = df.loc['cnn'][1]
+    color = df.loc['color'][1]
+    dataset = df.loc['dataset'][1]
     input_path = df.loc['input_path'][1]
     n_features = int(df.loc['n_features'][1])
     n_samples = int(df.loc['total_samples'][1])
@@ -241,7 +243,7 @@ def load_dataset_informations(input):
 
     logging.info('[INFO] n_levels: %s' % str(len(list_info_level['levels'])))
 
-    return extractor, (height, width), list_info_level, n_features, n_samples, patch
+    return color, dataset, extractor, (height, width), list_info_level, n_features, n_samples, patch
 
 
 def prepare_data(input, n_features, n_samples, patch):
