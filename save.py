@@ -218,8 +218,8 @@ def save_fold(count_train, count_test, fold, path, results):
             'time': results['time'],
             'f1': results[rule]['f1'],
             'acccuracy': results[rule]['accuracy'],
-            'count_train': count_train,
-            'count_test': count_test
+            'count_train': str(count_train),
+            'count_test': str(count_test)
         }
         
         df = pd.DataFrame(data.values(), index=list(data.keys()))
