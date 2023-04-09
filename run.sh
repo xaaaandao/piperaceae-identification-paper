@@ -10,6 +10,7 @@ for dataset in pr_dataset_features; do
                 for threshold in 5 10 20; do
                     echo ${cnn} ${size} ${threshold} ${color} ${METRIC}
                     python setup.py build_ext --inplace
+                    # /home/xandao/Imagens/pr_dataset_features/RGB/256/specific_epithet_trusted/20/vgg16
                     python main.py -i ${DIR_INPUT}/${dataset}/${color}/${image_size}/${TAXON}/${threshold}/${cnn} -c 'DecisionTreeClassifier'
                 done
             done
