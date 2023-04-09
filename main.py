@@ -100,12 +100,11 @@ def main(classifiers, input, pca):
     if not os.path.exists(input):
         raise SystemExit('input %s not found' % input)
 
-    color, dataset, extractor, image_size, list_info_level, minimum_image, n_features, n_samples, patch = load_dataset_informations(
-        input)
+    color, dataset, extractor, image_size, list_info_level, minimum_image, n_features, n_samples, patch = load_dataset_informations(input)
     index, x, y = prepare_data(FOLDS, input, n_features, n_samples, patch, SEED)
 
     if pca:
-        list_x = [PCA(n_components=dim, random_state=SEED).fit_transform(x) for dim in dimensions[extractor.lower()] if dim > n_features]
+        list_x = [PCA(n_components=dim, random_state=SEED).fit_transform(x) for dim in dimensions[extractor.lower()] if dim < n_features]
         list_x.append(x)
     else:
         list_x = [x]
