@@ -93,12 +93,3 @@ def y_true_no_patch(n_test: int, patch: int, np.ndarray[np.int16_t, ndim=1] y_tr
             s+=1
 
     return y_true_no_patch
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-def load(n_features:int, n_samples: int, np.ndarray[np.float64_t, ndim=2] x1, np.ndarray[np.float64_t, ndim=2] x2, start=0):
-    for i in range(start, start+n_samples):
-        for j in range(n_features):
-            x1[i][j] = x2[i][j]
-
-    return x1, i

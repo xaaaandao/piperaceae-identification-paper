@@ -15,6 +15,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 
+from arrays import load_data_txt
 from dataset import load_dataset_informations, prepare_data
 from fold import Fold
 from save import save_mean, mean_metrics, save_info, save_df_main, save_best
@@ -99,83 +100,83 @@ def main(classifiers, input, pca):
     if not os.path.exists(input):
         raise SystemExit('input %s not found' % input)
 
-    if input.endswith('.txt') and os.path.isfile(input):
-        pass
+    color, dataset, extractor, image_size, list_info_level, minimum_image, n_features, n_samples, patch = load_dataset_informations(
+        input)
+    index, x, y = prepare_data(FOLDS, input, n_features, n_samples, patch, SEED)
+
+    if pca:
+        list_x = [PCA(n_components=dim, random_state=SEED).fit_transform(x) for dim in dimensions[extractor.lower()]]
+        list_x.append(x)
     else:
-        color, dataset, extractor, image_size, list_info_level, minimum_image, n_features, n_samples, patch = load_dataset_informations(input)
-        index, x, y = prepare_data(FOLDS, input, n_features, n_samples, patch, SEED)
-        list_results_classifiers = []
+        list_x = [x]
 
-        if pca:
-            list_x = [PCA(n_components=dim, random_state=SEED).fit_transform(x) for dim in dimensions[extractor.lower()]]
-            list_x.append(x)
-        else:
-            list_x = [x]
+    logging.info('[INFO] result of pca %d' % len(list_x))
+    list_results_classifiers = []
+    for x in list_x:
+        n_features = x.shape[1]
+        for classifier in classifiers_choosed:
+            results_fold = []
+            classifier_name = classifier.__class__.__name__
 
-        logging.info('[INFO] result of pca %d' % len(list_x))
-        for x in list_x:
-            n_features = x.shape[1]
-            for classifier in classifiers_choosed:
-                results_fold = []
-                classifier_name = classifier.__class__.__name__
+            clf = GridSearchCV(classifier, parameters[classifier_name], cv=FOLDS,
+                               scoring=METRIC, n_jobs=N_JOBS, verbose=VERBOSE)
 
-                clf = GridSearchCV(classifier, parameters[classifier_name], cv=FOLDS,
-                                   scoring=METRIC, n_jobs=N_JOBS, verbose=VERBOSE)
+            with joblib.parallel_backend('ray', n_jobs=N_JOBS):
+                clf.fit(x, y)
 
-                with joblib.parallel_backend('ray', n_jobs=N_JOBS):
-                    clf.fit(x, y)
+            # enable to use predict_proba
+            if isinstance(clf.best_estimator_, SVC):
+                params = dict(probability=True)
+                clf.best_estimator_.set_params(**params)
 
-                # enable to use predict_proba
-                if isinstance(clf.best_estimator_, SVC):
-                    params = dict(probability=True)
-                    clf.best_estimator_.set_params(**params)
+            folds = []
+            for fold, (index_train, index_test) in enumerate(index, start=1):
+                output_folder_name = 'clf=%s+len=%s+ex=%s+ft=%s+c=%s+dt=%s+m=%s' \
+                                     % (classifier_name, str(image_size[0]), extractor, str(n_features), color, dataset,
+                                        minimum_image)
+                path = os.path.join(OUTPUT, dateandtime, output_folder_name)
 
-                folds = []
-                for fold, (index_train, index_test) in enumerate(index, start=1):
-                    output_folder_name = 'clf=%s+len=%s+ex=%s+ft=%s+c=%s+dt=%s+m=%s' \
-                        % (classifier_name, str(image_size[0]), extractor, str(n_features), color, dataset, minimum_image)
-                    path = os.path.join(OUTPUT, dateandtime, output_folder_name)
+                if not os.path.exists(path):
+                    os.makedirs(path)
 
-                    if not os.path.exists(path):
-                        os.makedirs(path)
+                params = {
+                    'classifier': clf,
+                    'classifier_name': classifier_name,
+                    'fold': fold,
+                    'list_info_level': list_info_level,
+                    'index_train': index_train,
+                    'index_test': index_test,
+                    'n_features': n_features,
+                    'patch': patch,
+                    'path': path,
+                    'results_fold': results_fold,
+                    'x': x,
+                    'y': y
+                }
+                folds.append(Fold.remote(**params))
 
-                    params = {
-                        'classifier': clf,
-                        'classifier_name': classifier_name,
-                        'fold': fold,
-                        'list_info_level': list_info_level,
-                        'index_train': index_train,
-                        'index_test': index_test,
-                        'n_features': n_features,
-                        'patch': patch,
-                        'path': path,
-                        'results_fold': results_fold,
-                        'x': x,
-                        'y': y
-                    }
-                    folds.append(Fold.remote(**params))
+            run_folds = [f.run.remote() for f in folds]
+            while run_folds:
+                finished, run_folds = ray.wait(run_folds, num_returns=len(run_folds))
 
-                run_folds = [f.run.remote() for f in folds]
-                while run_folds:
-                    finished, run_folds = ray.wait(run_folds, num_returns=len(run_folds))
+                if len(finished) == 0:
+                    raise SystemExit('error ray.wait and ray.get')
 
-                    if len(finished) == 0:
-                        raise SystemExit('error ray.wait and ray.get')
+                results_fold = [ray.get(t)['results'] for t in finished]
+                n_labels = ray.get(finished[0])['n_labels']
+                means = mean_metrics(results_fold, n_labels)
+                save_mean(means, path, results_fold)
+                save_best(clf, means, path, results_fold)
+                save_info(classifier.__class__.__name__, extractor, n_features, n_samples, path, patch)
+                list_results_classifiers.append({
+                    'classifier_name': classifier.__class__.__name__,
+                    'image_size': str(image_size[0]),
+                    'extractor': extractor,
+                    'n_features': str(n_features),
+                    'means': means
+                })
+        save_df_main(dataset, dimensions, minimum_image, list_results_classifiers, OUTPUT)
 
-                    results_fold = [ray.get(t)['results'] for t in finished]
-                    n_labels = ray.get(finished[0])['n_labels']
-                    means = mean_metrics(results_fold, n_labels)
-                    save_mean(means, path, results_fold)
-                    save_best(clf, means, path, results_fold)
-                    save_info(classifier.__class__.__name__, extractor, n_features, n_samples, path, patch)
-                    list_results_classifiers.append({
-                        'classifier_name': classifier.__class__.__name__,
-                        'image_size': str(image_size[0]),
-                        'extractor': extractor,
-                        'n_features': str(n_features),
-                        'means': means
-                    })
-            save_df_main(dataset, dimensions, minimum_image, list_results_classifiers, OUTPUT)
 
 
 if __name__ == '__main__':
