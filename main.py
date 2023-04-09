@@ -226,6 +226,7 @@ def load_dataset_informations(input):
     logging.info('[INFO] n_samples: %s n_features: %s patch: %s' % (n_samples, n_features, patch))
 
     # input_path = input_path.replace('/media/kingston500/mestrado/dataset', '/home/xandao/Imagens/')
+    # input_path = input_path.replace('')
     if not os.path.exists(input_path):
         raise SystemExit('input path %s not exists' % input_path)
 
@@ -234,7 +235,7 @@ def load_dataset_informations(input):
     if len(info_dataset) == 0:
         raise SystemExit('info_levels.csv not found in %s' % input)
 
-    df = pd.read_csv(info_level[0], header=0, sep=';')
+    df = pd.read_csv(info_level[0], names=['levels', 'count', 'f'], sep=';')
     list_info_level = df[['levels', 'count', 'f']].to_dict()
 
     logging.info('[INFO] n_levels: %s' % str(len(df['levels'])))
