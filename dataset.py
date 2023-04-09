@@ -74,7 +74,7 @@ def prepare_data_txt(input):
     data = np.loadtxt(input)
     n_samples, n_features = data.shape
     x, y = data[0:, 0:n_features - 1], data[:, n_features - 1]
-    return x, y
+    return x, y.astype(np.int16)
 
 
 def prepare_data(folds, input, n_features, n_samples, patch, seed):
