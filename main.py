@@ -173,7 +173,7 @@ def main(classifiers, input, pca):
                     'n_features': str(n_features),
                     'means': means
                 })
-        save_df_main(color, dataset, dimensions, minimum_image, list_results_classifiers, OUTPUT)
+        # save_df_main(color, dataset, dimensions, minimum_image, list_results_classifiers, OUTPUT)
 
 
 if __name__ == '__main__':
