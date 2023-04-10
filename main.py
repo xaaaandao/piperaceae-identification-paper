@@ -15,7 +15,6 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 
-from arrays import load_data_txt
 from dataset import load_dataset_informations, prepare_data
 from fold import Fold
 from save import save_mean, mean_metrics, save_info, save_df_main, save_best

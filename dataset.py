@@ -44,6 +44,7 @@ def information_about_dataset(input):
     info_dataset = [f for f in pathlib.Path(input).rglob('info.csv') if f.is_file()]
     if len(info_dataset) == 0:
         raise SystemExit('info.csv not found in %s' % input)
+    logging.info('[INFO] file with info about dataset: %s' % str(info_dataset[0]))
     df = pd.read_csv(info_dataset[0], index_col=0, header=None, sep=';')
     extractor = df.loc['cnn'][1]
     color = df.loc['color'][1]
