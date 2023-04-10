@@ -291,7 +291,11 @@ def save_df_main(dataset_name, dimensions, minimum_image, results, path):
         df[my_column][my_index_mean] = mean_sum[0]['mean_f1']
         df[my_column][my_index_std] = mean_sum[0]['std_f1']
 
-    save_csv(df, filename, header=True, index=True)
+    if os.path.exists(filename):
+        save_csv(df, filename, header=False, index=True)
+    else:
+        save_csv(df, filename, header=True, index=True)
+
 
 
 def save_best(clf, means, path, results_fold):
