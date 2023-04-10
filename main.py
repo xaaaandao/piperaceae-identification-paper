@@ -177,6 +177,5 @@ def main(classifiers, input, pca):
         save_df_main(color, dataset, dimensions, minimum_image, list_results_classifiers, OUTPUT)
 
 
-
 if __name__ == '__main__':
     main()
