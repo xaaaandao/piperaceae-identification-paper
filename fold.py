@@ -81,7 +81,7 @@ class Fold:
             os.makedirs(path_fold)
 
         save_fold(count_train, count_test, self.fold, path_fold, results)
-        save_confusion_matrix(self.list_info_level, path_fold, results)
+        save_confusion_matrix(count_train, count_test, self.list_info_level, self.patch, path_fold, results)
         return {
             'results': results,
             'n_labels': n_labels

@@ -1,3 +1,6 @@
+import collections
+import itertools
+
 import joblib
 import logging
 import numpy as np
@@ -155,7 +158,7 @@ def save_confusion_matrix_multilabel(confusion_matrix, count, levels, path, rule
         save_confusion_matrix_csv(cm, columns, filename, index, path_multilabel)
 
 
-def save_confusion_matrix(list_info_level, path, results):
+def save_confusion_matrix(count_train, count_test, list_info_level, n_patch, path, results):
     path_confusion_matrix = os.path.join(path, 'confusion_matrix')
 
     if not os.path.exists(path_confusion_matrix):
@@ -169,16 +172,9 @@ def save_confusion_matrix(list_info_level, path, results):
             if type_confusion_matrix == 'confusion_matrix_multilabel':
                 save_confusion_matrix_multilabel(confusion_matrix, count, levels, path_confusion_matrix, rule)
             else:
-                save_confusion_matrix_and_normalized(confusion_matrix, count, levels, list_info_level,
-                                                     path_confusion_matrix, rule, type_confusion_matrix)
-
-
-def save_confusion_matrix_and_normalized(confusion_matrix, count, levels, list_info_level, path_confusion_matrix, rule,
-                                         type_confusion_matrix):
-    columns = list(list_info_level['levels'].values())
-    index = [i[0] + ' (%s)' % i[1] for i in zip(levels.values(), count.values())]
-    filename = '%s+%s.csv' % (type_confusion_matrix, rule)
-    save_confusion_matrix_csv(confusion_matrix, columns, filename, index, path_confusion_matrix)
+                save_confusion_matrix_and_normalized(confusion_matrix, count, count_train, count_test, levels,
+                                                     list_info_level, n_patch, path_confusion_matrix,
+                                                     rule, type_confusion_matrix)
 
 
 def save_topk(list_topk, path, rule):
@@ -188,6 +184,13 @@ def save_topk(list_topk, path, rule):
         os.makedirs(path_topk)
 
     save_topk_csv(list_topk, path_topk, rule)
+
+
+def save_confusion_matrix_and_normalized(confusion_matrix, count, count_train, count_test, levels, list_info_level, n_patch, path_confusion_matrix, rule, type_confusion_matrix):
+    columns = list(list_info_level['levels'].values())
+    index = ['%s (%s-%s-%s)' % (i[0], i[1], int(i[2][1]/n_patch), int(i[3][1]/n_patch)) for i in zip(levels.values(), count.values(), count_train, count_test)]
+    filename = '%s+%s.csv' % (type_confusion_matrix, rule)
+    save_confusion_matrix_csv(confusion_matrix, columns, filename, index, path_confusion_matrix)
 
 
 def save_topk_csv(list_topk, path, rule):
