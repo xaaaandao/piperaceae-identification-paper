@@ -2,12 +2,8 @@ import click
 import datetime
 import joblib
 import logging
-import multiprocessing
 import os.path
-import ray
-import tensorflow as tf
 
-from ray.util.joblib import register_ray
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.decomposition import PCA
 from sklearn.model_selection import GridSearchCV
@@ -18,8 +14,8 @@ from sklearn.svm import SVC
 
 
 from dataset import load_dataset_informations, prepare_data
-from fold import Fold
-from save import save_mean, mean_metrics, save_info, save_best
+from fold import run_folds
+from save import save_mean, mean_metrics, save_info, save_best, save_df_main
 
 FOLDS = 5
 GPU_ID = 0
@@ -32,9 +28,6 @@ VERBOSE = 42
 datefmt = '%d-%m-%Y+%H-%M-%S'
 dateandtime = datetime.datetime.now().strftime(datefmt)
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S', level=logging.INFO)
-
-ray.init(num_gpus=1, num_cpus=multiprocessing.cpu_count())
-register_ray()
 
 dimensions = {
     'mobilenetv2': [1280, 1024, 512, 256, 128],
@@ -156,18 +149,8 @@ def main(classifiers, input, pca):
                     'x': x,
                     'y': y
                 }
-                folds.append(Fold.remote(**params))
-
-            run_folds = [f.run.remote() for f in folds]
-            while run_folds:
-                finished, run_folds = ray.wait(run_folds, num_returns=len(run_folds))
-
-                if len(finished) == 0:
-                    raise SystemExit('error ray.wait and ray.get')
-
-                results_fold = [ray.get(t)['results'] for t in finished]
-                n_labels = ray.get(finished[0])['n_labels']
-                means = mean_metrics(results_fold, n_labels)
+                result = run_folds(**params)
+                means = mean_metrics(result['results'], result['n_labels'])
                 save_mean(means, path, results_fold)
                 save_best(clf, means, path, results_fold)
                 save_info(classifier.__class__.__name__, extractor, n_features, n_samples, path, patch)
@@ -178,6 +161,7 @@ def main(classifiers, input, pca):
                     'n_features': str(n_features),
                     'means': means
                 })
+            save_df_main(dataset, dimensions, minimum_image, list_results_classifiers, OUTPUT)
 
 
 if __name__ == '__main__':
