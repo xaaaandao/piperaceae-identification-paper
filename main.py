@@ -5,6 +5,7 @@ import logging
 import multiprocessing
 import os.path
 import ray
+import tensorflow as tf
 
 from ray.util.joblib import register_ray
 from sklearn.ensemble import RandomForestClassifier
@@ -15,11 +16,13 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 
+
 from dataset import load_dataset_informations, prepare_data
 from fold import Fold
-from save import save_mean, mean_metrics, save_info, save_df_main, save_best
+from save import save_mean, mean_metrics, save_info, save_best
 
 FOLDS = 5
+GPU_ID = 0
 METRIC = 'f1_weighted'
 N_JOBS = -1
 SEED = 1234
@@ -30,7 +33,7 @@ datefmt = '%d-%m-%Y+%H-%M-%S'
 dateandtime = datetime.datetime.now().strftime(datefmt)
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S', level=logging.INFO)
 
-ray.init(num_gpus=1, num_cpus=int(multiprocessing.cpu_count() / 2))
+ray.init(num_gpus=1, num_cpus=multiprocessing.cpu_count())
 register_ray()
 
 dimensions = {
@@ -99,11 +102,13 @@ def main(classifiers, input, pca):
     if not os.path.exists(input):
         raise SystemExit('input %s not found' % input)
 
-    color, dataset, extractor, image_size, list_info_level, minimum_image, n_features, n_samples, patch = load_dataset_informations(input)
+    color, dataset, extractor, image_size, list_info_level, minimum_image, n_features, n_samples, patch =\
+        load_dataset_informations(input)
     index, x, y = prepare_data(FOLDS, input, n_features, n_samples, patch, SEED)
 
     if pca:
-        list_x = [PCA(n_components=dim, random_state=SEED).fit_transform(x) for dim in dimensions[extractor.lower()] if dim < n_features]
+        list_x = [PCA(n_components=dim, random_state=SEED).fit_transform(x) for dim in dimensions[extractor.lower()] if
+                  dim < n_features]
         list_x.append(x)
     else:
         list_x = [x]
@@ -119,7 +124,7 @@ def main(classifiers, input, pca):
             clf = GridSearchCV(classifier, parameters[classifier_name], cv=FOLDS,
                                scoring=METRIC, n_jobs=N_JOBS, verbose=VERBOSE)
 
-            with joblib.parallel_backend('ray', n_jobs=N_JOBS):
+            with joblib.parallel_backend('loky', n_jobs=N_JOBS):
                 clf.fit(x, y)
 
             # enable to use predict_proba
@@ -173,7 +178,6 @@ def main(classifiers, input, pca):
                     'n_features': str(n_features),
                     'means': means
                 })
-        # save_df_main(color, dataset, dimensions, minimum_image, list_results_classifiers, OUTPUT)
 
 
 if __name__ == '__main__':
