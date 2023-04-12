@@ -20,8 +20,10 @@ def mean_std_topk(results, n_labels):
     std = []
     for kk in range(3, n_labels):
         k.append(kk)
-        mean.append(np.mean([topk['top_k_accuracy'] for result in results for topk in result['list_topk'] if topk['k'] == kk]))
-        std.append(np.std([topk['top_k_accuracy'] for result in results for topk in result['list_topk'] if topk['k'] == kk]))
+        mean.append(
+            np.mean([topk['top_k_accuracy'] for result in results for topk in result['list_topk'] if topk['k'] == kk]))
+        std.append(
+            np.std([topk['top_k_accuracy'] for result in results for topk in result['list_topk'] if topk['k'] == kk]))
     return {
         'k': k,
         'mean': mean,
@@ -186,9 +188,11 @@ def save_topk(list_topk, path, rule):
     save_topk_csv(list_topk, path_topk, rule)
 
 
-def save_confusion_matrix_and_normalized(confusion_matrix, count, count_train, count_test, levels, list_info_level, n_patch, path_confusion_matrix, rule, type_confusion_matrix):
+def save_confusion_matrix_and_normalized(confusion_matrix, count, count_train, count_test, levels, list_info_level,
+                                         n_patch, path_confusion_matrix, rule, type_confusion_matrix):
     columns = list(list_info_level['levels'].values())
-    index = ['%s (%s-%s-%s)' % (i[0], i[1], int(i[2][1]/n_patch), int(i[3][1]/n_patch)) for i in zip(levels.values(), count.values(), count_train, count_test)]
+    index = ['%s (%s-%s-%s)' % (i[0], i[1], int(i[2][1] / n_patch), int(i[3][1] / n_patch)) for i in
+             zip(levels.values(), count.values(), count_train, count_test)]
     filename = '%s+%s.csv' % (type_confusion_matrix, rule)
     save_confusion_matrix_csv(confusion_matrix, columns, filename, index, path_confusion_matrix)
 
@@ -224,7 +228,7 @@ def save_fold(count_train, count_test, fold, path, results):
             'count_train': str(count_train),
             'count_test': str(count_test)
         }
-        
+
         df = pd.DataFrame(data.values(), index=list(data.keys()))
         filename = os.path.join(path, 'fold+%s.csv' % rule)
         save_csv(df, filename, header=False, index=True)
@@ -251,17 +255,21 @@ def save_info(classifier_name, extractor, n_features, n_samples, path, patch):
 
 
 def save_best_fold(results, path):
+    # print(results)
     for rule in ['max', 'mult', 'sum']:
-        best = max(results, key=lambda x: x[rule]['f1'])
-        data = {
-            'fold': best['fold'],
-            'time': best['time'],
-            'f1': best[rule]['f1']
-        }
+        for metric in ['f1', 'accuracy']:
+            best = max(results, key=lambda x: x[rule][metric])
 
-        df = pd.DataFrame(data.values(), index=list(data.keys()))
-        filename = os.path.join(path, 'best_fold_%s.csv' % rule)
-        save_csv(df, filename, header=False, index=True)
+            data = {
+                    'fold': best['fold'],
+                    'time': best['time'],
+                    metric: best[rule][metric],
+                    rule: rule
+                }
+
+            df = pd.DataFrame(data.values(), index=list(data.keys()))
+            filename = os.path.join(path, 'best_fold_%s+%s.csv' % (rule, metric))
+            save_csv(df, filename, header=False, index=True)
 
 
 def save_df_main(color, dataset_name, dimensions, minimum_image, results, path):
@@ -298,7 +306,6 @@ def save_df_main(color, dataset_name, dimensions, minimum_image, results, path):
         save_csv(df, filename, header=False, index=True)
     else:
         save_csv(df, filename, header=True, index=True)
-
 
 
 def save_best(clf, means, path, results_fold):

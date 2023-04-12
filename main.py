@@ -97,14 +97,14 @@ def main(classifiers, input, pca):
 
     color, dataset, extractor, image_size, list_info_level, minimum_image, n_features, n_samples, patch =\
         load_dataset_informations(input)
-    index, x, y = prepare_data(FOLDS, input, n_features, n_samples, patch, SEED)
+    index, X, y = prepare_data(FOLDS, input, n_features, n_samples, patch, SEED)
 
     if pca:
-        list_x = [PCA(n_components=dim, random_state=SEED).fit_transform(x) for dim in dimensions[extractor.lower()] if
+        list_x = [PCA(n_components=dim, random_state=SEED).fit_transform(X) for dim in dimensions[extractor.lower()] if
                   dim < n_features]
-        list_x.append(x)
+        list_x.append(X)
     else:
-        list_x = [x]
+        list_x = [X]
 
     logging.info('[INFO] result of pca %d' % len(list_x))
     list_results_classifiers = []
@@ -125,8 +125,9 @@ def main(classifiers, input, pca):
                 params = dict(probability=True)
                 clf.best_estimator_.set_params(**params)
 
-            folds = []
-            for fold, (index_train, index_test) in enumerate(index, start=1):
+            for fold, i in enumerate(list(index), start=1):
+                index_train = i[0]
+                index_test = i[1]
                 output_folder_name = 'clf=%s+len=%s+ex=%s+ft=%s+c=%s+dt=%s+m=%s' \
                                      % (classifier_name, str(image_size[0]), extractor, str(n_features), color, dataset,
                                         minimum_image)
@@ -139,29 +140,31 @@ def main(classifiers, input, pca):
                     'classifier': clf,
                     'classifier_name': classifier_name,
                     'fold': fold,
-                    'list_info_level': list_info_level,
                     'index_train': index_train,
                     'index_test': index_test,
+                    'list_info_level': list_info_level,
                     'n_features': n_features,
                     'patch': patch,
                     'path': path,
-                    'results_fold': results_fold,
                     'x': x,
                     'y': y
                 }
-                result = run_folds(**params)
-                means = mean_metrics(result['results'], result['n_labels'])
-                save_mean(means, path, results_fold)
-                save_best(clf, means, path, results_fold)
-                save_info(classifier.__class__.__name__, extractor, n_features, n_samples, path, patch)
-                list_results_classifiers.append({
-                    'classifier_name': classifier.__class__.__name__,
-                    'image_size': str(image_size[0]),
-                    'extractor': extractor,
-                    'n_features': str(n_features),
-                    'means': means
-                })
-            save_df_main(dataset, dimensions, minimum_image, list_results_classifiers, OUTPUT)
+
+                result, n_labels = run_folds(**params)
+                results_fold.append(result)
+            logging.info('results_fold %s' % str(len(results_fold)))
+            means = mean_metrics(results_fold, n_labels)
+            save_mean(means, path, results_fold)
+            save_best(clf, means, path, results_fold)
+            save_info(classifier_name, extractor, n_features, n_samples, path, patch)
+            list_results_classifiers.append({
+                'classifier_name': classifier_name,
+                'image_size': str(image_size[0]),
+                'extractor': extractor,
+                'n_features': str(n_features),
+                'means': means
+            })
+        save_df_main(color, dataset, dimensions, minimum_image, list_results_classifiers, OUTPUT)
 
 
 if __name__ == '__main__':

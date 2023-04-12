@@ -13,7 +13,7 @@ from save import save_fold, save_confusion_matrix
 
 
 def run_folds(classifier, classifier_name, fold, index_train, index_test, list_info_level, n_features, patch,
-              path, results_fold, x, y):
+              path, x, y):
     logging.info('[INFO] fold: %d classifier name: %s' % (fold, classifier_name))
     x_train, y_train = split_dataset(index_train, n_features, patch, x, y)
     x_test, y_test = split_dataset(index_test, n_features, patch, x, y)
@@ -55,8 +55,6 @@ def run_folds(classifier, classifier_name, fold, index_train, index_test, list_i
         'time': end_timeit
     }
 
-    logging.info('results_fold %s' % str(len(results_fold)))
-
     path_fold = os.path.join(path, str(fold))
 
     if not os.path.exists(path_fold):
@@ -64,10 +62,7 @@ def run_folds(classifier, classifier_name, fold, index_train, index_test, list_i
 
     save_fold(count_train, count_test, fold, path_fold, results)
     save_confusion_matrix(count_train, count_test, list_info_level, patch, path_fold, results)
-    return {
-        'results': results,
-        'n_labels': n_labels
-    }
+    return results, n_labels
 
 
 def evaluate(list_info_level, n_labels, y_pred, y_score, y_true):
