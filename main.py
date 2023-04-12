@@ -125,7 +125,7 @@ def main(classifiers, input, pca):
                 params = dict(probability=True)
                 clf.best_estimator_.set_params(**params)
 
-            for fold, i in enumerate(list(index), start=1):
+            for fold, i in enumerate(index, start=1):
                 index_train = i[0]
                 index_test = i[1]
                 output_folder_name = 'clf=%s+len=%s+ex=%s+ft=%s+c=%s+dt=%s+m=%s' \

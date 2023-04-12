@@ -255,7 +255,6 @@ def save_info(classifier_name, extractor, n_features, n_samples, path, patch):
 
 
 def save_best_fold(results, path):
-    # print(results)
     for rule in ['max', 'mult', 'sum']:
         for metric in ['f1', 'accuracy']:
             best = max(results, key=lambda x: x[rule][metric])

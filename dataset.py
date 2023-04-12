@@ -113,5 +113,5 @@ def split_folds(folds, n_features, n_samples, patch, seed, y):
     logging.info('[INFO] StratifiedKFold x.shape: %s' % str(x.shape))
     logging.info('[INFO] StratifiedKFold y.shape: %s' % str(y.shape))
     kf = StratifiedKFold(n_splits=folds, shuffle=True, random_state=seed)
-    return kf.split(x, y)
+    return list(kf.split(x, y))
 
