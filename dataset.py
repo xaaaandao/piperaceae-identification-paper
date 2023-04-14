@@ -33,7 +33,7 @@ def load_dataset_informations(input):
 
     input_path = input_path.replace('_features', '')
     # input_path = input_path.replace('/home/xandao/Imagens', '/media/kingston500/mestrado/dataset') # RTX 3080
-    # input_path = input_path.replace('/ media/kingston500/mestrado/dataset', '/home/xandao/Imagens') # RTX 3060
+    input_path = input_path.replace('/media/kingston500/mestrado/dataset', '/home/xandao/Imagens') # RTX 3060
     if not os.path.exists(input_path):
         raise SystemExit('input path %s not exists' % input_path)
 
