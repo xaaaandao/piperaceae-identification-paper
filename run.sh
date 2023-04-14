@@ -11,7 +11,7 @@ for dataset in regions_dataset_features; do
                 for threshold in 5 10 20; do
                     for classifier in DecisionTreeClassifier KNeighborsClassifier RandomForestClassifier SVC; do
                         python setup.py build_ext --inplace
-                        if [regions_dataset_features = dataset]; then
+                        if [ regions_dataset_features = dataset ]; then
                             for region in Norte Nordeste Centro-Oeste Sul Sudeste; do
                                 echo ${cnn} ${size} ${threshold} ${color} ${METRIC} ${classifier} ${region}
                                 python main.py -i ${DIR_INPUT}/${dataset}/${color}/${region}/${image_size}/${TAXON}/${threshold}/${cnn} -c ${classifier} -p
@@ -19,7 +19,7 @@ for dataset in regions_dataset_features; do
                         else
                             echo ${cnn} ${size} ${threshold} ${color} ${METRIC} ${classifier}
                             python main.py -i ${DIR_INPUT}/${dataset}/${color}/${image_size}/${TAXON}/${threshold}/${cnn} -c ${classifier} -p
-                        if
+                        fi
                     done
                 done
             done
