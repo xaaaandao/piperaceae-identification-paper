@@ -16,23 +16,24 @@ def load_dataset_informations(input):
         file_with_info = str(p).replace(str(p.name), 'info.csv')
         df = pd.read_csv(file_with_info, sep=',', header=0)
         query = 'extractor==\'%s\'' %  str(p.stem)
-        color = df.query(query)['color'][0]
-        dataset = df.query(query)['dataset'][0]
-        extractor = df.query(query)['extractor'][0]
-        height = int(df.query(query)['height'][0])
-        info_dataset = df.query(query)['dataset'][0]
-        input_path = df.query(query)['input_path'][0]
-        minimum_image = df.query(query)['minimum_image'][0]
-        n_features = int(df.query(query)['n_features'][0])
-        n_samples = int(df.query(query)['total_samples'][0])
+        index = df.query(query).index[0]
+        color = df.query(query)['color'][index]
+        dataset = df.query(query)['dataset'][index]
+        extractor = df.query(query)['extractor'][index]
+        height = int(df.query(query)['height'][index])
+        info_dataset = df.query(query)['dataset'][index]
+        input_path = df.query(query)['input_path'][index]
+        minimum_image = df.query(query)['minimum_image'][index]
+        n_features = int(df.query(query)['n_features'][index])
+        n_samples = int(df.query(query)['total_samples'][index])
         patch = 1
-        width = int(df.query(query)['width'][0])
+        width = int(df.query(query)['width'][index])
     else:
         color, dataset, extractor, height, info_dataset, input_path, minimum_image, n_features, n_samples, patch, width = information_about_dataset(input)
 
     input_path = input_path.replace('_features', '')
-    input_path = input_path.replace('/home/xandao/Imagens', '/media/kingston500/mestrado/dataset')
-    # input_path = input_path.replace('/media/kingston500/mestrado/dataset', '/home/xandao/Imagens')
+    # input_path = input_path.replace('/home/xandao/Imagens', '/media/kingston500/mestrado/dataset') # RTX 3080
+    # input_path = input_path.replace('/media/kingston500/mestrado/dataset', '/home/xandao/Imagens') # RTX 3060
     if not os.path.exists(input_path):
         raise SystemExit('input path %s not exists' % input_path)
 

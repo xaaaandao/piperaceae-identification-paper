@@ -2,6 +2,7 @@ import click
 import datetime
 import joblib
 import logging
+import numpy as np
 import os.path
 
 from sklearn.ensemble import RandomForestClassifier
@@ -98,6 +99,9 @@ def main(classifiers, input, pca):
     color, dataset, extractor, image_size, list_info_level, minimum_image, n_features, n_samples, patch =\
         load_dataset_informations(input)
     index, X, y = prepare_data(FOLDS, input, n_features, n_samples, patch, SEED)
+
+    if np.isnan(X).any():
+        raise SystemExit('X contains nan')
 
     if pca:
         list_x = [PCA(n_components=dim, random_state=SEED).fit_transform(X) for dim in dimensions[extractor.lower()] if
