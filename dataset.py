@@ -31,6 +31,7 @@ def load_dataset_informations(input):
         color, dataset, extractor, height, info_dataset, input_path, minimum_image, n_features, n_samples, patch, width = information_about_dataset(input)
 
     input_path = input_path.replace('_features', '')
+    input_path = input_path.replace('/home/xandao/Imagens', '/media/kingston500/mestrado/dataset')
     # input_path = input_path.replace('/media/kingston500/mestrado/dataset', '/home/xandao/Imagens')
     if not os.path.exists(input_path):
         raise SystemExit('input path %s not exists' % input_path)
