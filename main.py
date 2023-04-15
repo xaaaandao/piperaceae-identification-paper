@@ -122,7 +122,7 @@ def main(classifiers, input, pca):
             output_folder_name = 'clf=%s+len=%s+ex=%s+ft=%s+c=%s+dt=%s+m=%s' \
                                  % (classifier_name, str(image_size[0]), extractor, str(n_features), color, dataset,
                                     minimum_image)
-            list_out_results = [str(p) for p in pathlib.Path(OUTPUT).rglob('.') if p.is_dir()]
+            list_out_results = [str(p) for p in pathlib.Path(OUTPUT).rglob('*') if p.is_dir()]
 
             if not output_folder_name in list_out_results:
                 path = os.path.join(OUTPUT, dateandtime, output_folder_name)
