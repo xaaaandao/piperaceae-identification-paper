@@ -122,9 +122,13 @@ def main(classifiers, input, pca):
             output_folder_name = 'clf=%s+len=%s+ex=%s+ft=%s+c=%s+dt=%s+m=%s' \
                                  % (classifier_name, str(image_size[0]), extractor, str(n_features), color, dataset,
                                     minimum_image)
-            list_out_results = [str(p) for p in pathlib.Path(OUTPUT).rglob('*') if p.is_dir()]
 
-            if not output_folder_name in list_out_results:
+            list_out_results = [str(p.name) for p in pathlib.Path(OUTPUT).rglob('*') if p.is_dir()]
+            logging.info('encounter %s results' % len(list_out_results))
+
+            if output_folder_name in list_out_results:
+                logging.info('output_folder_name %s exists' % output_folder_name)
+            else:
                 path = os.path.join(OUTPUT, dateandtime, output_folder_name)
 
                 if not os.path.exists(path):
@@ -161,6 +165,7 @@ def main(classifiers, input, pca):
 
                     result, n_labels = run_folds(**params)
                     results_fold.append(result)
+
                 logging.info('results_fold %s' % str(len(results_fold)))
                 means = mean_metrics(results_fold, n_labels)
                 save_mean(means, path, results_fold)
