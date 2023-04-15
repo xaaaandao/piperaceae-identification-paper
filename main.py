@@ -1,3 +1,5 @@
+import pathlib
+
 import click
 import datetime
 import joblib
@@ -114,61 +116,66 @@ def main(classifiers, input, pca):
     list_results_classifiers = []
     for x in list_x:
         n_features = x.shape[1]
-        for classifier in classifiers_choosed:
-            results_fold = []
-            classifier_name = classifier.__class__.__name__
 
-            clf = GridSearchCV(classifier, parameters[classifier_name], cv=FOLDS,
-                               scoring=METRIC, n_jobs=N_JOBS, verbose=VERBOSE)
+        output_folder_name = 'clf=%s+len=%s+ex=%s+ft=%s+c=%s+dt=%s+m=%s' \
+                             % (classifier_name, str(image_size[0]), extractor, str(n_features), color, dataset,
+                                minimum_image)
+        list_out_results = [str(p) for p in pathlib.Path(OUTPUT).rglob('.') if p.is_dir()]
 
-            with joblib.parallel_backend('loky', n_jobs=N_JOBS):
-                clf.fit(x, y)
+        if not output_folder_name in list_out_results:
+            path = os.path.join(OUTPUT, dateandtime, output_folder_name)
 
-            # enable to use predict_proba
-            if isinstance(clf.best_estimator_, SVC):
-                params = dict(probability=True)
-                clf.best_estimator_.set_params(**params)
+            if not os.path.exists(path):
+                os.makedirs(path)
 
-            for fold, i in enumerate(index, start=1):
-                index_train = i[0]
-                index_test = i[1]
-                output_folder_name = 'clf=%s+len=%s+ex=%s+ft=%s+c=%s+dt=%s+m=%s' \
-                                     % (classifier_name, str(image_size[0]), extractor, str(n_features), color, dataset,
-                                        minimum_image)
-                path = os.path.join(OUTPUT, dateandtime, output_folder_name)
+            for classifier in classifiers_choosed:
+                results_fold = []
+                classifier_name = classifier.__class__.__name__
 
-                if not os.path.exists(path):
-                    os.makedirs(path)
+                clf = GridSearchCV(classifier, parameters[classifier_name], cv=FOLDS,
+                                   scoring=METRIC, n_jobs=N_JOBS, verbose=VERBOSE)
 
-                params = {
-                    'classifier': clf,
+                with joblib.parallel_backend('loky', n_jobs=N_JOBS):
+                    clf.fit(x, y)
+
+                # enable to use predict_proba
+                if isinstance(clf.best_estimator_, SVC):
+                    params = dict(probability=True)
+                    clf.best_estimator_.set_params(**params)
+
+                for fold, i in enumerate(index, start=1):
+                    index_train = i[0]
+                    index_test = i[1]
+
+                    params = {
+                        'classifier': clf,
+                        'classifier_name': classifier_name,
+                        'fold': fold,
+                        'index_train': index_train,
+                        'index_test': index_test,
+                        'list_info_level': list_info_level,
+                        'n_features': n_features,
+                        'patch': patch,
+                        'path': path,
+                        'x': x,
+                        'y': y
+                    }
+
+                    result, n_labels = run_folds(**params)
+                    results_fold.append(result)
+                logging.info('results_fold %s' % str(len(results_fold)))
+                means = mean_metrics(results_fold, n_labels)
+                save_mean(means, path, results_fold)
+                save_best(clf, means, path, results_fold)
+                save_info(classifier_name, extractor, n_features, n_samples, path, patch)
+                list_results_classifiers.append({
                     'classifier_name': classifier_name,
-                    'fold': fold,
-                    'index_train': index_train,
-                    'index_test': index_test,
-                    'list_info_level': list_info_level,
-                    'n_features': n_features,
-                    'patch': patch,
-                    'path': path,
-                    'x': x,
-                    'y': y
-                }
-
-                result, n_labels = run_folds(**params)
-                results_fold.append(result)
-            logging.info('results_fold %s' % str(len(results_fold)))
-            means = mean_metrics(results_fold, n_labels)
-            save_mean(means, path, results_fold)
-            save_best(clf, means, path, results_fold)
-            save_info(classifier_name, extractor, n_features, n_samples, path, patch)
-            list_results_classifiers.append({
-                'classifier_name': classifier_name,
-                'image_size': str(image_size[0]),
-                'extractor': extractor,
-                'n_features': str(n_features),
-                'means': means
-            })
-        save_df_main(color, dataset, dimensions, minimum_image, list_results_classifiers, OUTPUT)
+                    'image_size': str(image_size[0]),
+                    'extractor': extractor,
+                    'n_features': str(n_features),
+                    'means': means
+                })
+            save_df_main(color, dataset, dimensions, minimum_image, list_results_classifiers, OUTPUT)
 
 
 if __name__ == '__main__':
