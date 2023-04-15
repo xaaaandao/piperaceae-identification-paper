@@ -1,11 +1,10 @@
-import pathlib
-
 import click
 import datetime
 import joblib
 import logging
 import numpy as np
 import os.path
+import pathlib
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.decomposition import PCA
@@ -14,7 +13,6 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
-
 
 from dataset import load_dataset_informations, prepare_data
 from fold import run_folds
@@ -98,7 +96,7 @@ def main(classifiers, input, pca):
     if not os.path.exists(input):
         raise SystemExit('input %s not found' % input)
 
-    color, dataset, extractor, image_size, list_info_level, minimum_image, n_features, n_samples, patch =\
+    color, dataset, extractor, image_size, list_info_level, minimum_image, n_features, n_samples, patch = \
         load_dataset_informations(input)
     index, X, y = prepare_data(FOLDS, input, n_features, n_samples, patch, SEED)
 
@@ -117,20 +115,20 @@ def main(classifiers, input, pca):
     for x in list_x:
         n_features = x.shape[1]
 
-        output_folder_name = 'clf=%s+len=%s+ex=%s+ft=%s+c=%s+dt=%s+m=%s' \
-                             % (classifier_name, str(image_size[0]), extractor, str(n_features), color, dataset,
-                                minimum_image)
-        list_out_results = [str(p) for p in pathlib.Path(OUTPUT).rglob('.') if p.is_dir()]
+        for classifier in classifiers_choosed:
+            results_fold = []
+            classifier_name = classifier.__class__.__name__
 
-        if not output_folder_name in list_out_results:
-            path = os.path.join(OUTPUT, dateandtime, output_folder_name)
+            output_folder_name = 'clf=%s+len=%s+ex=%s+ft=%s+c=%s+dt=%s+m=%s' \
+                                 % (classifier_name, str(image_size[0]), extractor, str(n_features), color, dataset,
+                                    minimum_image)
+            list_out_results = [str(p) for p in pathlib.Path(OUTPUT).rglob('.') if p.is_dir()]
 
-            if not os.path.exists(path):
-                os.makedirs(path)
+            if not output_folder_name in list_out_results:
+                path = os.path.join(OUTPUT, dateandtime, output_folder_name)
 
-            for classifier in classifiers_choosed:
-                results_fold = []
-                classifier_name = classifier.__class__.__name__
+                if not os.path.exists(path):
+                    os.makedirs(path)
 
                 clf = GridSearchCV(classifier, parameters[classifier_name], cv=FOLDS,
                                    scoring=METRIC, n_jobs=N_JOBS, verbose=VERBOSE)
