@@ -112,8 +112,8 @@ def save_mean(means, path, results):
                 os.makedirs(path_metric)
 
             data = {
-                'mean_f1': mean[0]['mean_%s' % metric],
-                'std_f1': mean[0]['std_%s' % metric]
+                'mean_%s' % metric: mean[0]['mean_%s' % metric],
+                'std_%s' % metric: mean[0]['std_%s' % metric]
             }
 
             df = pd.DataFrame(data.values(), index=list(data.keys()))
@@ -319,9 +319,10 @@ def save_df_summary_dataset(color, dataset_name, df_summary, metric, minimum_ima
     if os.path.exists(filename):
         df = pd.read_csv(filename, index_col=None, header=0, sep=';', lineterminator='\n')
     else:
-        df = pd.DataFrame(index=None, columns=cols)
+        df = pd.DataFrame(index=None, columns=cols, dtype=float)
 
-    best_extractor = df_summary['mean'].idxmax()
+    # print(df_summary['mean'].astype(float).idxmax())
+    best_extractor = df_summary['mean'].astype(float).idxmax()
     best_classifier = df_summary.loc[best_extractor, 'best_classifier']
     best_mean = df_summary.loc[best_extractor, 'mean']
     best_std = df_summary.loc[best_extractor, 'std']
