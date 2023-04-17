@@ -284,8 +284,8 @@ def save_best_fold(results, path):
                     'fold': best['fold'],
                     'time': best['time'],
                     metric: best[rule][metric],
-                    rule: rule
-                }
+                    'rule': rule
+            }
 
             df = pd.DataFrame(data.values(), index=list(data.keys()))
             filename = os.path.join(path, 'best_fold_%s+%s.csv' % (rule, metric))
