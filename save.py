@@ -295,18 +295,22 @@ def save_best_fold(results, path):
 def save_df_summary_extractor(color, dataset_name, df, metric, minimum_image, path):
     cols = ['best_classifier', 'mean', 'std']
     data = []
-    index = []
+    l_index = []
     for idx in df.index:
         if isinstance(idx, str) and 'mean' in idx and not df.loc[idx, :].isnull().all():
             best_classifier = df.loc[idx, :].astype(float).idxmax()
-            index.append(idx)
+            l_index.append(idx)
             data.append({'best_classifier': best_classifier,
                          'mean': df.loc[idx, best_classifier],
                          'std': df.loc[idx.replace('mean', 'std'), best_classifier]})
 
-    df_summary = pd.DataFrame(data, index=index, columns=cols)
+    df_summary = pd.DataFrame(data, index=l_index, columns=cols)
+
+    if not os.path.exists(os.path.join(path, 'summary', metric)):
+        os.makedirs(os.path.join(path, 'summary', metric))
+
     filename = '%s+%s+summary+%s+%s.csv' % (color, dataset_name, minimum_image, metric)
-    filename = os.path.join(path, filename)
+    filename = os.path.join(path, 'summary', metric, filename)
     save_csv(df_summary, filename, header=True, index=True)
     return df_summary
 
@@ -340,14 +344,21 @@ def save_df_main(color, dataset_name, minimum_image, results, path):
         if 'topk' in metric:
             for k in [3, 5]:
                 filename = '%s+%s+results_final+%s+%s%s.csv' % (color, dataset_name, minimum_image, metric, k)
-                filename = os.path.join(path, filename)
-                df = df_main(filename, metric, results, k=k)
                 metric_topk = '%s%s' % (metric, k)
+
+                if not os.path.exists(os.path.join(path, 'results_final', metric_topk)):
+                    os.makedirs(os.path.join(path, 'results_final', metric_topk))
+
+                filename = os.path.join(path, 'results_final', metric_topk, filename)
+                df = df_main(filename, metric, results, k=k)
                 df_summary = save_df_summary_extractor(color, dataset_name, df, metric_topk, minimum_image, path)
                 save_df_summary_dataset(color, dataset_name, df_summary, metric_topk, minimum_image, path)
         else:
+            if not os.path.exists(os.path.join(path, 'results_final', metric)):
+                os.makedirs(os.path.join(path, 'results_final', metric))
+
             filename = '%s+%s+results_final+%s+%s.csv' % (color, dataset_name, minimum_image, metric)
-            filename = os.path.join(path, filename)
+            filename = os.path.join(path, 'results_final', metric, filename)
             df = df_main(filename, metric, results)
             df_summary = save_df_summary_extractor(color, dataset_name, df, metric, minimum_image, path)
             save_df_summary_dataset(color, dataset_name, df_summary, metric, minimum_image, path)
