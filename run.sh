@@ -18,7 +18,7 @@ for dataset in br_dataset_features; do
                             done
                         else
                             echo ${cnn} ${size} ${threshold} ${color} ${METRIC} ${classifier}
-                            python main.py -i ${DIR_INPUT}/${dataset}/${color}/${image_size}/${TAXON}/${threshold}/${cnn} -c ${classifier}
+                            python main.py -i ${DIR_INPUT}/${dataset}/${color}/${image_size}/${TAXON}/${threshold}/${cnn} -c ${classifier} -p
                         fi
                     done
                 done
