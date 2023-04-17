@@ -9,6 +9,19 @@ import pandas as pd
 
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S', level=logging.INFO)
 
+extractors = ['mobilenetv2', 'vgg16', 'resnet50v2', 'lbp', 'surf64', 'surf128']
+image_size = [256, 400, 512]
+classifiers_name = [
+    'KNeighborsClassifier',
+    'MLPClassifier',
+    'RandomForestClassifier',
+    'SVC',
+    'DecisionTreeClassifier',
+]
+columns = ['%s+%s' % (name, image) for name in classifiers_name for image in image_size]
+
+index = ['%s+%s+%s' % (extractor, dimension, metric) for extractor in extractors for dimension in dimensions[extractor] for metric in ['mean', 'std']]
+
 
 def mean_std(list_results, metric):
     return np.mean([result[metric] for result in list_results]), np.std([result[metric] for result in list_results])
@@ -272,21 +285,20 @@ def save_best_fold(results, path):
 
 
 def save_df_main(color, dataset_name, dimensions, minimum_image, results, path):
-    extractors = ['mobilenetv2', 'vgg16', 'resnet50v2', 'lbp', 'surf64', 'surf128']
-    image_size = [256, 400, 512]
-    classifiers_name = [
-        'KNeighborsClassifier',
-        'MLPClassifier',
-        'RandomForestClassifier',
-        'SVC',
-        'DecisionTreeClassifier',
-    ]
-    columns = ['%s+%s' % (name, image) for name in classifiers_name for image in image_size]
+    for metric in ['f1', 'topk']:
+        if 'topk' in metric:
+            for k in [3, 5]:
+                filename = os.path.join(path,
+                                        '%s+%s+results_final+%s+%s%s.csv' % (
+                                        color, dataset_name, str(minimum_image), metric, k))
+                df_main(filename, metric, results, k=k)
+        else:
+            filename = os.path.join(path,
+                                    '%s+%s+results_final+%s+%s.csv' % (color, dataset_name, str(minimum_image), metric))
+            df_main(filename, metric, results)
 
-    index = ['%s+%s+%s' % (extractor, dimension, metric) for extractor in extractors for dimension in
-             dimensions[extractor] for metric in ['mean', 'std']]
 
-    filename = os.path.join(path, '%s+%s+results_final+%s.csv' % (color, dataset_name, str(minimum_image)))
+def df_main(filename, metric, results, k=None):
     if os.path.exists(filename):
         df = pd.read_csv(filename, names=columns, index_col=0, sep=';')
     else:
@@ -298,8 +310,12 @@ def save_df_main(color, dataset_name, dimensions, minimum_image, results, path):
         my_index_std = '%s+%s+std' % (result['extractor'], result['n_features'])
 
         mean_sum = [m for m in result['means'] if m['rule'] == 'sum']
-        df[my_column][my_index_mean] = mean_sum[0]['mean_f1']
-        df[my_column][my_index_std] = mean_sum[0]['std_f1']
+        if not k:
+            df[my_column][my_index_mean] = mean_sum[0]['mean_%s' % metric]
+            df[my_column][my_index_std] = mean_sum[0]['std_%s' % metric]
+        else:
+            df[my_column][my_index_mean] = mean_sum[0]['topk']['mean'][k-1]
+            df[my_column][my_index_std] = mean_sum[0]['topk']['std'][k-1]
 
     if os.path.exists(filename):
         save_csv(df, filename, header=False, index=True)
