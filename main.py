@@ -18,7 +18,7 @@ from dataset import load_dataset_informations, prepare_data
 from fold import run_folds
 from save import save_mean, mean_metrics, save_info, save_best, save_df_main
 
-FOLDS = 5
+FOLDS = 2
 GPU_ID = 0
 METRIC = 'f1_weighted'
 N_JOBS = -1

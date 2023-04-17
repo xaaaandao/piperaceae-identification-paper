@@ -1,5 +1,6 @@
 import collections
 import itertools
+import math
 
 import joblib
 import logging
@@ -19,7 +20,14 @@ classifiers_name = [
     'DecisionTreeClassifier',
 ]
 columns = ['%s+%s' % (name, image) for name in classifiers_name for image in image_size]
-
+dimensions = {
+    'mobilenetv2': [1280, 1024, 512, 256, 128],
+    'vgg16': [512, 256, 128],
+    'resnet50v2': [2048, 1024, 512, 256, 128],
+    'lbp': [59],
+    'surf64': [257, 256, 128],
+    'surf128': [513, 512, 256, 128]
+}
 index = ['%s+%s+%s' % (extractor, dimension, metric) for extractor in extractors for dimension in dimensions[extractor] for metric in ['mean', 'std']]
 
 
@@ -302,7 +310,7 @@ def df_main(filename, metric, results, k=None):
     if os.path.exists(filename):
         df = pd.read_csv(filename, names=columns, index_col=0, sep=';')
     else:
-        df = pd.DataFrame(index=index, columns=columns)
+        df = pd.DataFrame(index=index, columns=columns, dtype=float)
 
     for result in results:
         my_column = '%s+%s' % (result['classifier_name'], result['image_size'])
@@ -311,11 +319,13 @@ def df_main(filename, metric, results, k=None):
 
         mean_sum = [m for m in result['means'] if m['rule'] == 'sum']
         if not k:
-            df[my_column][my_index_mean] = mean_sum[0]['mean_%s' % metric]
-            df[my_column][my_index_std] = mean_sum[0]['std_%s' % metric]
+            df[my_column][my_index_mean] = float(mean_sum[0]['mean_%s' % metric])
+            df[my_column][my_index_std] = float(mean_sum[0]['std_%s' % metric])
         else:
-            df[my_column][my_index_mean] = mean_sum[0]['topk']['mean'][k-1]
-            df[my_column][my_index_std] = mean_sum[0]['topk']['std'][k-1]
+            df[my_column][my_index_mean] = float(mean_sum[0]['topk']['mean'][k-1])
+            df[my_column][my_index_std] = float(mean_sum[0]['topk']['std'][k-1])
+
+        df.loc[my_index_mean, 'best_classifier'] = df.loc[my_index_mean, :].idxmax()
 
     if os.path.exists(filename):
         save_csv(df, filename, header=False, index=True)
