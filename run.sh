@@ -4,7 +4,7 @@ METRIC=f1_weighted
 DIR_INPUT=/home/xandao/Imagens
 # DIR_INPUT=/media/kingston500/mestrado/dataset
 
-for dataset in pr_dataset_features; do
+for dataset in br_dataset_features; do
     for image_size in 512; do
         for cnn in vgg16; do
             for color in RGB; do
