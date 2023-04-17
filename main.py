@@ -18,7 +18,7 @@ from dataset import load_dataset_informations, prepare_data
 from fold import run_folds
 from save import save_mean, mean_metrics, save_info, save_best, save_df_main
 
-FOLDS = 2
+FOLDS = 5
 GPU_ID = 0
 METRIC = 'f1_weighted'
 N_JOBS = -1
@@ -178,7 +178,7 @@ def main(classifiers, input, pca):
                     'n_features': str(n_features),
                     'means': means
                 })
-            save_df_main(color, dataset, dimensions, minimum_image, list_results_classifiers, OUTPUT)
+            save_df_main(color, dataset, minimum_image, list_results_classifiers, OUTPUT)
 
 
 if __name__ == '__main__':

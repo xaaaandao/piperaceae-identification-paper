@@ -137,7 +137,7 @@ def save_best_mean(means, path):
 
 def save_csv(df, filename, header=True, index=True):
     logging.info('[CSV] %s created' % filename)
-    df.to_csv(filename, sep=';', index=index, header=header, lineterminator='\n', doublequote=True)
+    df.to_csv(filename, sep=';', index=index, header=header, lineterminator='\n', doublequote=True, na_rep='')
 
 
 def save_model_best_classifier(classifier, path):
@@ -292,18 +292,64 @@ def save_best_fold(results, path):
             save_csv(df, filename, header=False, index=True)
 
 
-def save_df_main(color, dataset_name, dimensions, minimum_image, results, path):
-    for metric in ['f1', 'topk']:
+def save_df_summary_extractor(color, dataset_name, df, metric, minimum_image, path):
+    cols = ['best_classifier', 'mean', 'std']
+    data = []
+    index = []
+    for idx in df.index:
+        if isinstance(idx, str) and 'mean' in idx and not df.loc[idx, :].isnull().all():
+            best_classifier = df.loc[idx, :].astype(float).idxmax()
+            index.append(idx)
+            data.append({'best_classifier': best_classifier,
+                         'mean': df.loc[idx, best_classifier],
+                         'std': df.loc[idx.replace('mean', 'std'), best_classifier]})
+
+    df_summary = pd.DataFrame(data, index=index, columns=cols)
+    filename = '%s+%s+summary+%s+%s.csv' % (color, dataset_name, minimum_image, metric)
+    filename = os.path.join(path, filename)
+    save_csv(df_summary, filename, header=True, index=True)
+    return df_summary
+
+
+def save_df_summary_dataset(color, dataset_name, df_summary, metric, minimum_image, path):
+    cols = ['color', 'minimum_image', 'best_extractor', 'best_classifier', 'mean', 'std', 'metric']
+    filename = '%s+%s.csv' % (color, dataset_name)
+    filename = os.path.join(path, filename)
+
+    if os.path.exists(filename):
+        df = pd.read_csv(filename, index_col=None, header=0, sep=';', lineterminator='\n')
+    else:
+        df = pd.DataFrame(index=None, columns=cols)
+
+    best_extractor = df_summary['mean'].idxmax()
+    best_classifier = df_summary.loc[best_extractor, 'best_classifier']
+    best_mean = df_summary.loc[best_extractor, 'mean']
+    best_std = df_summary.loc[best_extractor, 'std']
+    idx = df.loc[(df['color'] == color) & (df['metric'] == metric) & (df['minimum_image'] == minimum_image)].index.tolist()
+    if len(idx) > 0:
+        df.loc[idx[0]] = [color, minimum_image, best_extractor, best_classifier, best_mean, best_std, metric]
+    else:
+        df.loc[len(df)] = [color, minimum_image, best_extractor, best_classifier, best_mean, best_std, metric]
+
+    save_csv(df, filename, index=False, header=True)
+
+
+def save_df_main(color, dataset_name, minimum_image, results, path):
+    for metric in ['f1', 'topk', 'accuracy']:
         if 'topk' in metric:
             for k in [3, 5]:
-                filename = os.path.join(path,
-                                        '%s+%s+results_final+%s+%s%s.csv' % (
-                                        color, dataset_name, str(minimum_image), metric, k))
-                df_main(filename, metric, results, k=k)
+                filename = '%s+%s+results_final+%s+%s%s.csv' % (color, dataset_name, minimum_image, metric, k)
+                filename = os.path.join(path, filename)
+                df = df_main(filename, metric, results, k=k)
+                metric_topk = '%s%s' % (metric, k)
+                df_summary = save_df_summary_extractor(color, dataset_name, df, metric_topk, minimum_image, path)
+                save_df_summary_dataset(color, dataset_name, df_summary, metric_topk, minimum_image, path)
         else:
-            filename = os.path.join(path,
-                                    '%s+%s+results_final+%s+%s.csv' % (color, dataset_name, str(minimum_image), metric))
-            df_main(filename, metric, results)
+            filename = '%s+%s+results_final+%s+%s.csv' % (color, dataset_name, minimum_image, metric)
+            filename = os.path.join(path, filename)
+            df = df_main(filename, metric, results)
+            df_summary = save_df_summary_extractor(color, dataset_name, df, metric, minimum_image, path)
+            save_df_summary_dataset(color, dataset_name, df_summary, metric, minimum_image, path)
 
 
 def df_main(filename, metric, results, k=None):
@@ -319,18 +365,17 @@ def df_main(filename, metric, results, k=None):
 
         mean_sum = [m for m in result['means'] if m['rule'] == 'sum']
         if not k:
-            df[my_column][my_index_mean] = float(mean_sum[0]['mean_%s' % metric])
-            df[my_column][my_index_std] = float(mean_sum[0]['std_%s' % metric])
+            df[my_column][my_index_mean] = mean_sum[0]['mean_%s' % metric]
+            df[my_column][my_index_std] = mean_sum[0]['std_%s' % metric]
         else:
-            df[my_column][my_index_mean] = float(mean_sum[0]['topk']['mean'][k-1])
-            df[my_column][my_index_std] = float(mean_sum[0]['topk']['std'][k-1])
-
-        df.loc[my_index_mean, 'best_classifier'] = df.loc[my_index_mean, :].idxmax()
+            df[my_column][my_index_mean] = mean_sum[0]['topk']['mean'][k-1]
+            df[my_column][my_index_std] = mean_sum[0]['topk']['std'][k-1]
 
     if os.path.exists(filename):
         save_csv(df, filename, header=False, index=True)
     else:
         save_csv(df, filename, header=True, index=True)
+    return df
 
 
 def save_best(clf, means, path, results_fold):
