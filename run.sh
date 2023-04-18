@@ -5,12 +5,12 @@ DIR_INPUT=/home/xandao/Imagens
 # DIR_INPUT=/media/kingston500/mestrado/dataset
 
 for dataset in br_dataset_features; do
-    for image_size in 512; do
+    for image_size in 512 400 256; do
         for cnn in vgg16; do
             for color in RGB GRAYSCALE; do
                 for threshold in 20 10 5; do
-#                    for classifier in DecisionTreeClassifier KNeighborsClassifier SVC; do
-                    for classifier in MLPClassifier; do
+                    for classifier in DecisionTreeClassifier KNeighborsClassifier; do
+#                    for classifier in MLPClassifier; do
                         python setup.py build_ext --inplace
                         if [ "regions_dataset_features" = "$dataset" ]; then
                             for region in Norte Nordeste Centro-Oeste Sul Sudeste; do
@@ -19,7 +19,7 @@ for dataset in br_dataset_features; do
                             done
                         else
                             echo ${cnn} ${size} ${threshold} ${color} ${METRIC} ${classifier}
-                            python main.py -i ${DIR_INPUT}/${dataset}/${color}/${image_size}/${TAXON}/${threshold}/${cnn} -c ${classifier}
+                            python main.py -i ${DIR_INPUT}/${dataset}/${color}/${image_size}/${TAXON}/${threshold}/${cnn} -c ${classifier} -p
                         fi
                     done
                 done
