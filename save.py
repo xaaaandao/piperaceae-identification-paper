@@ -35,20 +35,23 @@ def mean_std(list_results, metric):
     return np.mean([result[metric] for result in list_results]), np.std([result[metric] for result in list_results])
 
 
-def mean_std_topk(results, n_labels):
+def mean_std_topk(results, n_labels, total_test_no_patch):
     k = []
     mean = []
     std = []
+    percent = []
     for kk in range(3, n_labels):
         k.append(kk)
-        mean.append(
-            np.mean([topk['top_k_accuracy'] for result in results for topk in result['list_topk'] if topk['k'] == kk]))
+        mean.append(np.mean([topk['top_k_accuracy'] for result in results for topk in result['list_topk'] if topk['k'] == kk]))
         std.append(
             np.std([topk['top_k_accuracy'] for result in results for topk in result['list_topk'] if topk['k'] == kk]))
+        percent.append(
+            np.mean([(topk['top_k_accuracy'] * 100) / total_test_no_patch for result in results for topk in result['list_topk'] if topk['k'] == kk]))
     return {
         'k': k,
         'mean': mean,
-        'std': std
+        'std': std,
+        'percent': percent
     }
 
 
@@ -56,9 +59,10 @@ def mean_metrics(list_results, n_labels):
     means = []
     for rule in ['max', 'mult', 'sum']:
         results = [result[rule] for result in list_results]
+        total_test_no_patch = list_results[0]['total_test_no_patch']
         mean_f1, std_f1 = mean_std(results, 'f1')
         mean_accuracy, std_accuracy = mean_std(results, 'accuracy')
-        topk = mean_std_topk(results, n_labels)
+        topk = mean_std_topk(results, n_labels, total_test_no_patch)
         means.append({'rule': rule,
                       'mean_f1': mean_f1,
                       'std_f1': std_f1,
@@ -87,7 +91,8 @@ def save_mean_topk(topk, path, rule):
     data = {
         'k': topk['k'],
         'mean': topk['mean'],
-        'std': topk['std']
+        'std': topk['std'],
+        'percent': topk['percent']
     }
     filename = os.path.join(path_topk, 'mean_topk+%s.csv' % rule)
     df = pd.DataFrame(data)
@@ -200,28 +205,29 @@ def save_confusion_matrix(count_train, count_test, list_info_level, n_patch, pat
                                                      rule, type_confusion_matrix)
 
 
-def save_topk(list_topk, path, rule):
+def save_topk(list_topk, path, rule, total_test_no_patch):
     path_topk = os.path.join(path, 'topk')
 
     if not os.path.exists(path_topk):
         os.makedirs(path_topk)
 
-    save_topk_csv(list_topk, path_topk, rule)
+    save_topk_csv(list_topk, path_topk, rule, total_test_no_patch)
 
 
 def save_confusion_matrix_and_normalized(confusion_matrix, count, count_train, count_test, levels, list_info_level,
                                          n_patch, path_confusion_matrix, rule, type_confusion_matrix):
     columns = list(list_info_level['levels'].values())
     index = ['%s (%s-%s-%s)' % (i[0], i[1], int(i[2][1] / n_patch), int(i[3][1] / n_patch)) for i in
-             zip(levels.values(), count.values(), count_train, count_test)]
+             zip(levels.values(), count.values(), sorted(count_train.items()), sorted(count_test.items()))]
     filename = '%s+%s.csv' % (type_confusion_matrix, rule)
     save_confusion_matrix_csv(confusion_matrix, columns, filename, index, path_confusion_matrix)
 
 
-def save_topk_csv(list_topk, path, rule):
+def save_topk_csv(list_topk, path, rule, total_test_no_patch):
     data = {
         'k': [topk['k'] for topk in list_topk],
-        'top': [topk['top_k_accuracy'] for topk in list_topk]
+        'top': [topk['top_k_accuracy'] for topk in list_topk],
+        'percent': [topk['top_k_accuracy']/total_test_no_patch for topk in list_topk]
     }
     df = pd.DataFrame(data, index=None)
     filename = os.path.join(path, 'topk+%s.csv' % rule)
@@ -239,22 +245,26 @@ def save_classification_report(classification_report, path, rule):
     save_csv(df, filename)
 
 
-def save_fold(count_train, count_test, fold, path, results):
+def save_fold(count_train, count_test, path, results):
     for rule in ['max', 'mult', 'sum']:
         data = {
-            'fold': fold,
+            'fold': results['fold'],
             'time': results['time'],
             'f1': results[rule]['f1'],
             'acccuracy': results[rule]['accuracy'],
             'count_train': str(count_train),
-            'count_test': str(count_test)
+            'count_test': str(count_test),
+            'total_train': results['total_train'],
+            'total_test': results['total_test'],
+            'total_train_no_patch': results['total_train_no_patch'],
+            'total_test_no_patch': results['total_test_no_patch']
         }
 
         df = pd.DataFrame(data.values(), index=list(data.keys()))
         filename = os.path.join(path, 'fold+%s.csv' % rule)
         save_csv(df, filename, header=False, index=True)
 
-        save_topk(results[rule]['list_topk'], path, rule)
+        save_topk(results[rule]['list_topk'], path, rule, results['total_test_no_patch'])
         save_classification_report(results[rule]['classification_report'], path, rule)
 
 
@@ -325,7 +335,6 @@ def save_df_summary_dataset(color, dataset_name, df_summary, metric, minimum_ima
     else:
         df = pd.DataFrame(index=None, columns=cols, dtype=float)
 
-    # print(df_summary['mean'].astype(float).idxmax())
     best_extractor = df_summary['mean'].astype(float).idxmax()
     best_classifier = df_summary.loc[best_extractor, 'best_classifier']
     best_mean = df_summary.loc[best_extractor, 'mean']
@@ -380,7 +389,7 @@ def df_main(filename, metric, results, k=None):
             df[my_column][my_index_mean] = mean_sum[0]['mean_%s' % metric]
             df[my_column][my_index_std] = mean_sum[0]['std_%s' % metric]
         else:
-            df[my_column][my_index_mean] = mean_sum[0]['topk']['mean'][k-1]
+            df[my_column][my_index_mean] = mean_sum[0]['topk']['percent'][k-1]
             df[my_column][my_index_std] = mean_sum[0]['topk']['std'][k-1]
 
     if os.path.exists(filename):

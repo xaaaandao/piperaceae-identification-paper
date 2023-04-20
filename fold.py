@@ -18,10 +18,10 @@ def run_folds(classifier, classifier_name, fold, index_train, index_test, list_i
     x_train, y_train = split_dataset(index_train, n_features, patch, x, y)
     x_test, y_test = split_dataset(index_test, n_features, patch, x, y)
 
-    count_train = sorted(collections.Counter(y_train).items())
-    count_test = sorted(collections.Counter(y_test).items())
-    logging.info('[INFO] TRAIN: %s ' % str(count_train))
-    logging.info('[INFO] TEST: %s ' % str(count_test))
+    count_train = collections.Counter(y_train)
+    count_test = collections.Counter(y_test)
+    logging.info('[INFO] TRAIN: %s ' % str(sorted(count_train.items())))
+    logging.info('[INFO] TEST: %s ' % str(sorted(count_test.items())))
 
     logging.info('[INFO] x_train.shape: %s y_train.shape: %s' % (str(x_train.shape), str(y_train.shape)))
     logging.info('[INFO] x_test.shape: %s y_test.shape: %s' % (str(x_test.shape), str(y_test.shape)))
@@ -52,7 +52,11 @@ def run_folds(classifier, classifier_name, fold, index_train, index_test, list_i
         'max': evaluate(list_info_level, n_labels, y_pred_max_rule, y_score_max, y_true),
         'mult': evaluate(list_info_level, n_labels, y_pred_mult_rule, y_score_mult, y_true),
         'sum': evaluate(list_info_level, n_labels, y_pred_sum_rule, y_score_sum, y_true),
-        'time': end_timeit
+        'time': end_timeit,
+        'total_train': np.sum([v for v in count_train.values()]),
+        'total_test': np.sum([v for v in count_test.values()]),
+        'total_train_no_patch': int(np.sum([v for v in count_train.values()])/patch),
+        'total_test_no_patch': int(np.sum([v for v in count_test.values()])/patch)
     }
 
     path_fold = os.path.join(path, str(fold))
@@ -60,7 +64,7 @@ def run_folds(classifier, classifier_name, fold, index_train, index_test, list_i
     if not os.path.exists(path_fold):
         os.makedirs(path_fold)
 
-    save_fold(count_train, count_test, fold, path_fold, results)
+    save_fold(count_train, count_test, path_fold, results)
     save_confusion_matrix(count_train, count_test, list_info_level, patch, path_fold, results)
     return results, n_labels
 
