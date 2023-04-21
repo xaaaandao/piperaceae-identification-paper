@@ -117,3 +117,10 @@ def split_folds(folds, n_features, n_samples, patch, seed, y):
     kf = StratifiedKFold(n_splits=folds, shuffle=True, random_state=seed)
     return list(kf.split(x, y))
 
+
+def has_region(input):
+    regions = ['Norte', 'Nordeste', 'Centro-Oeste', 'Sul', 'Sudeste']
+    for region in regions:
+        if region.lower() in input.lower():
+            return region
+    return None

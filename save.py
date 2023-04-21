@@ -348,7 +348,11 @@ def save_df_summary_dataset(color, dataset_name, df_summary, metric, minimum_ima
     save_csv(df, filename, index=False, header=True)
 
 
-def save_df_main(color, dataset_name, minimum_image, results, path):
+def save_df_main(color, dataset_name, minimum_image, results, path, region=None):
+    if region and not os.path.exists(os.path.join(path, region)):
+        path = os.path.join(path, region)
+        os.makedirs(path)
+
     for metric in ['f1', 'topk', 'accuracy']:
         if 'topk' in metric:
             for k in [3, 5]:

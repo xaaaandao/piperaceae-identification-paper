@@ -14,7 +14,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 
-from dataset import load_dataset_informations, prepare_data
+from dataset import load_dataset_informations, prepare_data, has_region
 from fold import run_folds
 from save import save_mean, mean_metrics, save_info, save_best, save_df_main
 
@@ -178,7 +178,8 @@ def main(classifiers, input, pca):
                     'n_features': str(n_features),
                     'means': means
                 })
-                save_df_main(color, dataset, minimum_image, list_results_classifiers, OUTPUT)
+                region = has_region(input)
+                save_df_main(color, dataset, minimum_image, list_results_classifiers, OUTPUT, region=region)
 
 
 if __name__ == '__main__':
