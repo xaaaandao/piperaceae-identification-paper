@@ -325,9 +325,13 @@ def save_df_summary_extractor(color, dataset_name, df, metric, minimum_image, pa
     return df_summary
 
 
-def save_df_summary_dataset(color, dataset_name, df_summary, metric, minimum_image, path):
+def save_df_summary_dataset(color, dataset_name, df_summary, metric, minimum_image, path, region):
     cols = ['color', 'minimum_image', 'best_extractor', 'best_classifier', 'mean', 'std', 'metric']
-    filename = '%s+%s.csv' % (color, dataset_name)
+    if region:
+        filename = '%s+%s+%s.csv' % (color, dataset_name, region)
+    else:
+        filename = '%s+%s.csv' % (color, dataset_name)
+
     filename = os.path.join(path, filename)
 
     if os.path.exists(filename):
@@ -365,7 +369,7 @@ def save_df_main(color, dataset_name, minimum_image, results, path, region=None)
                 filename = os.path.join(path, 'results_final', metric_topk, filename)
                 df = df_main(filename, metric, results, k=k)
                 df_summary = save_df_summary_extractor(color, dataset_name, df, metric_topk, minimum_image, path)
-                save_df_summary_dataset(color, dataset_name, df_summary, metric_topk, minimum_image, path)
+                save_df_summary_dataset(color, dataset_name, df_summary, metric_topk, minimum_image, path, region)
         else:
             if not os.path.exists(os.path.join(path, 'results_final', metric)):
                 os.makedirs(os.path.join(path, 'results_final', metric))
@@ -374,7 +378,7 @@ def save_df_main(color, dataset_name, minimum_image, results, path, region=None)
             filename = os.path.join(path, 'results_final', metric, filename)
             df = df_main(filename, metric, results)
             df_summary = save_df_summary_extractor(color, dataset_name, df, metric, minimum_image, path)
-            save_df_summary_dataset(color, dataset_name, df_summary, metric, minimum_image, path)
+            save_df_summary_dataset(color, dataset_name, df_summary, metric, minimum_image, path, region)
 
 
 def df_main(filename, metric, results, k=None):

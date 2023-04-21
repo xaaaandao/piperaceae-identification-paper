@@ -110,6 +110,10 @@ def main(classifiers, input, pca):
     else:
         list_x = [X]
 
+    region = has_region(input)
+    if region:
+        logging.info('[INFO] exists a region %s' % region)
+
     logging.info('[INFO] result of pca %d' % len(list_x))
     list_results_classifiers = []
     for x in list_x:
@@ -119,9 +123,14 @@ def main(classifiers, input, pca):
             results_fold = []
             classifier_name = classifier.__class__.__name__
 
-            output_folder_name = 'clf=%s+len=%s+ex=%s+ft=%s+c=%s+dt=%s+m=%s' \
+            if region:
+                output_folder_name = 'clf=%s+len=%s+ex=%s+ft=%s+c=%s+dt=%s+r=%s+m=%s' \
                                  % (classifier_name, str(image_size[0]), extractor, str(n_features), color, dataset,
-                                    minimum_image)
+                                    region, minimum_image)
+            else:
+                output_folder_name = 'clf=%s+len=%s+ex=%s+ft=%s+c=%s+dt=%s+m=%s' \
+                                     % (classifier_name, str(image_size[0]), extractor, str(n_features), color, dataset,
+                                        minimum_image)
 
             list_out_results = [str(p.name) for p in pathlib.Path(OUTPUT).rglob('*') if p.is_dir()]
             logging.info('encounter %s results' % len(list_out_results))
@@ -178,7 +187,6 @@ def main(classifiers, input, pca):
                     'n_features': str(n_features),
                     'means': means
                 })
-                region = has_region(input)
                 save_df_main(color, dataset, minimum_image, list_results_classifiers, OUTPUT, region=region)
 
 
