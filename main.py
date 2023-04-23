@@ -57,9 +57,10 @@ parameters = {
         'momentum': [0.9, 0.4, 0.1]
     },
     'RandomForestClassifier': {
-        'n_estimators': [250, 500, 750, 1000],
+        'n_estimators': [200, 400, 600, 800, 1000],
         'max_features': ['sqrt', 'log2'],
-        'criterion': ['gini', 'entropy']
+        'criterion': ['gini', 'entropy'],
+        'max_depth': [10, 100]
     },
     'SVC': {
         'kernel': ['linear', 'poly', 'rbf', 'sigmoid']
@@ -72,7 +73,7 @@ def selected_classifier(classifiers_selected):
         DecisionTreeClassifier(random_state=SEED),
         KNeighborsClassifier(n_jobs=N_JOBS),
         MLPClassifier(random_state=SEED),
-        RandomForestClassifier(random_state=SEED, n_jobs=N_JOBS, verbose=VERBOSE, max_depth=10),
+        RandomForestClassifier(random_state=SEED, n_jobs=N_JOBS, verbose=VERBOSE),
         SVC(random_state=SEED, verbose=VERBOSE, cache_size=2000, C=0.01)
     ]
     return [c for cs in classifiers_selected for c in classifiers if cs == c.__class__.__name__]
