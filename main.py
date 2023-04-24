@@ -57,7 +57,7 @@ parameters = {
         'momentum': [0.9, 0.4, 0.1]
     },
     'RandomForestClassifier': {
-        'n_estimators': [200, 400, 600, 800, 1000],
+        'n_estimators': [200, 400, 600, 800],
         'max_features': ['sqrt', 'log2'],
         'criterion': ['gini', 'entropy'],
         'max_depth': [10, 100]
