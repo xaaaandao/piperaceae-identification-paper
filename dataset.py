@@ -14,8 +14,8 @@ def load_dataset_informations(input):
     p = pathlib.Path(input)
     if p.is_file() and os.path.exists(str(p).replace(str(p.name), 'info.csv')):
         file_with_info = str(p).replace(str(p.name), 'info.csv')
-        df = pd.read_csv(file_with_info, sep=',', header=0)
-        query = 'extractor==\'%s\'' %  str(p.stem)
+        df = pd.read_csv(file_with_info, sep=';', header=0)
+        query = 'extractor==\'%s\'' % str(p.stem)
         index = df.query(query).index[0]
         color = df.query(query)['color'][index]
         dataset = df.query(query)['dataset'][index]
