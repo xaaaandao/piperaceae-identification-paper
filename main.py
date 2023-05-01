@@ -96,9 +96,11 @@ def main(classifiers, input, pca):
     if not os.path.exists(input):
         raise SystemExit('input %s not found' % input)
 
-    color, dataset, extractor, image_size, list_info_level, minimum_image, n_features, n_samples, patch = \
+    color, contrast, dataset, extractor, image_size, list_info_level, minimum_image, n_features, n_samples, patch = \
         load_dataset_informations(input)
     index, X, y = prepare_data(FOLDS, input, n_features, n_samples, patch, SEED)
+
+    output_base = os.path.join(OUTPUT, '%s_CONTRAST_%s' % (dataset, contrast))
 
     if np.isnan(X).any():
         raise SystemExit('X contains nan')
@@ -132,13 +134,13 @@ def main(classifiers, input, pca):
                                      % (classifier_name, str(image_size[0]), extractor, str(n_features), color, dataset,
                                         minimum_image)
 
-            list_out_results = [str(p.name) for p in pathlib.Path(OUTPUT).rglob('*') if p.is_dir()]
+            list_out_results = [str(p.name) for p in pathlib.Path(output_base).rglob('*') if p.is_dir()]
             logging.info('encounter %s results' % len(list_out_results))
 
             if output_folder_name in list_out_results:
                 logging.info('output_folder_name %s exists' % output_folder_name)
             else:
-                path = os.path.join(OUTPUT, dateandtime, output_folder_name)
+                path = os.path.join(output_base, dateandtime, output_folder_name)
 
                 if not os.path.exists(path):
                     os.makedirs(path)
@@ -187,7 +189,7 @@ def main(classifiers, input, pca):
                     'n_features': str(n_features),
                     'means': means
                 })
-                save_df_main(color, dataset, minimum_image, list_results_classifiers, OUTPUT, region=region)
+                save_df_main(color, dataset, minimum_image, list_results_classifiers, output_base, region=region)
 
 
 if __name__ == '__main__':

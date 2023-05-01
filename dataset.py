@@ -18,6 +18,7 @@ def load_dataset_informations(input):
         query = 'extractor==\'%s\'' % str(p.stem)
         index = df.query(query).index[0]
         color = df.query(query)['color'][index]
+        contrast = df.query(query)['contrast'][index]
         dataset = df.query(query)['dataset'][index]
         extractor = df.query(query)['extractor'][index]
         height = int(df.query(query)['height'][index])
@@ -29,7 +30,7 @@ def load_dataset_informations(input):
         patch = 1
         width = int(df.query(query)['width'][index])
     else:
-        color, dataset, extractor, height, info_dataset, input_path, minimum_image, n_features, n_samples, patch, width = information_about_dataset(input)
+        color, contrast, dataset, extractor, height, info_dataset, input_path, minimum_image, n_features, n_samples, patch, width = information_about_dataset(input)
 
     input_path = input_path.replace('_features', '')
     # input_path = input_path.replace('/home/xandao/Imagens', '/media/kingston500/mestrado/dataset') # RTX 3080
@@ -39,7 +40,7 @@ def load_dataset_informations(input):
 
     list_info_level = information_about_level(info_dataset, input, input_path)
 
-    return color, dataset, extractor, (height, width), list_info_level, minimum_image, n_features, n_samples, patch
+    return color, contrast, dataset, extractor, (height, width), list_info_level, minimum_image, n_features, n_samples, patch
 
 
 def information_about_dataset(input):
@@ -50,6 +51,7 @@ def information_about_dataset(input):
     df = pd.read_csv(info_dataset[0], index_col=0, header=None, sep=';')
     extractor = df.loc['cnn'][1]
     color = df.loc['color'][1]
+    contrast = df.loc['contrast'][1]
     dataset = df.loc['dataset'][1]
     input_path = df.loc['input_path'][1]
     minimum_image = int(df.loc['minimum_image'][1])
@@ -59,7 +61,7 @@ def information_about_dataset(input):
     width = int(df.loc['width'][1])
     patch = int(df.loc['patch'][1])
     logging.info('[INFO] n_samples: %s n_features: %s patch: %s' % (n_samples, n_features, patch))
-    return color, dataset, extractor, height, info_dataset, input_path, minimum_image, n_features, n_samples, patch, width
+    return color, contrast, dataset, extractor, height, info_dataset, input_path, minimum_image, n_features, n_samples, patch, width
 
 
 def information_about_level(info_dataset, input, input_path):

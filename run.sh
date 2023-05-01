@@ -6,8 +6,8 @@ DIR_INPUT=/home/xandao/Imagens
 
 for dataset in pr_dataset_features; do
     for image_size in 512; do
-        for cnn in vgg16; do
-            for color in RGB; do
+        for cnn in lbp.txt surf64.txt; do
+            for color in GRAYSCALE; do
                 for threshold in 20 10 5; do
                     INPUT=${DIR_INPUT}/${dataset}/${color}/${TAXON}/${image_size}
 #                    for classifier in DecisionTreeClassifier; do
