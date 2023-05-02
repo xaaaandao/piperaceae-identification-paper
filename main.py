@@ -23,7 +23,7 @@ GPU_ID = 0
 METRIC = 'f1_weighted'
 N_JOBS = -1
 SEED = 1234
-OUTPUT = '/home/xandao/results'
+OUTPUT = '/home/none/results'
 VERBOSE = 42
 
 datefmt = '%d-%m-%Y+%H-%M-%S'
@@ -83,7 +83,7 @@ def selected_classifier(classifiers_selected):
     ['DecisionTreeClassifier', 'RandomForestClassifier', 'KNeighborsClassifier', 'MLPClassifier', 'SVC']),
               default=['DecisionTreeClassifier'])
 @click.option('-i', '--input',
-              default='/home/xandao/Imagens/pr_dataset_features/RGB/256/specific_epithet_trusted/20/vgg16')
+              default='/home/none/Imagens/pr_dataset_features/RGB/256/specific_epithet_trusted/20/vgg16')
 @click.option('-p', '--pca', is_flag=True, default=False)
 def main(classifiers, input, pca):
     classifiers_choosed = selected_classifier(classifiers)

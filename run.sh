@@ -1,7 +1,7 @@
 #!/bin/bash
 TAXON=specific_epithet_trusted
 METRIC=f1_weighted
-DIR_INPUT=/home/xandao/Imagens
+DIR_INPUT=/home/none/Imagens
 # DIR_INPUT=/media/kingston500/mestrado/dataset
 
 for dataset in pr_dataset_features; do

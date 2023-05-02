@@ -18,7 +18,7 @@ setup(
     version='1.0',
     url='https://github.com/xaaaandao/piperaceae-identification-paper',
     license='MIT',
-    author='xandao',
+    author='none',
     author_email='alexandre.ykz@gmail.com',
     description='',
     ext_modules=cythonize(ext_modules),
