@@ -15,7 +15,10 @@ def load_dataset_informations(input, region=None):
     if p.is_file() and os.path.exists(str(p).replace(str(p.name), 'info.csv')):
         file_with_info = str(p).replace(str(p.name), 'info.csv')
         df = pd.read_csv(file_with_info, sep=';', header=0)
-        query = 'extractor==\'%s\'' % str(p.stem)
+        if region:
+            query = 'extractor==\'%s\' & region==\'%s\'' % (str(p.stem), region)
+        else:
+            query = 'extractor==\'%s\'' % str(p.stem)
         index = df.query(query).index[0]
         color = df.query(query)['color'][index]
         contrast = df.query(query)['contrast'][index]
@@ -30,7 +33,7 @@ def load_dataset_informations(input, region=None):
         patch = 1
         width = int(df.query(query)['width'][index])
     else:
-        color, contrast, dataset, extractor, height, info_dataset, input_path, minimum_image, n_features, n_samples, patch, width = information_about_dataset(input)
+        color, contrast, dataset, extractor, height, info_dataset, input_path, minimum_image, n_features, n_samples, patch, width = information_about_dataset(input, region)
 
     input_path = input_path.replace('_features', '')
     # input_path = input_path.replace('/home/xandao/Imagens', '/media/kingston500/mestrado/dataset') # RTX 3080
@@ -38,13 +41,16 @@ def load_dataset_informations(input, region=None):
     if not os.path.exists(input_path):
         raise SystemExit('input path %s not exists' % input_path)
 
-    list_info_level = information_about_level(info_dataset, input, input_path, region=region)
+    list_info_level = information_about_level(info_dataset, input, input_path)
 
     return color, contrast, dataset, extractor, (height, width), list_info_level, minimum_image, n_features, n_samples, patch
 
 
-def information_about_dataset(input):
-    info_dataset = [f for f in pathlib.Path(input).rglob('info.csv') if f.is_file()]
+def information_about_dataset(input, region=None):
+    if region:
+        info_dataset = [f for f in pathlib.Path(input).rglob('info.csv') if f.is_file() and region in str(f)]
+    else:
+        info_dataset = [f for f in pathlib.Path(input).rglob('info.csv') if f.is_file()]
     if len(info_dataset) == 0:
         raise SystemExit('info.csv not found in %s' % input)
     logging.info('[INFO] file with info about dataset: %s' % str(info_dataset[0]))
@@ -64,11 +70,8 @@ def information_about_dataset(input):
     return color, contrast, dataset, extractor, height, info_dataset, input_path, minimum_image, n_features, n_samples, patch, width
 
 
-def information_about_level(info_dataset, input, input_path, region=None):
-    if region:
-        info_level = [f for f in pathlib.Path(input_path).rglob('info_levels.csv') if f.is_file() and region in str(f)]
-    else:
-        info_level = [f for f in pathlib.Path(input_path).rglob('info_levels.csv') if f.is_file()]
+def information_about_level(info_dataset, input, input_path):
+    info_level = [f for f in pathlib.Path(input_path).rglob('info_levels.csv') if f.is_file()]
     if len(info_dataset) == 0:
         raise SystemExit('info_levels.csv not found in %s' % input)
     logging.info('[INFO] reading file %s' % str(info_level[0]))
