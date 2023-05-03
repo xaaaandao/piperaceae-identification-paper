@@ -96,8 +96,12 @@ def main(classifiers, input, pca):
     if not os.path.exists(input):
         raise SystemExit('input %s not found' % input)
 
+    region = has_region(input)
+    if region:
+        logging.info('[INFO] exists a region %s' % region)
+
     color, contrast, dataset, extractor, image_size, list_info_level, minimum_image, n_features, n_samples, patch = \
-        load_dataset_informations(input)
+        load_dataset_informations(input, region=region)
     index, X, y = prepare_data(FOLDS, input, n_features, n_samples, patch, SEED)
 
     output_base = os.path.join(OUTPUT, '%s_CONTRAST_%s' % (dataset, contrast))
@@ -111,10 +115,6 @@ def main(classifiers, input, pca):
         list_x.append(X)
     else:
         list_x = [X]
-
-    region = has_region(input)
-    if region:
-        logging.info('[INFO] exists a region %s' % region)
 
     logging.info('[INFO] result of pca %d' % len(list_x))
     list_results_classifiers = []

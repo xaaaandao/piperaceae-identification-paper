@@ -10,7 +10,7 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler
 
 
-def load_dataset_informations(input):
+def load_dataset_informations(input, region=None):
     p = pathlib.Path(input)
     if p.is_file() and os.path.exists(str(p).replace(str(p.name), 'info.csv')):
         file_with_info = str(p).replace(str(p.name), 'info.csv')
@@ -38,7 +38,7 @@ def load_dataset_informations(input):
     if not os.path.exists(input_path):
         raise SystemExit('input path %s not exists' % input_path)
 
-    list_info_level = information_about_level(info_dataset, input, input_path)
+    list_info_level = information_about_level(info_dataset, input, input_path, region=region)
 
     return color, contrast, dataset, extractor, (height, width), list_info_level, minimum_image, n_features, n_samples, patch
 
@@ -64,8 +64,11 @@ def information_about_dataset(input):
     return color, contrast, dataset, extractor, height, info_dataset, input_path, minimum_image, n_features, n_samples, patch, width
 
 
-def information_about_level(info_dataset, input, input_path):
-    info_level = [f for f in pathlib.Path(input_path).rglob('info_levels.csv') if f.is_file()]
+def information_about_level(info_dataset, input, input_path, region=None):
+    if region:
+        info_level = [f for f in pathlib.Path(input_path).rglob('info_levels.csv') if f.is_file() and region in str(f)]
+    else:
+        info_level = [f for f in pathlib.Path(input_path).rglob('info_levels.csv') if f.is_file()]
     if len(info_dataset) == 0:
         raise SystemExit('info_levels.csv not found in %s' % input)
     logging.info('[INFO] reading file %s' % str(info_level[0]))

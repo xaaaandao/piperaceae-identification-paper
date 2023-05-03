@@ -8,7 +8,7 @@ for dataset in regions_dataset_features; do
     for image_size in 512; do
         for cnn in lbp.txt surf64.txt; do
             for color in GRAYSCALE; do
-                for threshold in 20 10 5; do
+                for threshold in 20; do
                     for contrast in 1.2; do
                         INPUT=${DIR_INPUT}/${dataset}_CONTRAST_${contrast}/${color}/${TAXON}
     #                    for classifier in DecisionTreeClassifier; do
