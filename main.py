@@ -1,3 +1,5 @@
+import timeit
+
 import click
 import datetime
 import joblib
@@ -148,8 +150,11 @@ def main(classifiers, input, pca):
                 clf = GridSearchCV(classifier, parameters[classifier_name], cv=FOLDS,
                                    scoring=METRIC, n_jobs=N_JOBS, verbose=VERBOSE)
 
+                start = timeit.default_timer()
                 with joblib.parallel_backend('loky', n_jobs=N_JOBS):
                     clf.fit(x, y)
+
+                time_to_best_params = timeit.default_timer() - start
 
                 # enable to use predict_proba
                 if isinstance(clf.best_estimator_, SVC):
@@ -181,7 +186,7 @@ def main(classifiers, input, pca):
                 means = mean_metrics(results_fold, n_labels)
                 save_mean(means, path, results_fold)
                 save_best(clf, means, path, results_fold)
-                save_info(classifier_name, extractor, n_features, n_samples, path, patch)
+                save_info(classifier_name, extractor, n_features, n_samples, path, patch, time_to_best_params)
                 list_results_classifiers.append({
                     'classifier_name': classifier_name,
                     'image_size': str(image_size[0]),

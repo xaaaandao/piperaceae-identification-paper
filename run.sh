@@ -6,8 +6,8 @@ DIR_INPUT=/home/xandao/Imagens
 
 for dataset in regions_dataset_features; do
     for image_size in 512; do
-        for cnn in lbp.txt surf64.txt; do
-            for color in GRAYSCALE; do
+        for cnn in vgg16; do
+            for color in RGB; do
                 for threshold in 20; do
                     for contrast in 1.2; do
                         INPUT=${DIR_INPUT}/${dataset}_CONTRAST_${contrast}/${color}/${TAXON}

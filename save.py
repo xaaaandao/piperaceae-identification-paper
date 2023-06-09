@@ -277,9 +277,9 @@ def best_mean_and_rule(mean_mult, mean_sum, metric):
     return best_mean, best_rule
 
 
-def save_info(classifier_name, extractor, n_features, n_samples, path, patch):
-    index = ['classifier_name', 'extractor', 'n_features', 'n_samples', 'path', 'patch']
-    data = [classifier_name, extractor, n_features, n_samples, path, patch]
+def save_info(classifier_name, extractor, n_features, n_samples, path, patch, time_to_best_params):
+    index = ['classifier_name', 'extractor', 'n_features', 'n_samples', 'path', 'patch', 'time_to_best_params']
+    data = [classifier_name, extractor, n_features, n_samples, path, patch, time_to_best_params]
     df = pd.DataFrame(data, index=index)
     filename = os.path.join(path, 'info.csv')
     save_csv(df, filename, header=False, index=True)
