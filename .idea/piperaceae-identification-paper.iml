@@ -7,4 +7,7 @@
     <orderEntry type="jdk" jdkName="$USER_HOME$/miniconda3" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
+  <component name="SonarLintModuleSettings">
+    <option name="uniqueId" value="ee5c4437-3151-4dd1-92e1-4ccc23d2e67b" />
+  </component>
 </module>

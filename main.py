@@ -1,3 +1,5 @@
+import dataclasses
+
 import click
 import datetime
 import joblib
@@ -78,118 +80,183 @@ def selected_classifier(classifiers_selected):
     return [c for cs in classifiers_selected for c in classifiers if cs == c.__class__.__name__]
 
 
+def get_classifiers() -> list:
+    return ['DecisionTreeClassifier', 'RandomForestClassifier', 'KNeighborsClassifier', 'MLPClassifier', 'SVC']
+
+
+@dataclasses.dataclass
+class Config:
+    fold: int = dataclasses.field(default=5)
+    n_jobs: int = dataclasses.field(default=-1)
+    seed: int = dataclasses.field(default=1234)
+    verbose: int = dataclasses.field(default=42)
+
+    def _print(self):
+        for k, v in self.__dict__.items():
+            logging.info(f'{k} = {v}')
+
+
+@dataclasses.dataclass
+class Image:
+    color: str = dataclasses.field(default=None)
+    height: int = dataclasses.field(default=None)
+    width: int = dataclasses.field(default=None)
+    patch: int = dataclasses.field(default=1)
+
+@dataclasses.dataclass
+class Level:
+    name: str = dataclasses.field(default=None)
+    count: int = dataclasses.field(default=None)
+    label: str = dataclasses.field(default=None)
+
+
+@dataclasses.dataclass
+class Dataset:
+    name: str = dataclasses.field(default=None)
+    contrast: float = dataclasses.field(default=None)
+    descriptor: str = dataclasses.field(default=None)
+    extractor: str = dataclasses.field(default=None)
+    minimum: int = dataclasses.field(default=None)
+    n_features: int = dataclasses.field(default=None)
+    n_samples: int = dataclasses.field(default=None)
+    region: str = dataclasses.field(default=None)
+
+    def _print(self):
+        for k, v in self.__dict__.items():
+            logging.info(f'{k} = {v}')
+
+
+def load_cfg(config):
+    if not config:
+        logging.WARNING('file config not found')
+        logging.WARNING('using config default')
+        return
+
+    logging.WARNING('load config file %s' % config)
+
+
+def load_dataset(config, input):
+    if os.listdir(input):
+        pass
+
+
 @click.command()
-@click.option('-c', '--classifiers', multiple=True, type=click.Choice(
-    ['DecisionTreeClassifier', 'RandomForestClassifier', 'KNeighborsClassifier', 'MLPClassifier', 'SVC']),
+@click.option('-C', '--config', type=click.types.Path(exists=True), required=False)
+@click.option('-c', '--clf', multiple=True, type=click.Choice(get_classifiers()),
               default=['DecisionTreeClassifier'])
 @click.option('-i', '--input',
               default='/home/none/Imagens/pr_dataset_features/RGB/256/specific_epithet_trusted/20/vgg16')
 @click.option('-p', '--pca', is_flag=True, default=False)
-def main(classifiers, input, pca):
-    classifiers_choosed = selected_classifier(classifiers)
+def main(config, clf, input, pca):
+    classifiers = list(set(list(clf)).intersection(get_classifiers()))
 
-    if len(classifiers_choosed) == 0:
+    if len(classifiers) == 0:
         raise SystemExit('classifiers choosed not found')
-
-    logging.info('[INFO] %s classifiers was choosed' % str(len(classifiers_choosed)))
 
     if not os.path.exists(input):
         raise SystemExit('input %s not found' % input)
 
-    color, contrast, dataset, extractor, image_size, list_info_level, minimum_image, n_features, n_samples, patch = \
-        load_dataset_informations(input)
-    index, X, y = prepare_data(FOLDS, input, n_features, n_samples, patch, SEED)
+    config = load_cfg(config)
 
-    output_base = os.path.join(OUTPUT, '%s_CONTRAST_%s' % (dataset, contrast))
+    logging.info('[INFO] clfs: %s' % str(classifiers))
+    logging.info('[INFO] input: %s' % input)
 
-    if np.isnan(X).any():
-        raise SystemExit('X contains nan')
-
-    if pca:
-        list_x = [PCA(n_components=dim, random_state=SEED).fit_transform(X) for dim in dimensions[extractor.lower()] if
-                  dim < n_features]
-        list_x.append(X)
-    else:
-        list_x = [X]
-
-    region = has_region(input)
-    if region:
-        logging.info('[INFO] exists a region %s' % region)
-
-    logging.info('[INFO] result of pca %d' % len(list_x))
-    list_results_classifiers = []
-    for x in list_x:
-        n_features = x.shape[1]
-
-        for classifier in classifiers_choosed:
-            results_fold = []
-            classifier_name = classifier.__class__.__name__
-
-            if region:
-                output_folder_name = 'clf=%s+len=%s+ex=%s+ft=%s+c=%s+dt=%s+r=%s+m=%s' \
-                                 % (classifier_name, str(image_size[0]), extractor, str(n_features), color, dataset,
-                                    region, minimum_image)
-            else:
-                output_folder_name = 'clf=%s+len=%s+ex=%s+ft=%s+c=%s+dt=%s+m=%s' \
-                                     % (classifier_name, str(image_size[0]), extractor, str(n_features), color, dataset,
-                                        minimum_image)
-
-            list_out_results = [str(p.name) for p in pathlib.Path(output_base).rglob('*') if p.is_dir()]
-            logging.info('encounter %s results' % len(list_out_results))
-
-            if output_folder_name in list_out_results:
-                logging.info('output_folder_name %s exists' % output_folder_name)
-            else:
-                path = os.path.join(output_base, dateandtime, output_folder_name)
-
-                if not os.path.exists(path):
-                    os.makedirs(path)
-
-                clf = GridSearchCV(classifier, parameters[classifier_name], cv=FOLDS,
-                                   scoring=METRIC, n_jobs=N_JOBS, verbose=VERBOSE)
-
-                with joblib.parallel_backend('loky', n_jobs=N_JOBS):
-                    clf.fit(x, y)
-
-                # enable to use predict_proba
-                if isinstance(clf.best_estimator_, SVC):
-                    params = dict(probability=True)
-                    clf.best_estimator_.set_params(**params)
-
-                for fold, i in enumerate(index, start=1):
-                    index_train = i[0]
-                    index_test = i[1]
-
-                    params = {
-                        'classifier': clf,
-                        'classifier_name': classifier_name,
-                        'fold': fold,
-                        'index_train': index_train,
-                        'index_test': index_test,
-                        'list_info_level': list_info_level,
-                        'n_features': n_features,
-                        'patch': patch,
-                        'path': path,
-                        'x': x,
-                        'y': y
-                    }
-
-                    result, n_labels = run_folds(**params)
-                    results_fold.append(result)
-
-                logging.info('results_fold %s' % str(len(results_fold)))
-                means = mean_metrics(results_fold, n_labels)
-                save_mean(means, path, results_fold)
-                save_best(clf, means, path, results_fold)
-                save_info(classifier_name, extractor, n_features, n_samples, path, patch)
-                list_results_classifiers.append({
-                    'classifier_name': classifier_name,
-                    'image_size': str(image_size[0]),
-                    'extractor': extractor,
-                    'n_features': str(n_features),
-                    'means': means
-                })
-                save_df_main(color, dataset, minimum_image, list_results_classifiers, output_base, region=region)
+    load_dataset(config, input)
+    #
+    # color, contrast, dataset, extractor, image_size, list_info_level, minimum_image, n_features, n_samples, patch = \
+    #     load_dataset_informations(input)
+    # index, X, y = prepare_data(FOLDS, input, n_features, n_samples, patch, SEED)
+    #
+    # output_base = os.path.join(OUTPUT, '%s_CONTRAST_%s' % (dataset, contrast))
+    #
+    # if np.isnan(X).any():
+    #     raise SystemExit('X contains nan')
+    #
+    # if pca:
+    #     list_x = [PCA(n_components=dim, random_state=SEED).fit_transform(X) for dim in dimensions[extractor.lower()] if
+    #               dim < n_features]
+    #     list_x.append(X)
+    # else:
+    #     list_x = [X]
+    #
+    # region = has_region(input)
+    # if region:
+    #     logging.info('[INFO] exists a region %s' % region)
+    #
+    # logging.info('[INFO] result of pca %d' % len(list_x))
+    # list_results_classifiers = []
+    # for x in list_x:
+    #     n_features = x.shape[1]
+    #
+    #     for classifier in classifiers_choosed:
+    #         results_fold = []
+    #         classifier_name = classifier.__class__.__name__
+    #
+    #         if region:
+    #             output_folder_name = 'clf=%s+len=%s+ex=%s+ft=%s+c=%s+dt=%s+r=%s+m=%s' \
+    #                              % (classifier_name, str(image_size[0]), extractor, str(n_features), color, dataset,
+    #                                 region, minimum_image)
+    #         else:
+    #             output_folder_name = 'clf=%s+len=%s+ex=%s+ft=%s+c=%s+dt=%s+m=%s' \
+    #                                  % (classifier_name, str(image_size[0]), extractor, str(n_features), color, dataset,
+    #                                     minimum_image)
+    #
+    #         list_out_results = [str(p.name) for p in pathlib.Path(output_base).rglob('*') if p.is_dir()]
+    #         logging.info('encounter %s results' % len(list_out_results))
+    #
+    #         if output_folder_name in list_out_results:
+    #             logging.info('output_folder_name %s exists' % output_folder_name)
+    #         else:
+    #             path = os.path.join(output_base, dateandtime, output_folder_name)
+    #
+    #             if not os.path.exists(path):
+    #                 os.makedirs(path)
+    #
+    #             clf = GridSearchCV(classifier, parameters[classifier_name], cv=FOLDS,
+    #                                scoring=METRIC, n_jobs=N_JOBS, verbose=VERBOSE)
+    #
+    #             with joblib.parallel_backend('loky', n_jobs=N_JOBS):
+    #                 clf.fit(x, y)
+    #
+    #             # enable to use predict_proba
+    #             if isinstance(clf.best_estimator_, SVC):
+    #                 params = dict(probability=True)
+    #                 clf.best_estimator_.set_params(**params)
+    #
+    #             for fold, i in enumerate(index, start=1):
+    #                 index_train = i[0]
+    #                 index_test = i[1]
+    #
+    #                 params = {
+    #                     'classifier': clf,
+    #                     'classifier_name': classifier_name,
+    #                     'fold': fold,
+    #                     'index_train': index_train,
+    #                     'index_test': index_test,
+    #                     'list_info_level': list_info_level,
+    #                     'n_features': n_features,
+    #                     'patch': patch,
+    #                     'path': path,
+    #                     'x': x,
+    #                     'y': y
+    #                 }
+    #
+    #                 result, n_labels = run_folds(**params)
+    #                 results_fold.append(result)
+    #
+    #             logging.info('results_fold %s' % str(len(results_fold)))
+    #             means = mean_metrics(results_fold, n_labels)
+    #             save_mean(means, path, results_fold)
+    #             save_best(clf, means, path, results_fold)
+    #             save_info(classifier_name, extractor, n_features, n_samples, path, patch)
+    #             list_results_classifiers.append({
+    #                 'classifier_name': classifier_name,
+    #                 'image_size': str(image_size[0]),
+    #                 'extractor': extractor,
+    #                 'n_features': str(n_features),
+    #                 'means': means
+    #             })
+    #             save_df_main(color, dataset, minimum_image, list_results_classifiers, output_base, region=region)
 
 
 if __name__ == '__main__':
