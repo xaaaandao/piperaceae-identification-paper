@@ -1,5 +1,8 @@
 
-apython:S1192"IDefine a constant instead of duplicating this literal 'info.csv' 3 times.(úÀÛì
-6python:S125$"Remove this commented out code.(ÇĞ£ˆ
-Ppython:S1481P"3Replace unused local variable "n_samples" with "_".(ª†Ôüúÿÿÿÿ
-\python:S6711r"DUse a "numpy.random.Generator" here instead of this legacy function.(Ù¬îë
+`python:S57223"<Remove 1 parameters. Method __eq__ should have 2 parameters.(ûÙúÿÿÿÿ8æ—Ë¬ş1
+_python:S1144Š":Remove this unused class-private '__count_samples' method.(ñ«èÿÿÿÿÿ8æ—Ë¬ş1
+|python:S5717G"]Change this default value to "None" and initialize this parameter inside the function/method.(ºÓ“8æ—Ë¬ş1
+python:S5717J"]Change this default value to "None" and initialize this parameter inside the function/method.(…ş‚ùÿÿÿÿ8æ—Ë¬ş1
+cpython:S6711"DUse a "numpy.random.Generator" here instead of this legacy function.(Û¡q8æ—Ë¬ş1
+\python:S5754œ"<Specify an exception class to catch or reraise the exception(ˆÊÉ·8æ—Ë¬ş1
+Spython:S1135¬"4Complete the task associated to this "TODO" comment.(òºßP8æ—Ë¬ş1

@@ -1,4 +1,8 @@
 
-Npython:S1172Š".Remove the unused function parameter "config".(…üÀï8¹Î—¥ı1
-Hpython:S108Œ")Either remove or fill this block of code.(ã‘Û¾8ºÎ—¥ı1
->python:S125¥"Remove this commented out code.(ÆÔœ¦8ºÎ—¥ı1
+=python:S125"Remove this commented out code.(öŞÈ8õë¬­ş1
+Bpython:S125"Remove this commented out code.(Ô«úŞüÿÿÿÿ8öë¬­ş1
+8python:S1700I"Rename field "extractors"(Ÿú ğ8öë¬­ş1
+Mpython:S1481"(Remove the unused local variable "mean".(¥—„Ûùÿÿÿÿ8öë¬­ş1
+Jpython:S1481v"+Remove the unused local variable "results".(ãî8öë¬­ş1
+rpython:S1226Z"NIntroduce a new variable or use its initial value before reassigning 'config'.(•ëï¼øÿÿÿÿ8öë¬­ş1
+Spython:S1135|"4Complete the task associated to this "TODO" comment.(Ê®éø8öë¬­ş1

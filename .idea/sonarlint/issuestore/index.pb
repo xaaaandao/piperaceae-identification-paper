@@ -1,43 +1,9 @@
 
-D
-test/test_samples.py,7\c\7c40ce320cb0e08dddeebdb2abc4dc495abd610c
-C
-test/test_result.py,a/b/abf2530a1e8bb64529750749d0d9f41ccbbae40f
-?
-scheme/Makefile,3/e/3eac087817f191a82448bf401a6f53d437d070e7
-H
-extractor/get_features.m,8/c/8cf5fb3ecbbac0d0624546051018cdde55b31567
 @
 requirements.txt,1/9/19359a61ae2446b51b549167b014da2fcf265768
-B
-save/save_model.py,5/0/50008473a6bf782e6abbf308594f815e65c7d952
-B
-save/save_top_k.py,9/6/9616e31b9ed0a991a0b8e3c8ad32a4e53754fed3
-D
-save/save_samples.py,a/f/aff5bba098da3fd9bbfb5a078fcaec3f670302e5
-B
-save/save_files.py,e/c/ecb4fc5a286eb2a7bf3a8582e82238dc440b49c8
-D
-save/save_dataset.py,4/3/43e91401ce67f37a625161e6e422ccf95e0c5f4a
-A
-save/save_best.py,3/c/3c6cf87249f7ea998891bdbf24346d5520cc4a94
-A
-save/save_mean.py,f/a/face6f1ffc3422f0d27e38aa8caa0a999b404f7c
-9
-	result.py,b/c/bc83f7151d84b53f50c6bb3593df4d19cd07b65d
-A
-save/save_fold.py,7/0/70fe40d311a6fc0634463b52157691dda39b5489
-<
-save/save.py,0/0/00062fb8e5de4a9e4526b5379027c582d21304ac
 :
 
 .gitignore,a/5/a5cc2925ca8258af241be7e5b0381edf30266302
-7
-data.py,7/2/724b1af384039fb78ce97d10160f394e8b8785a7
-7
-test.py,a/3/a36e355ddb203d7d4133221f339dc406cb9f480f
-<
-script_sp.sh,f/3/f33d12f28b4fffbf9c3535927ff3ee04fd83cfe2
 :
 
 dataset.py,0/b/0b80393e271518f476b6f01bdc3e541914de1270
@@ -53,3 +19,29 @@ Q.idea/sonarlint/securityhotspotstore/0/b/0b80393e271518f476b6f01bdc3e541914de12
 Q.idea/sonarlint/securityhotspotstore/f/1/f1bdda93d9a278e358509d498e17d97764c1fb29,b/5/b58a0677868503201074e965423d875803239017
 P
  .idea/runConfigurations/main.xml,9/2/92937b0071000ef79f1be3d36bdd3ad2d20c07f7
+9
+	README.md,8/e/8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d
+7
+fold.py,e/7/e7b0f46e3de7b96bf39c0b1aec08044e11c015e2
+9
+	config.py,1/a/1a1b9769344cb239f2e540e1e6ee1efa2d3034ea
+_
+/dataset/v2/pr_dataset/RGB/512/vgg16/dataset.csv,e/c/ecc1da8e8a342bb80d9c453edaf3dc5aaabd90ba
+d
+4dataset/v2/pr_dataset/RGB/512/resnet50v2/samples.csv,5/f/5f0681b42f09e273aaa0ddeeec3770c81da9be15
+>
+classifiers.py,a/a/aac2f8ec64cabb76c2220b914251232dbae46b5b
+:
+
+arrays.pyx,2/1/21f20d1ba15cf913ee7d7c4fdeb1eb17240ae802
+:
+
+predict.py,9/1/91731ca614e5c56e746c690e96c1647309902f9c
+d
+4dataset/v2/pr_dataset/RGB/512/resnet50v2/dataset.csv,0/a/0ae88dcbff30fc4e39d800877498bc4e0916faaf
+b
+2dataset/v2/pr_dataset+20/RGB/512/vgg16/dataset.csv,e/1/e10a7f701bfd92a85f814223362548b470187d57
+b
+2dataset/v2/pr_dataset+20/RGB/512/vgg16/samples.csv,9/1/9196d8e47bd527d1c5f33c80994f8bc44ecc88d8
+9
+	result.py,b/c/bc83f7151d84b53f50c6bb3593df4d19cd07b65d
