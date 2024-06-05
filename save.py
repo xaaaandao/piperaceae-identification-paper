@@ -1,12 +1,17 @@
 import collections
 import itertools
 import math
+import pathlib
+from typing import LiteralString
 
 import joblib
 import logging
 import numpy as np
 import os
 import pandas as pd
+
+from config import Config
+from dataset import Dataset
 
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S', level=logging.INFO)
 
@@ -28,390 +33,28 @@ dimensions = {
     'surf64': [257, 256, 128],
     'surf128': [513, 512, 256, 128]
 }
-index = ['%s+%s+%s' % (extractor, dimension, metric) for extractor in extractors for dimension in dimensions[extractor] for metric in ['mean', 'std']]
+index = ['%s+%s+%s' % (extractor, dimension, metric) for extractor in extractors for dimension in dimensions[extractor]
+         for metric in ['mean', 'std']]
 
 
-def mean_std(list_results, metric):
-    return np.mean([result[metric] for result in list_results]), np.std([result[metric] for result in list_results])
+def save_means(config: Config, means: list, output: pathlib.Path | LiteralString | str):
+    output = os.path.join(output, 'mean')
+    os.makedirs(output, exist_ok=True)
+    filename = os.path.join(output, 'means.csv')
 
+    logging.info('Saving %s' % filename)
+    data = {'mean': [], 'metric': [], 'std': [], 'rule': []}
+    df = pd.DataFrame(data, columns=data.keys())
+    for mean in means:
+        df = pd.concat([df, mean.save()], axis=0)
+    df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
 
-def mean_std_topk(results, n_labels, total_test_no_patch):
-    k = []
-    mean = []
-    std = []
-    percent = []
-    for kk in range(3, n_labels):
-        k.append(kk)
-        mean.append(np.mean([topk['top_k_accuracy'] for result in results for topk in result['list_topk'] if topk['k'] == kk]))
-        std.append(
-            np.std([topk['top_k_accuracy'] for result in results for topk in result['list_topk'] if topk['k'] == kk]))
-        percent.append(
-            np.mean([(topk['top_k_accuracy'] * 100) / total_test_no_patch for result in results for topk in result['list_topk'] if topk['k'] == kk]))
-    return {
-        'k': k,
-        'mean': mean,
-        'std': std,
-        'percent': percent
-    }
 
+def save_folds(config: Config, dataset: Dataset, folds: list, output: pathlib.Path | LiteralString | str):
+    for fold in folds:
+        fold.save(dataset.levels, output)
 
-def mean_metrics(list_results, n_labels):
-    means = []
-    for rule in ['max', 'mult', 'sum']:
-        results = [result[rule] for result in list_results]
-        total_test_no_patch = list_results[0]['total_test_no_patch']
-        mean_f1, std_f1 = mean_std(results, 'f1')
-        mean_accuracy, std_accuracy = mean_std(results, 'accuracy')
-        topk = mean_std_topk(results, n_labels, total_test_no_patch)
-        means.append({'rule': rule,
-                      'mean_f1': mean_f1,
-                      'std_f1': std_f1,
-                      'mean_accuracy': mean_accuracy,
-                      'std_accuracy': std_accuracy,
-                      'topk': topk})
-    return means
 
-
-def save_mean_time(path, results):
-    mean_time, std_time = mean_std(results, 'time')
-    data = {
-        'mean_time': mean_time,
-        'std_time': std_time
-    }
-    filename = os.path.join(path, 'mean_time.csv')
-    df = pd.DataFrame(data.values(), index=list(data.keys()))
-    save_csv(df, filename, index=True, header=False)
-
-
-def save_mean_topk(topk, path, rule):
-    path_topk = os.path.join(path, 'topk')
-    if not os.path.exists(path_topk):
-        os.makedirs(path_topk)
-
-    data = {
-        'k': topk['k'],
-        'mean': topk['mean'],
-        'std': topk['std'],
-        'percent': topk['percent']
-    }
-    filename = os.path.join(path_topk, 'mean_topk+%s.csv' % rule)
-    df = pd.DataFrame(data)
-    save_csv(df, filename, index=False)
-
-
-def save_mean(means, path, results):
-    path_mean = os.path.join(path, 'mean')
-
-    if not os.path.exists(path_mean):
-        os.makedirs(path_mean)
-
-    save_mean_time(path_mean, results)
-
-    for rule in ['max', 'mult', 'sum']:
-        mean = [mean for mean in means if mean['rule'] == rule]
-        save_mean_topk(mean[0]['topk'], path_mean, rule)
-        for metric in ['f1', 'accuracy']:
-            path_metric = os.path.join(path_mean, metric)
-
-            if not os.path.exists(path_metric):
-                os.makedirs(path_metric)
-
-            data = {
-                'mean_%s' % metric: mean[0]['mean_%s' % metric],
-                'std_%s' % metric: mean[0]['std_%s' % metric]
-            }
-
-            df = pd.DataFrame(data.values(), index=list(data.keys()))
-            filename = os.path.join(path_metric, 'mean+%s+%s.csv' % (metric, rule))
-            save_csv(df, filename, header=False, index=True)
-
-
-def save_best_mean(means, path):
-    mean_mult = [m for m in means if m['rule'] == 'mult']
-    mean_sum = [m for m in means if m['rule'] == 'sum']
-    best_mean, best_rule = best_mean_and_rule(mean_mult, mean_sum, 'mean_f1')
-    data = {
-        'best_f1_mean': best_mean,
-        'best_f1_rule': best_rule,
-    }
-
-    df = pd.DataFrame(data.values(), index=list(data.keys()))
-    filename = os.path.join(path, 'best_mean.csv')
-    save_csv(df, filename, header=False, index=True)
-
-
-def save_csv(df, filename, header=True, index=True):
-    logging.info('[CSV] %s created' % filename)
-    df.to_csv(filename, sep=';', index=index, header=header, lineterminator='\n', doublequote=True, na_rep='')
-
-
-def save_model_best_classifier(classifier, path):
-    filename = os.path.join(path, 'best_model.pkl')
-    logging.info('[JOBLIB] %s created' % filename)
-    try:
-        with open(filename, 'wb') as file:
-            joblib.dump(classifier, file, compress=3)
-        file.close()
-    except FileExistsError:
-        logging.warning('problems in save model (%s)' % filename)
-
-
-def save_best_classifier(classifier, path):
-    save_info_best_classifier(classifier, path)
-    save_model_best_classifier(classifier, path)
-
-
-def save_info_best_classifier(classifier, path):
-    df = pd.DataFrame(classifier.cv_results_)
-    filename = os.path.join(path, 'best_classifier.csv')
-    save_csv(df, filename, index=False)
-
-
-def save_confusion_matrix_csv(confusion_matrix, columns, fname, index, path):
-    df = pd.DataFrame(confusion_matrix, index=index, columns=columns)
-    filename = os.path.join(path, fname)
-    save_csv(df, filename)
-
-
-def save_confusion_matrix_multilabel(confusion_matrix, count, levels, path, rule):
-    path_multilabel = os.path.join(path, 'multilabel')
-
-    if not os.path.exists(path_multilabel):
-        os.makedirs(path_multilabel)
-
-    for i, cm in enumerate(confusion_matrix):
-        label = levels[i]
-        columns = index = ['Positive', 'Negative']
-        filename = 'confusion_matrix+%s+%s.csv' % (label, rule)
-        save_confusion_matrix_csv(cm, columns, filename, index, path_multilabel)
-
-
-def save_confusion_matrix(count_train, count_test, list_info_level, n_patch, path, results):
-    path_confusion_matrix = os.path.join(path, 'confusion_matrix')
-
-    if not os.path.exists(path_confusion_matrix):
-        os.makedirs(path_confusion_matrix)
-
-    levels = list_info_level['levels']
-    count = list_info_level['count']
-    for rule in ['max', 'mult', 'sum']:
-        for type_confusion_matrix in ['confusion_matrix', 'confusion_matrix_normalized', 'confusion_matrix_multilabel']:
-            confusion_matrix = results[rule][type_confusion_matrix]
-            if type_confusion_matrix == 'confusion_matrix_multilabel':
-                save_confusion_matrix_multilabel(confusion_matrix, count, levels, path_confusion_matrix, rule)
-            else:
-                save_confusion_matrix_and_normalized(confusion_matrix, count, count_train, count_test, levels,
-                                                     list_info_level, n_patch, path_confusion_matrix,
-                                                     rule, type_confusion_matrix)
-
-
-def save_topk(list_topk, path, rule, total_test_no_patch):
-    path_topk = os.path.join(path, 'topk')
-
-    if not os.path.exists(path_topk):
-        os.makedirs(path_topk)
-
-    save_topk_csv(list_topk, path_topk, rule, total_test_no_patch)
-
-
-def save_confusion_matrix_and_normalized(confusion_matrix, count, count_train, count_test, levels, list_info_level,
-                                         n_patch, path_confusion_matrix, rule, type_confusion_matrix):
-    columns = list(list_info_level['levels'].values())
-    index = ['%s (%s-%s-%s)' % (i[0], i[1], int(i[2][1] / n_patch), int(i[3][1] / n_patch)) for i in
-             zip(levels.values(), count.values(), sorted(count_train.items()), sorted(count_test.items()))]
-    filename = '%s+%s.csv' % (type_confusion_matrix, rule)
-    save_confusion_matrix_csv(confusion_matrix, columns, filename, index, path_confusion_matrix)
-
-
-def save_topk_csv(list_topk, path, rule, total_test_no_patch):
-    data = {
-        'k': [topk['k'] for topk in list_topk],
-        'top': [topk['top_k_accuracy'] for topk in list_topk],
-        'percent': [topk['top_k_accuracy']/total_test_no_patch for topk in list_topk]
-    }
-    df = pd.DataFrame(data, index=None)
-    filename = os.path.join(path, 'topk+%s.csv' % rule)
-    save_csv(df, filename, index=False)
-
-
-def save_classification_report(classification_report, path, rule):
-    path_classification_report = os.path.join(path, 'classification_report')
-
-    if not os.path.exists(path_classification_report):
-        os.makedirs(path_classification_report)
-
-    df = pd.DataFrame(classification_report).transpose()
-    filename = os.path.join(path_classification_report, 'classification_report+%s.csv' % rule)
-    save_csv(df, filename)
-
-
-def save_fold(count_train, count_test, path, results):
-    for rule in ['max', 'mult', 'sum']:
-        data = {
-            'fold': results['fold'],
-            'time': results['time'],
-            'f1': results[rule]['f1'],
-            'acccuracy': results[rule]['accuracy'],
-            'count_train': str(count_train),
-            'count_test': str(count_test),
-            'total_train': results['total_train'],
-            'total_test': results['total_test'],
-            'total_train_no_patch': results['total_train_no_patch'],
-            'total_test_no_patch': results['total_test_no_patch']
-        }
-
-        df = pd.DataFrame(data.values(), index=list(data.keys()))
-        filename = os.path.join(path, 'fold+%s.csv' % rule)
-        save_csv(df, filename, header=False, index=True)
-
-        save_topk(results[rule]['list_topk'], path, rule, results['total_test_no_patch'])
-        save_classification_report(results[rule]['classification_report'], path, rule)
-
-
-def best_mean_and_rule(mean_mult, mean_sum, metric):
-    if len(mean_mult) == 0 or len(mean_sum) == 0:
-        raise SystemError('mean not found')
-
-    best_mean = mean_sum[0][metric] if mean_sum[0][metric] > mean_mult[0][metric] else mean_mult[0][metric]
-    best_rule = 'sum' if mean_sum[0][metric] > mean_mult[0][metric] else 'mult'
-    return best_mean, best_rule
-
-
-def save_info(classifier_name, extractor, n_features, n_samples, path, patch):
-    index = ['classifier_name', 'extractor', 'n_features', 'n_samples', 'path', 'patch']
-    data = [classifier_name, extractor, n_features, n_samples, path, patch]
-    df = pd.DataFrame(data, index=index)
-    filename = os.path.join(path, 'info.csv')
-    save_csv(df, filename, header=False, index=True)
-
-
-def save_best_fold(results, path):
-    for rule in ['max', 'mult', 'sum']:
-        for metric in ['f1', 'accuracy']:
-            best = max(results, key=lambda x: x[rule][metric])
-
-            data = {
-                    'fold': best['fold'],
-                    'time': best['time'],
-                    metric: best[rule][metric],
-                    'rule': rule
-            }
-
-            df = pd.DataFrame(data.values(), index=list(data.keys()))
-            filename = os.path.join(path, 'best_fold_%s+%s.csv' % (rule, metric))
-            save_csv(df, filename, header=False, index=True)
-
-
-def save_df_summary_extractor(color, dataset_name, df, metric, minimum_image, path):
-    cols = ['best_classifier', 'mean', 'std']
-    data = []
-    l_index = []
-    for idx in df.index:
-        if isinstance(idx, str) and 'mean' in idx and not df.loc[idx, :].isnull().all():
-            best_classifier = df.loc[idx, :].astype(float).idxmax()
-            l_index.append(idx)
-            data.append({'best_classifier': best_classifier,
-                         'mean': df.loc[idx, best_classifier],
-                         'std': df.loc[idx.replace('mean', 'std'), best_classifier]})
-
-    df_summary = pd.DataFrame(data, index=l_index, columns=cols)
-
-    if not os.path.exists(os.path.join(path, 'summary', metric)):
-        os.makedirs(os.path.join(path, 'summary', metric))
-
-    filename = '%s+%s+summary+%s+%s.csv' % (color, dataset_name, minimum_image, metric)
-    filename = os.path.join(path, 'summary', metric, filename)
-    save_csv(df_summary, filename, header=True, index=True)
-    return df_summary
-
-
-def save_df_summary_dataset(color, dataset_name, df_summary, metric, minimum_image, path, region):
-    cols = ['color', 'minimum_image', 'best_extractor', 'best_classifier', 'mean', 'std', 'metric']
-    if region:
-        filename = '%s+%s+%s.csv' % (color, dataset_name, region)
-    else:
-        filename = '%s+%s.csv' % (color, dataset_name)
-
-    filename = os.path.join(path, filename)
-
-    if os.path.exists(filename):
-        df = pd.read_csv(filename, index_col=None, header=0, sep=';', lineterminator='\n')
-    else:
-        df = pd.DataFrame(index=None, columns=cols, dtype=float)
-
-    best_extractor = df_summary['mean'].astype(float).idxmax()
-    best_classifier = df_summary.loc[best_extractor, 'best_classifier']
-    best_mean = df_summary.loc[best_extractor, 'mean']
-    best_std = df_summary.loc[best_extractor, 'std']
-    idx = df.loc[(df['color'] == color) & (df['metric'] == metric) & (df['minimum_image'] == minimum_image)].index.tolist()
-    if len(idx) > 0:
-        df.loc[idx[0]] = [color, minimum_image, best_extractor, best_classifier, best_mean, best_std, metric]
-    else:
-        df.loc[len(df)] = [color, minimum_image, best_extractor, best_classifier, best_mean, best_std, metric]
-
-    save_csv(df, filename, index=False, header=True)
-
-
-def save_df_main(color, dataset_name, minimum_image, results, path, region=None):
-    if region:
-        path = os.path.join(path, region)
-        if not os.path.exists(path):
-            os.makedirs(path)
-
-    for metric in ['f1', 'topk', 'accuracy']:
-        if 'topk' in metric:
-            for k in [3, 5]:
-                filename = '%s+%s+results_final+%s+%s%s.csv' % (color, dataset_name, minimum_image, metric, k)
-                metric_topk = '%s%s' % (metric, k)
-
-                if not os.path.exists(os.path.join(path, 'results_final', metric_topk)):
-                    os.makedirs(os.path.join(path, 'results_final', metric_topk))
-
-                filename = os.path.join(path, 'results_final', metric_topk, filename)
-                df = df_main(filename, metric, results, k=k)
-                df_summary = save_df_summary_extractor(color, dataset_name, df, metric_topk, minimum_image, path)
-                save_df_summary_dataset(color, dataset_name, df_summary, metric_topk, minimum_image, path, region)
-        else:
-            if not os.path.exists(os.path.join(path, 'results_final', metric)):
-                os.makedirs(os.path.join(path, 'results_final', metric))
-
-            filename = '%s+%s+results_final+%s+%s.csv' % (color, dataset_name, minimum_image, metric)
-            filename = os.path.join(path, 'results_final', metric, filename)
-            df = df_main(filename, metric, results)
-            df_summary = save_df_summary_extractor(color, dataset_name, df, metric, minimum_image, path)
-            save_df_summary_dataset(color, dataset_name, df_summary, metric, minimum_image, path, region)
-
-
-def df_main(filename, metric, results, k=None):
-    if os.path.exists(filename):
-        df = pd.read_csv(filename, names=columns, index_col=0, sep=';')
-    else:
-        df = pd.DataFrame(index=index, columns=columns, dtype=float)
-
-    for result in results:
-        my_column = '%s+%s' % (result['classifier_name'], result['image_size'])
-        my_index_mean = '%s+%s+mean' % (result['extractor'], result['n_features'])
-        my_index_std = '%s+%s+std' % (result['extractor'], result['n_features'])
-
-        mean_sum = [m for m in result['means'] if m['rule'] == 'sum']
-        if not k:
-            df[my_column][my_index_mean] = mean_sum[0]['mean_%s' % metric]
-            df[my_column][my_index_std] = mean_sum[0]['std_%s' % metric]
-        else:
-            df[my_column][my_index_mean] = mean_sum[0]['topk']['percent'][k-1]
-            df[my_column][my_index_std] = mean_sum[0]['topk']['std'][k-1]
-
-    if os.path.exists(filename):
-        save_csv(df, filename, header=False, index=True)
-    else:
-        save_csv(df, filename, header=True, index=True)
-    return df
-
-
-def save_best(clf, means, path, results_fold):
-    path_best = os.path.join(path, 'best')
-    if not os.path.exists(path_best):
-        os.makedirs(path_best)
-    save_best_classifier(clf, path_best)
-    save_best_fold(results_fold, path_best)
-    save_best_mean(means, path_best)
+def save(config: Config, dataset: Dataset, folds: list, means: list, output: pathlib.Path | LiteralString | str):
+    save_folds(config, dataset, folds, output)
+    save_means(config, means, output)

@@ -1,4 +1,7 @@
 import dataclasses
+import inspect
+import pathlib
+import sys
 
 import click
 import datetime
@@ -15,9 +18,10 @@ from sklearn.svm import SVC
 # import config
 from classifiers import get_classifiers, select_classifiers
 from config import Config
-from dataset import Dataset
+from dataset import Dataset, Image
 from fold import Fold
-from result import Mean
+from mean import Mean
+from save import save
 
 # from dataset import load_dataset, split_folds
 
@@ -80,14 +84,24 @@ class Extractors:
     })
 
 
+def get_output_name(classifier_name: str, dataset: Dataset) -> str:
+    path = ''
+    for k, v in dataset.__dict__.items():
+        print(k, v, type(v))
+        if v and not isinstance(v, list) and not isinstance(v, Image) and 'input' not in k:
+            path = path + '%s+%s-' % (k, str(v))
+    return path + 'clf+%s' % classifier_name
+
+
 
 @click.command()
 @click.option('-C', '--config', type=click.types.Path(exists=True), required=False)
 @click.option('-c', '--clf', multiple=True, type=click.Choice(get_classifiers()),
               default=['DecisionTreeClassifier'])
 @click.option('-i', '--input', required=True)
+@click.option('-o', '--output', required=False, default = 'output')
 @click.option('-p', '--pca', is_flag=True, default=False)
-def main(config, clf, input, pca):
+def main(config, clf, input, output, pca):
     config = Config()
     config._print()
     classifiers = select_classifiers(config, clf)
@@ -121,9 +135,18 @@ def main(config, clf, input, pca):
             classifier_name = c.__class__.__name__
             logging.info('the current classifier is %s' % classifier_name)
 
-            # TODO falta a pasta, e validar se já rodou
+            count_features =x.shape[1]
+            ran = list([pathlib.Path(output).rglob('*%s*' + dataset.get_output_name(classifier_name, count_features))])
+            # this program create xxx files csv
+            # if len(ran) > 0 and any(len(list(pathlib.Path(r).rglob('*.csv'))) == 10 for r in ran):
+            #     logging.info('')
+            #     sys.exit(1)
 
-            clf = GridSearchCV(c, parameters[classifier_name], cv=config.folds, scoring=config.metric, n_jobs=config.n_jobs, verbose=config.verbose)
+            # TODO falta a pasta, e validar se já rodou
+            output = os.path.join(output, dataset.get_output_name(classifier_name, count_features))
+            os.makedirs(output, exist_ok=True)
+
+            clf = GridSearchCV(c, parameters[classifier_name], cv=config.folds, scoring=config.cv_metric, n_jobs=config.n_jobs, verbose=config.verbose)
 
             with joblib.parallel_backend(config.backend, n_jobs=config.n_jobs):
                 clf.fit(x, y)
@@ -138,24 +161,11 @@ def main(config, clf, input, pca):
                 fold = Fold(f, idx, x, y)
                 fold.run(clf, dataset)
                 folds.append(fold)
-            mean = [Mean(folds, 'max'),
+
+            means = [Mean(folds, 'max'),
                     Mean(folds, 'sum'),
                     Mean(folds, 'mult')]
-                # results_fold.append(result)
-    #
-    #             logging.info('results_fold %s' % str(len(results_fold)))
-    #             means = mean_metrics(results_fold, n_labels)
-    #             save_mean(means, path, results_fold)
-    #             save_best(clf, means, path, results_fold)
-    #             save_info(classifier_name, extractor, n_features, n_samples, path, patch)
-    #             list_results_classifiers.append({
-    #                 'classifier_name': classifier_name,
-    #                 'image_size': str(image_size[0]),
-    #                 'extractor': extractor,
-    #                 'n_features': str(n_features),
-    #                 'means': means
-    #             })
-    #             save_df_main(color, dataset, minimum_image, list_results_classifiers, output_base, region=region)
+            save(config, dataset, folds, means, output)
 
 
 if __name__ == '__main__':

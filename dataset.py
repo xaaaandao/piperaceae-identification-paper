@@ -63,12 +63,13 @@ class Dataset:
                  input: pathlib.Path | LiteralString | str,
                  count_features: int = 0,
                  count_samples: int = 0,
-                 minimum: int = 0,
                  descriptor: str = None,
                  extractor: str = None,
                  format: str = None,
                  image: Image = None,
                  levels: list = [],
+                 model: str = None,
+                 minimum: int = 0,
                  name: str = None,
                  region: str = None,
                  samples: list = []):
@@ -79,27 +80,119 @@ class Dataset:
         self.format = format
         self.image = image
         self.input = input
-        self._levels = levels
+        self.levels = levels
         self.minimum = minimum
+        self.model = model
         self.name = name
         self.region = region
-        self._samples = samples
+        self.samples = samples
 
-    @property
-    def samples(self):
-        return self._samples
-    
-    @samples.setter
-    def samples(self, value):
-        self._value=value
+    # @property
+    # def descriptor(self):
+    #     return self.descriptor
+    #
+    # @descriptor.setter
+    # def descriptor(self, value):
+    #     self.descriptor = value
+    #
+    # @property
+    # def extractor(self):
+    #     return self.extractor
+    #
+    # @extractor.setter
+    # def extractor(self, value):
+    #     self.extractor = value
+    #
+    # @property
+    # def count_samples(self):
+    #     return self.count_samples
+    #
+    # @count_samples.setter
+    # def count_samples(self, value):
+    #     try:
+    #         print(isinstance(value, np.int64))
+    #         if isinstance(value, np.int64):
+    #             self.count_samples = int(value)
+    #     except:
+    #         raise TypeError('count_samples must be an integer')
+    #
+    # @property
+    # def count_features(self):
+    #     return self.count_features
+    #
+    # @count_features.setter
+    # def count_features(self, value):
+    #     try:
+    #         if isinstance(value, np.int64):
+    #             self.count_features = int(value)
+    #     except:
+    #         raise TypeError('count_features must be an integer')
+    #
+    # @property
+    # def format(self):
+    #     return self.format
+    #
+    # @format.setter
+    # def format(self, value):
+    #     self.format = value
+    #
+    # @property
+    # def input(self):
+    #     return self.input
+    #
+    # @input.setter
+    # def inp(self, value):
+    #     self.input = value
+    #
+    # @property
+    # def image(self):
+    #     return self.image
+    #
+    # @image.setter
+    # def image(self, value):
+    #     self.image = value
+    #
+    # @property
+    # def levels(self):
+    #     return self.levels
+    #
+    # @levels.setter
+    # def levels(self, value):
+    #     self.levels = value
+    #
+    # @property
+    # def minimum(self):
+    #     return self.minimum
+    #
+    # @minimum.setter
+    # def minimum(self, value):
+    #     self.minimum = value
+    #
+    # @property
+    # def name(self):
+    #     return self.name
+    #
+    # @name.setter
+    # def name(self, value):
+    #     self.name = value
+    #
+    # @property
+    # def region(self):
+    #     return self.region
+    #
+    # @region.setter
+    # def region(self, value):
+    #     self.region = value
+    #
+    # @property
+    # def samples(self):
+    #     return self.samples
+    #
+    # @samples.setter
+    # def samples(self, value):
+    #     self.value = value
 
-    @property
-    def levels(self):
-        return self._levels
 
-    @levels.setter
-    def levels(self, value):
-        self._levels=value
 
     def load(self):
         self.load_csv()
@@ -109,7 +202,7 @@ class Dataset:
         for k, v in self.__dict__.items():
             logging.info(f'{k} = {v}')
 
-    def remove_duplicates(self, df: pd.DataFrame)->pd.DataFrame:
+    def remove_duplicates(self, df: pd.DataFrame) -> pd.DataFrame:
         return df[['fold', 'specific_epithet']].drop_duplicates(subset=['specific_epithet', 'fold'], keep='last')
 
     def load_samples(self):
@@ -119,8 +212,9 @@ class Dataset:
             logging.warning('file of samples not found')
 
         df = pd.read_csv(filename, index_col=None, header=0, encoding='utf-8', low_memory=False, sep=';')
-        self._samples = [Sample(row['filename'], Level(row['specific_epithet'], row['fold'])) for _, row in df.iterrows()]
-        self._levels = [Level(row['specific_epithet'], row['fold']) for _, row in self.remove_duplicates(df).iterrows()]
+        self.samples = [Sample(row['filename'], Level(row['specific_epithet'], row['fold'])) for _, row in
+                         df.iterrows()]
+        self.levels = [Level(row['specific_epithet'], row['fold']) for _, row in self.remove_duplicates(df).iterrows()]
 
     def load_csv(self):
         filename = os.path.join(self.input, 'dataset.csv')
@@ -134,9 +228,6 @@ class Dataset:
             if k in df.columns and 'input' not in k:
                 setattr(self, k, df[k].values[0])
         self.image = Image(df)
-
-    def __count_samples(self) -> int:
-        return len(self.samples)
 
     def split_folds(self, config: Config, y: np.ndarray):
         np.random.seed(config.seed)
@@ -183,3 +274,19 @@ class Dataset:
         y = np.array(list(itertools.chain(*y)), dtype=np.int16)
         return x, y
 
+    def get_output_name(self, classifier_name: str, count_features:int) -> str:
+        model = 'empty'
+        for k, v in self.__dict__.items():
+            if k in ['model', 'descriptor', 'extractor'] and v:
+                model = getattr(self, k)
+        print(self.image.height)
+        print(self.minimum, type(self.minimum))
+        if self.region:
+            return 'ft=%d+sam=%d+fmt=%s+clr=%s+contrast=%.2f+height=%d+width=%d+pt=%d+dt=%s+min=%d+mod=%s+region=%s+clf=%s' % \
+                    (count_features, self.count_samples, self.format, \
+                     self.image.color, self.image.contrast, self.image.height, self.image.width, self.image.patch, \
+                     self.name, self.minimum, model, self.region, classifier_name)
+        return 'ft=%d+sam=%d+fmt=%s+clr=%s+contrast=%.2f+height=%d+width=%d+pt=%d+dt=%s+min=%s+mod=%s+clf=%s' % \
+                (count_features, self.count_samples, self.format, \
+                 self.image.color, self.image.contrast, self.image.height, self.image.width, self.image.patch, \
+                 self.name, str(self.minimum), model, classifier_name)

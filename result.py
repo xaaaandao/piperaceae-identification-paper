@@ -1,50 +1,60 @@
-import dataclasses
 import itertools
-import logging
-from typing import Any
+import os
+import pathlib
+from typing import LiteralString
 
 import numpy as np
-from sklearn.metrics import f1_score, accuracy_score, confusion_matrix, multilabel_confusion_matrix
+import pandas as pd
+
 
 class Result:
     def __init__(self, count_train: dict, count_test: dict, patch: int, predicts: list, time: float):
+        self.count_test = count_test
+        self.count_train = count_train
         self.predicts = predicts
         self.time = time
         self.total_test = np.sum([v for v in count_test.values()])
         self.total_train = np.sum([v for v in count_train.values()])
-        self.total_test_no_patch = np.sum([int(v/patch) for v in count_test.values()])
-        self.total_train_no_patch = np.sum([int(v/patch) for v in count_train.values()])
+        self.total_test_no_patch = np.sum([int(v / patch) for v in count_test.values()])
+        self.total_train_no_patch = np.sum([int(v / patch) for v in count_train.values()])
 
+    def save(self, levels:list, output: pathlib.Path | LiteralString | str):
+        self.save_info_result(output)
+        self.save_predicts(output)
+        self.save_evaluations(levels, output)
 
-class Evaluate:
-    def __init__(self, y_pred:np.ndarray, y_score:np.ndarray, y_true:np.ndarray):
-        self.f1 = f1_score(y_true=y_true, y_pred=y_pred, average='weighted')
-        self.accuracy = accuracy_score(y_pred=y_pred, y_true=y_true)
-        self.confusion_matrix = confusion_matrix(y_true=y_true, y_pred=y_pred)
-        self.confusion_matrix_normalized = confusion_matrix(y_true=y_true, y_pred=y_pred, normalize='true')
-        self.confusion_matrix_multilabel = multilabel_confusion_matrix(y_pred=y_pred, y_true=y_true)
+    def save_evaluations(self, levels:list, output: pathlib.Path | LiteralString | str):
+        filename = os.path.join(output, 'evaluations.csv')
 
+        data = {'f1': [], 'accuracy': [], 'rule': []}
+        df = pd.DataFrame(data, columns=data.keys())
+        for predict in self.predicts:
+            print(predict.eval, type(predict.eval))
+            df = pd.concat([df, predict.save()], axis=0)
+            predict.eval.save_confusions_matrixs(self.count_train, self.count_test, levels, output, predict.rule)
+        df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
 
-class Mean:
-    mean_f1: float
-    std_f1: float
-    mean_accuracy: float
-    std_accuracy: float
-    rule: str
+    def save_info_result(self, output: pathlib.Path | LiteralString | str):
+        filename = os.path.join(output, 'info_results.csv')
 
-    def __init__(self, folds: list, rule: str):
-        results = [fold.result for fold in folds]
-        predicts = [result.predicts for result in results]
-        evaluations = [p.eval for p in list(itertools.chain(*predicts)) if p.rule.__eq__(rule)]
-        self.mean_std_f1(evaluations)
-        self.mean_std_accuracy(evaluations)
+        data = {
+            'time': [self.time],
+            'total_test': [self.total_test],
+            'total_train': [self.total_train],
+            'total_test_no_patch': [self.total_test_no_patch],
+            'total_train_no_patch': [self.total_train_no_patch]
+        }
+        df = pd.DataFrame(data, columns=data.keys())
+        df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
 
-    def mean_std_f1(self, evaluations:list):
-        self.mean_f1 = np.mean([evaluation.f1 for evaluation in evaluations])
-        self.std_f1 = np.std([evaluation.f1 for evaluation in evaluations])
-        logging.info('Mean F1 score %.2f and std F1 score %.2f', self.mean_f1, self.std_f1)
+    def save_predicts(self, output: pathlib.Path | LiteralString | str):
+        filename = os.path.join(output, 'predicts.csv')
 
-    def mean_std_accuracy(self, evaluations:list):
-        self.mean_accuracy = np.mean([evaluation.accuracy for evaluation in evaluations])
-        self.std_accuracy = np.std([evaluation.accuracy for evaluation in evaluations])
-        logging.info('Mean accuracy score %.2f and std accuracy score %.2f', self.mean_accuracy, self.std_accuracy)
+        data = {
+            'y_pred+sum': list(itertools.chain(*[p.y_pred.tolist() for p in self.predicts if p.rule.__eq__('sum')])),
+            'y_pred+mult': list(itertools.chain(*[p.y_pred.tolist() for p in self.predicts if p.rule.__eq__('mult')])),
+            'y_pred+max': list(itertools.chain(*[p.y_pred.tolist() for p in self.predicts if p.rule.__eq__('max')])),
+            'y_true': list(itertools.chain(*[self.predicts[0].y_true.tolist()]))
+        }
+        df = pd.DataFrame(data, columns=data.keys())
+        df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')

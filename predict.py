@@ -1,9 +1,10 @@
 import dataclasses
 import numpy as np
+import pandas as pd
 
 from arrays import max_rule, y_true_no_patch, mult_rule, sum_rule
 from dataset import Dataset
-from result import Evaluate
+from evaluate import Evaluate
 
 
 class Predict:
@@ -15,9 +16,8 @@ class Predict:
                  rule: str,
                  y_pred_proba: np.ndarray,
                  y_test: np.ndarray,
-                 y_pred_pred: np.ndarray = None,
-                 y_pred_score: np.ndarray = None,
-                 y_pred_test: np.ndarray = None,
+                 y_pred: np.ndarray = None,
+                 y_score: np.ndarray = None,
                  y_true: np.ndarray = None,
                  eval: Evaluate = None
                  ):
@@ -26,9 +26,8 @@ class Predict:
         self.patch = patch
         self.y_pred_proba = y_pred_proba
         self.rule = rule
-        self.y_pred_pred = y_pred_pred
-        self.y_pred_score = y_pred_score
-        self.y_pred_test = y_pred_test
+        self.y_pred = y_pred
+        self.y_score = y_score
         self.y_test = y_test
         self.y_true = y_true
         self.eval = eval
@@ -47,3 +46,11 @@ class Predict:
 
     def evaluate(self):
         self.eval = Evaluate(self.y_pred, self.y_score, self.y_true)
+
+    def save(self):
+        data = {
+            'f1': [self.eval.f1],
+            'accuracy': [self.eval.accuracy],
+            'rule': [self.rule]
+        }
+        return pd.DataFrame(data, columns=data.keys())

@@ -2,14 +2,15 @@ import dataclasses
 import logging
 
 
-@dataclasses.dataclass
 class Config:
-    backend: str = dataclasses.field(default='loky') # value used in parameter gridsearch
-    folds: int = dataclasses.field(default=5)
-    metric: str = dataclasses.field(default='f1_weighted')
-    n_jobs: int = dataclasses.field(default=-1)
-    seed: int = dataclasses.field(default=1234)
-    verbose: int = dataclasses.field(default=42)
+    def __init__(self):
+        self.backend = 'loky' # value used in parameter gridsearch
+        self.metrics = ['f1', 'accuracy']
+        self.folds = 2
+        self.cv_metric = 'f1_weighted'
+        self.n_jobs = -1
+        self.seed = 1234
+        self.verbose = 42
 
     def _print(self):
         for k, v in self.__dict__.items():
