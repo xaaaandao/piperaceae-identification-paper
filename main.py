@@ -1,7 +1,4 @@
-import dataclasses
-import inspect
 import pathlib
-import sys
 
 import click
 import datetime
@@ -22,6 +19,7 @@ from dataset import Dataset
 from image import Image
 from fold import Fold
 from mean import Mean
+from models import Model
 from save import save
 
 # from dataset import load_dataset, split_folds
@@ -35,7 +33,9 @@ VERBOSE = 42
 
 datefmt = '%d-%m-%Y+%H-%M-%S'
 dateandtime = datetime.datetime.now().strftime(datefmt)
-logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S', level=logging.INFO)
+logging.basicConfig(format='\033[32m [%(asctime)s] (%(levelname)s) {%(filename)s %(lineno)d}  %(message)s \033[0m', datefmt='%d/%m/%Y %H:%M:%S', level=logging.INFO)
+logging.basicConfig(format='\033[31m [%(asctime)s] (%(levelname)s) {%(filename)s %(lineno)d}  %(message)s \033[0m', datefmt='%d/%m/%Y %H:%M:%S', level=logging.WARNING)
+logging.basicConfig(format='\033[35m [%(asctime)s] (%(levelname)s) {%(filename)s %(lineno)d}  %(message)s \033[0m', datefmt='%d/%m/%Y %H:%M:%S', level=logging.CRITICAL)
 
 parameters = {
     'DecisionTreeClassifier': {
@@ -64,7 +64,6 @@ parameters = {
     }
 }
 
-
 def has_pca(dataset: Dataset, extractors: dict, x: np.ndarray) -> list:
     return [PCA(n_components=d, random_state=SEED).fit_transform(x) for d in extractors[dataset.model.lower()] if
             d < dataset.features]
@@ -72,17 +71,6 @@ def has_pca(dataset: Dataset, extractors: dict, x: np.ndarray) -> list:
 
 def apply_pca(dataset: Dataset, extractors: dict, pca: bool, x: np.ndarray) -> list:
     return has_pca(dataset, extractors, x) if pca and dataset.model else [x]
-
-
-class Extractors:
-    extractors: dict = dataclasses.field(default_factory={
-        'mobilenetv2': [1280, 1024, 512, 256, 128],
-        'vgg16': [512, 256, 128],
-        'resnet50v2': [2048, 1024, 512, 256, 128],
-        'lbp': [59],
-        'surf64': [257, 256, 128],
-        'surf128': [513, 512, 256, 128]
-    })
 
 
 def get_output_name(classifier_name: str, dataset: Dataset) -> str:
@@ -105,7 +93,7 @@ def main(config, clf, input, output, pca):
     config = Config()
     config._print()
     classifiers = select_classifiers(config, clf)
-    extractors = Extractors()
+    model = Model()
 
     if len(classifiers) == 0:
         raise SystemExit('classifiers choosed not found')
@@ -126,7 +114,7 @@ def main(config, clf, input, output, pca):
         logging.error('x contains NaN values')
         raise ValueError
 
-    xs = apply_pca(dataset, extractors.extractors, pca, x)
+    xs = apply_pca(dataset, model.models, pca, x)
 
     results = []
     for x in xs:

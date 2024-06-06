@@ -31,10 +31,19 @@ class Result:
         data = {'k': [], 'topk_accuracy_score': [], 'rule': []}
         df_topk = pd.DataFrame(data, columns=data.keys())
 
+        data  = {
+            'labels': [],
+            'true_positive': [],
+            'rule': []
+        }
+        df_true_positive = pd.DataFrame(data, columns=data.keys())
+
         for predict in self.predicts:
             df = pd.concat([df, predict.save()], axis=0)
             predict.eval.save(self.count_train, self.count_test, levels, output, patch, predict.rule)
             df_topk = pd.concat([df_topk, predict.eval.save_topk(self.total_test_no_patch, levels, output, predict.rule)], axis=0)
+            p = predict.eval.save_true_positive(self.count_train, self.count_test, levels, patch, predict.rule)
+            df_true_positive = pd.concat([df_true_positive, predict.eval.save_true_positive(self.count_train, self.count_test, levels, patch, predict.rule)],axis=0)
 
         filename = os.path.join(output, 'evaluations.csv')
         df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
@@ -42,6 +51,9 @@ class Result:
         filename = os.path.join(output, 'topk.csv')
         df_topk.sort_values(['k', 'rule'], ascending=[True, False], inplace=True)
         df_topk.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
+
+        filename = os.path.join(output, 'true_positive.csv')
+        df_true_positive.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
         self.save_best(df, output)
 
     def save_best(self, df: pd.DataFrame, output: pathlib.Path | LiteralString | str):

@@ -14,6 +14,10 @@ class Mean:
     std_accuracy: float
     mean_topk: list
     std_topk: list
+    mean_time: float
+    std_time: float
+    mean_true_positive: list
+    std_true_positive: list
     rule: str
 
     def __init__(self, folds: list, levels: list, rule: str):
@@ -22,11 +26,15 @@ class Mean:
         evaluations = [p.eval for p in list(itertools.chain(*predicts)) if p.rule.__eq__(rule)]
         self.mean_count_test = np.mean([result.total_test_no_patch for result in results])
         self.rule = rule
-        self.mean_time = np.mean([result.time for result in results])
-        self.std_time = np.std([result.time for result in results])
+        self.set_time(results)
+        self.set_true_positive(evaluations)
         self.set_f1(evaluations)
         self.set_accuracy(evaluations)
         self.set_topk(evaluations, levels)
+
+    def set_time(self, results):
+        self.mean_time = np.mean([result.time for result in results])
+        self.std_time = np.std([result.time for result in results])
 
     def set_f1(self, evaluations: list):
         self.mean_f1 = np.mean([evaluation.f1 for evaluation in evaluations])
@@ -59,18 +67,23 @@ class Mean:
 
     def save(self):
         data = {
-            'mean': [self.mean_f1, self.mean_accuracy],
-            'std': [self.std_f1, self.std_accuracy],
-            'metric': ['f1', 'accuracy'],
-            'rule': [self.rule, self.rule]
+            'mean': [self.mean_f1, self.mean_accuracy, self.mean_time],
+            'std': [self.std_f1, self.std_accuracy, self.std_time],
+            'metric': ['f1', 'accuracy', 'time'],
+            'rule': [self.rule, self.rule, '']
         }
         return pd.DataFrame(data, columns=data.keys())
 
-    def save_time(self):
+    def set_true_positive(self, evaluations):
+        self.true_positive = [np.diag(evaluation.confusion_matrix) for evaluation in evaluations]
+        self.mean_true_positive = np.mean(self.true_positive, axis=0)
+        self.std_true_positive = np.std(self.true_positive, axis=0)
+
+    def save_true_positive(self, levels):
         data = {
-            'mean': [self.mean_time],
-            'std': [self.std_time],
-            'metric': ['time'],
-            'rule': ['']
+            'labels': ['%s+%s' % (l.specific_epithet, l.label) for l in sorted(levels, key=lambda x: x.label)],
+            'mean': self.mean_true_positive,
+            'std': self.std_true_positive,
+            'rule': [self.rule] * len(self.mean_true_positive),
         }
         return pd.DataFrame(data, columns=data.keys())

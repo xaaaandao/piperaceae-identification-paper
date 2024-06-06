@@ -30,7 +30,7 @@ def save_best(df: pd.DataFrame, output: pathlib.Path | LiteralString | str):
     logging.info('Saving %s' % filename)
 
 
-def save_means(config: Config, means: list, output: pathlib.Path | LiteralString | str):
+def save_means(config: Config, levels: list, means: list, output: pathlib.Path | LiteralString | str):
     output = os.path.join(output, 'mean')
     os.makedirs(output, exist_ok=True)
 
@@ -39,17 +39,24 @@ def save_means(config: Config, means: list, output: pathlib.Path | LiteralString
 
     data = {'k': [], 'mean': [], 'std': [], 'rule': []}
     df_topk = pd.DataFrame(data, columns=data.keys())
+
+    data = {'label': [], 'mean': [], 'std': [], 'rule': []}
+    df_true_positive = pd.DataFrame(data, columns=data.keys())
     for mean in means:
         df = pd.concat([df, mean.save()], axis=0)
         df_topk = pd.concat([df_topk, mean.save_topk()], axis=0)
+        df_true_positive = pd.concat([df_true_positive, mean.save_true_positive(levels)], axis=0)
 
-    df = pd.concat([df, mean.save_time()], axis=0)
     filename = os.path.join(output, 'means.csv')
     df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
     logging.info('Saving %s' % filename)
 
     filename = os.path.join(output, 'means_topk.csv')
     df_topk.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
+    logging.info('Saving %s' % filename)
+
+    filename = os.path.join(output, 'means_true_positive.csv')
+    df_true_positive.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
     logging.info('Saving %s' % filename)
 
     save_best(df, output)
@@ -108,4 +115,4 @@ def save(classifier, config: Config, dataset: Dataset, folds: list, means: list,
     save_best_classifier(classifier, output)
     save_best_info_classifier(classifier, output)
     save_folds(config, dataset, folds, output)
-    save_means(config, means, output)
+    save_means(config, dataset.levels, means, output)

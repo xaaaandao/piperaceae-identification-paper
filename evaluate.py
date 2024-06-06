@@ -16,7 +16,8 @@ class TopK:
         # zero are considered None
         self.top_k_accuracy_score = topk if topk is not None else top_k_accuracy_score(y_true=y_true, y_score=y_score,
                                                                                        normalize=False, k=k,
-                                                                                       labels=np.arange(1, len(levels) + 1))
+                                                                                       labels=np.arange(1,
+                                                                                                        len(levels) + 1))
 
 
 class Evaluate:
@@ -71,15 +72,21 @@ class Evaluate:
         df.to_csv(filename, index=index, header=True, sep=';', quoting=2)
         logging.info('Saving %s' % filename)
 
+    def get_index(self, count_train: dict, count_test: dict, levels: list, patch: int):
+        return [level.specific_epithet + '(%d-%d)'
+                % (int(self.get_count_train_label(count_train, level.label) / patch),
+                   int(self.get_count_test_label(count_test, level.label) / patch))
+                for level in sorted(levels, key=lambda x: x.label)]
+
     def save_confusion_matrix_normal_normalized(self, count_train: dict, count_test: dict, levels: list, output,
                                                 patch: int, rule: str):
-        columns = [level.specific_epithet for level in levels]
-        index = [level.specific_epithet + '(%d-%d)'
-                 % (int(self.get_count_train_label(count_train, level.label) / patch),
-                    int(self.get_count_test_label(count_test, level.label) / patch))
-                 for level in sorted(levels, key=lambda x:x.label)]
+        columns = self.get_columns(levels)
+        index = self.get_index(count_train, count_test, levels, patch)
         self.save_confusion_matrix(columns, index, output, rule)
         self.save_confusion_matrix_normalized(columns, index, output, rule)
+
+    def get_columns(self, levels):
+        return [level.specific_epithet for level in levels]
 
     def set_classification_report(self, levels, y_pred, y_true):
         targets = ['label+%s' % (i) for i in range(1, len(levels) + 1)]
@@ -116,5 +123,11 @@ class Evaluate:
             'rule': [rule] * len(self.topk)
         }
         return pd.DataFrame(data, columns=data.keys())
-        # df.to_csv(filename, index=False, header=True, sep=';', quoting=2)
-        # logging.info('Saving %s' % filename)
+
+    def save_true_positive(self, count_train, count_test, levels, patch, rule):
+        data  = {
+            'labels': self.get_index(count_train, count_test, levels, patch),
+            'true_positive': list(np.diag(self.confusion_matrix)),
+            'rule': [rule] * len(levels)
+        }
+        return pd.DataFrame(data, columns=data.keys())
