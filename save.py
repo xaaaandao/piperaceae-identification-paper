@@ -62,16 +62,28 @@ def save_means(config: Config, levels: list, means: list, output: pathlib.Path |
     save_best(df, output)
 
 
+def find_fold_rule(attr, best, folds):
+    try:
+        for fold in folds:
+            for predict in fold.result.predicts:
+                if getattr(predict.eval, attr) == best:
+                    return fold, predict
+    except:
+        raise ValueError
+
+
 def save_best_fold(folds: list, output: pathlib.Path | LiteralString | str):
     output = os.path.join(output, 'best')
     os.makedirs(output, exist_ok=True)
     filename = os.path.join(output, 'best_fold.csv')
 
-    best_f1 = max((predict.eval.f1, fold, predict) for fold in folds for predict in fold.result.predicts)
-    best_accuracy = max((predict.eval.accuracy, fold, predict) for fold in folds for predict in fold.result.predicts)
-    data = {'metric': [best_f1[0], best_accuracy[0]],
-            'fold': [best_f1[1].fold, best_accuracy[1].fold],
-            'rule': [best_f1[2].rule, best_accuracy[2].rule]}
+    best_f1 = max(predict.eval.f1 for fold in folds for predict in fold.result.predicts)
+    best_accuracy = max(predict.eval.accuracy for fold in folds for predict in fold.result.predicts)
+    fold_f1, rule_f1 = find_fold_rule( 'f1', best_f1, folds)
+    fold_accuracy, rule_accuracy = find_fold_rule( 'accuracy', best_accuracy, folds)
+    data = {'metric': [best_f1, best_accuracy],
+            'fold': [fold_f1.fold, fold_accuracy.fold],
+            'rule': [rule_f1.rule, rule_accuracy.rule]}
     df = pd.DataFrame(data, columns=data.keys())
     df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
     logging.info('Saving %s' % filename)

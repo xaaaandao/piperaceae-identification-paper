@@ -1,4 +1,5 @@
 import pathlib
+import sys
 
 import click
 import datetime
@@ -123,12 +124,19 @@ def main(config, clf, input, output, pca):
             logging.info('the current classifier is %s' % classifier_name)
 
             dataset.count_features = x.shape[1]
-            ran = list(
-                [pathlib.Path(output).rglob('*%s*' + dataset.get_output_name(classifier_name, dataset.count_features))])
-            # this program create xxx files csv
-            # if len(ran) > 0 and any(len(list(pathlib.Path(r).rglob('*.csv'))) == 10 for r in ran):
-            #     logging.info('')
-            #     sys.exit(1)
+            # ran = list(
+            #     pathlib.Path(output).rglob('*%s*' + dataset.get_output_name(classifier_name, dataset.count_features)))
+
+            target = dataset.get_output_name(classifier_name, dataset.count_features)
+            rans = [p.resolve() for p in pathlib.Path(output).rglob('*%s*' % target)]
+
+            # this program create 89 files csv
+            # 3 rule sum, max and mult
+            if len(dataset.levels) > 0 and len(rans) > 0:
+                count_confusion_matrix = len(dataset.levels) * config.folds * 3
+                if any(len([p for p in pathlib.Path(r).rglob('*.csv')]) == 89 + count_confusion_matrix for r in rans):
+                    logging.warning('the test exist')
+                    sys.exit(1)
 
             # TODO falta a pasta, e validar se já rodou
             output = os.path.join(output, dataset.get_output_name(classifier_name, dataset.count_features))

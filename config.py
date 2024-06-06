@@ -11,7 +11,7 @@ class Config:
     def __init__(self):
         self.backend = 'loky' # value used in parameter gridsearch
         self.metrics = ['f1', 'accuracy']
-        self.folds = 2
+        self.folds = 5
         self.cv_metric = 'f1_weighted'
         self.n_jobs = -1
         self.seed = 1234
