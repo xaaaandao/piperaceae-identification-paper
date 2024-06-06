@@ -1,5 +1,10 @@
 import dataclasses
 import logging
+import os
+import pathlib
+from typing import LiteralString
+
+import pandas as pd
 
 
 class Config:
@@ -16,7 +21,21 @@ class Config:
         for k, v in self.__dict__.items():
             logging.info(f'{k} = {v}')
 
-
+    def save(self, output: pathlib.Path | LiteralString | str) -> None:
+        filename = os.path.join(output, 'config.csv')
+        data = {
+            'backend':[],
+            'metrics':[],
+            'folds':[],
+            'cv_metric':[],
+            'n_jobs':[],
+            'seed':[],
+            'verbose':[],
+        }
+        for k, v in self.__dict__.items():
+            data[k].append(v)
+        df = pd.DataFrame(data, columns=data.keys())
+        df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
 
 
 def load_cfg(config):

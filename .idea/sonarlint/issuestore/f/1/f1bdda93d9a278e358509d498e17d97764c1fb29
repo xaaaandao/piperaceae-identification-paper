@@ -1,8 +1,8 @@
 
-=python:S125"Remove this commented out code.(öŞÈ8”ëëÈş1
-Bpython:S125"Remove this commented out code.(Ô«úŞüÿÿÿÿ8”ëëÈş1
-8python:S1700M"Rename field "extractors"(Ÿú ğ8”ëëÈş1
-Kpython:S1481„"+Remove the unused local variable "results".(ãî8”ëëÈş1
-Lpython:S1481‹"'Remove the unused local variable "ran".(ÿ¿çíÿÿÿÿÿ8¸ŒîÈş1
-rpython:S1226h"NIntroduce a new variable or use its initial value before reassigning 'config'.(Íª ûÿÿÿÿ8”ëëÈş1
-Tpython:S1135‘"4Complete the task associated to this "TODO" comment.(Ê®éø8”ëëÈş1
+=python:S125"Remove this commented out code.(öŞÈ8åÆæŞş1
+Bpython:S125"Remove this commented out code.(Ô«úŞüÿÿÿÿ8åÆæŞş1
+8python:S1700N"Rename field "extractors"(Ÿú ğ8åÆæŞş1
+Gpython:S1481Š"'Remove the unused local variable "ran".(ëòÖÂ8åÆæŞş1
+Kpython:S1481ƒ"+Remove the unused local variable "results".(ãî8åÆæŞş1
+rpython:S1226h"NIntroduce a new variable or use its initial value before reassigning 'config'.(Íª ûÿÿÿÿ8åÆæŞş1
+Tpython:S1135‘"4Complete the task associated to this "TODO" comment.(Ê®éø8åÆæŞş1

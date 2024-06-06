@@ -13,48 +13,99 @@ import pandas as pd
 from config import Config
 from dataset import Dataset
 
-logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S', level=logging.INFO)
 
-extractors = ['mobilenetv2', 'vgg16', 'resnet50v2', 'lbp', 'surf64', 'surf128']
-image_size = [256, 400, 512]
-classifiers_name = [
-    'KNeighborsClassifier',
-    'MLPClassifier',
-    'RandomForestClassifier',
-    'SVC',
-    'DecisionTreeClassifier',
-]
-columns = ['%s+%s' % (name, image) for name in classifiers_name for image in image_size]
-dimensions = {
-    'mobilenetv2': [1280, 1024, 512, 256, 128],
-    'vgg16': [512, 256, 128],
-    'resnet50v2': [2048, 1024, 512, 256, 128],
-    'lbp': [59],
-    'surf64': [257, 256, 128],
-    'surf128': [513, 512, 256, 128]
-}
-index = ['%s+%s+%s' % (extractor, dimension, metric) for extractor in extractors for dimension in dimensions[extractor]
-         for metric in ['mean', 'std']]
+def save_best(df: pd.DataFrame, output: pathlib.Path | LiteralString | str):
+    filename = os.path.join(output, 'best+means.csv')
+    data = {
+        'mean': [df.query('metric == \'f1\'').query('mean == mean.max()')['mean'].values[0],
+                 df.query('metric == \'accuracy\'').query('mean == mean.max()')['mean'].values[0]],
+        'std': [df.query('metric == \'f1\'').query('mean == mean.max()')['std'].values[0],
+                df.query('metric == \'accuracy\'').query('mean == mean.max()')['std'].values[0]],
+        'metric': ['f1', 'accuracy'],
+        'rule': [df.query('metric == \'f1\'').query('mean == mean.max()')['rule'].values[0],
+                 df.query('metric == \'accuracy\'').query('mean == mean.max()')['rule'].values[0]]
+    }
+    df = pd.DataFrame(data, columns=data.keys())
+    df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
+    logging.info('Saving %s' % filename)
 
 
 def save_means(config: Config, means: list, output: pathlib.Path | LiteralString | str):
     output = os.path.join(output, 'mean')
     os.makedirs(output, exist_ok=True)
-    filename = os.path.join(output, 'means.csv')
 
-    logging.info('Saving %s' % filename)
     data = {'mean': [], 'metric': [], 'std': [], 'rule': []}
     df = pd.DataFrame(data, columns=data.keys())
+
+    data = {'k': [], 'mean': [], 'std': [], 'rule': []}
+    df_topk = pd.DataFrame(data, columns=data.keys())
     for mean in means:
         df = pd.concat([df, mean.save()], axis=0)
+        df_topk = pd.concat([df_topk, mean.save_topk()], axis=0)
+
+    df = pd.concat([df, mean.save_time()], axis=0)
+    filename = os.path.join(output, 'means.csv')
     df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
+    logging.info('Saving %s' % filename)
+
+    filename = os.path.join(output, 'means_topk.csv')
+    df_topk.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
+    logging.info('Saving %s' % filename)
+
+    save_best(df, output)
+
+
+def save_best_fold(folds: list, output: pathlib.Path | LiteralString | str):
+    output = os.path.join(output, 'best')
+    os.makedirs(output, exist_ok=True)
+    filename = os.path.join(output, 'best_fold.csv')
+
+    best_f1 = max((predict.eval.f1, fold, predict) for fold in folds for predict in fold.result.predicts)
+    best_accuracy = max((predict.eval.accuracy, fold, predict) for fold in folds for predict in fold.result.predicts)
+    data = {'metric': [best_f1[0], best_accuracy[0]],
+            'fold': [best_f1[1].fold, best_accuracy[1].fold],
+            'rule': [best_f1[2].rule, best_accuracy[2].rule]}
+    df = pd.DataFrame(data, columns=data.keys())
+    df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
+    logging.info('Saving %s' % filename)
 
 
 def save_folds(config: Config, dataset: Dataset, folds: list, output: pathlib.Path | LiteralString | str):
     for fold in folds:
-        fold.save(dataset.levels, output)
+        fold.save(dataset.levels, output, dataset.image.patch)
+    save_best_fold(folds, output)
 
 
-def save(config: Config, dataset: Dataset, folds: list, means: list, output: pathlib.Path | LiteralString | str):
+def save_best_classifier(classifier, output):
+    output = os.path.join(output, 'best')
+    os.makedirs(output, exist_ok=True)
+    filename = os.path.join(output, 'best_classifier.pkl')
+    logging.info('[CLASSIFIER] Saving %s' % filename)
+
+    try:
+        with open(filename, 'wb') as file:
+            joblib.dump(classifier, file, compress=3)
+        file.close()
+    except FileExistsError:
+        logging.warning('problems in save model (%s)' % filename)
+
+
+def save_best_info_classifier(classifier, output):
+    output = os.path.join(output, 'best')
+    os.makedirs(output, exist_ok=True)
+    filename = os.path.join(output, 'best_classifier.csv')
+
+    df = pd.DataFrame(classifier.cv_results_)
+    df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
+    logging.info('Saving %s' % filename)
+
+
+def save(classifier, config: Config, dataset: Dataset, folds: list, means: list,
+         output: pathlib.Path | LiteralString | str):
+    config.save(output)
+    dataset.save(classifier, output)
+
+    save_best_classifier(classifier, output)
+    save_best_info_classifier(classifier, output)
     save_folds(config, dataset, folds, output)
     save_means(config, means, output)

@@ -48,21 +48,23 @@ class Fold:
 
         self.result = Result(self.count_train, self.count_test, dataset.image.patch, predicts, end_timeit)
 
-    def save_count_train_test(self, output: pathlib.Path | LiteralString | str):
+    def save_count_train_test(self, levels: list, output: pathlib.Path | LiteralString | str, patch:int):
         filename = os.path.join(output, 'count_train_test.csv')
 
         logging.info('Saving')
         data = { 'labels': [], 'trains': [], 'tests': [] }
         for train, test in zip(sorted(self.count_train.items()), sorted(self.count_test.items())):
-            data['trains'].append(train[1])
-            data['tests'].append(test[1])
+            data['trains'].append(train[1]/patch)
+            data['tests'].append(test[1]/patch)
             data['labels'].append(train[0])
 
         df = pd.DataFrame(data, columns=data.keys())
-        # TODO save_csv
+        df['labels'] = df[['labels']].applymap(lambda row: list(filter(lambda x: x.label.__eq__(row), levels))[0].specific_epithet)
+        df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
+        logging.info('Saving %s' % filename)
 
-    def save(self, levels:list, output: pathlib.Path | LiteralString | str):
+    def save(self, levels:list, output: pathlib.Path | LiteralString | str, patch:int):
         output = os.path.join(output, 'fold+%d' % (self.fold))
         os.makedirs(output, exist_ok=True)
-        self.save_count_train_test(output)
-        self.result.save(levels, output)
+        self.save_count_train_test(levels, output, patch)
+        self.result.save(levels, output, patch)

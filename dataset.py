@@ -1,20 +1,18 @@
-import attr
 import collections
 import dataclasses
 import itertools
 import logging
 import os
 import pathlib
-from typing import Optional, LiteralString, List, Any
+from typing import LiteralString
 
-import attrs
 import numpy as np
 import pandas as pd
 
 from sklearn.model_selection import StratifiedKFold
-from sklearn.preprocessing import StandardScaler
 
 from config import Config
+from image import Image
 
 
 def has_region(input: pathlib.Path | LiteralString | str):
@@ -26,21 +24,6 @@ def has_region(input: pathlib.Path | LiteralString | str):
 
 
 # a
-
-@dataclasses.dataclass
-class Image:
-    color: str = dataclasses.field(default=None)
-    contrast: float = dataclasses.field(default=None)
-    height: int = dataclasses.field(default=None)
-    width: int = dataclasses.field(default=None)
-    patch: int = dataclasses.field(default=1)
-
-    def __init__(self, data):
-        self.color = data['color'].values[0]
-        self.contrast = data['contrast'].values[0]
-        self.height = data['height'].values[0]
-        self.patch = data['patch'].values[0]
-        self.width = data['width'].values[0]
 
 
 @dataclasses.dataclass
@@ -279,8 +262,6 @@ class Dataset:
         for k, v in self.__dict__.items():
             if k in ['model', 'descriptor', 'extractor'] and v:
                 model = getattr(self, k)
-        print(self.image.height)
-        print(self.minimum, type(self.minimum))
         if self.region:
             return 'ft=%d+sam=%d+fmt=%s+clr=%s+contrast=%.2f+height=%d+width=%d+pt=%d+dt=%s+min=%d+mod=%s+region=%s+clf=%s' % \
                     (count_features, self.count_samples, self.format, \
@@ -290,3 +271,27 @@ class Dataset:
                 (count_features, self.count_samples, self.format, \
                  self.image.color, self.image.contrast, self.image.height, self.image.width, self.image.patch, \
                  self.name, str(self.minimum), model, classifier_name)
+
+    def save(self, classifier:str, output: pathlib.Path | LiteralString | str):
+        filename = os.path.join(output, 'dataset.csv')
+        data = {
+            'classifier': [classifier.best_estimator_.__class__.__name__],
+            'descriptor' : [],
+            'extractor' : [],
+            'count_samples' : [],
+            'count_features' : [],
+            'format' : [],
+            'input' : [],
+            'minimum' : [],
+            'model' : [],
+            'name' : [],
+            'region' : [],
+        }
+        for k in data.keys():
+            if k not in 'classifier':
+                data[k].append(getattr(self, k))
+
+        df = pd.DataFrame(data, columns=data.keys())
+        df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
+
+        self.image.save(output)

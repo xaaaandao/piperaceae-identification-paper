@@ -19,8 +19,7 @@ class Predict:
                  y_pred: np.ndarray = None,
                  y_score: np.ndarray = None,
                  y_true: np.ndarray = None,
-                 eval: Evaluate = None
-                 ):
+                 eval: Evaluate = None):
         self.count_test = count_test
         self.levels = levels
         self.patch = patch
@@ -45,7 +44,7 @@ class Predict:
         self.y_true = y_true_no_patch(self.count_test, self.patch, self.y_test)
 
     def evaluate(self):
-        self.eval = Evaluate(self.y_pred, self.y_score, self.y_true)
+        self.eval = Evaluate(self.levels, self.y_pred, self.y_score, self.y_true)
 
     def save(self):
         data = {
