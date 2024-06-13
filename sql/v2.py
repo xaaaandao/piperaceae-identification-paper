@@ -2,6 +2,7 @@ import os
 import pathlib
 from typing import LiteralString, Any
 
+import numpy as np
 import pandas as pd
 import sqlalchemy
 
@@ -11,9 +12,13 @@ from sql.models import F1, Accuracy, DatasetF1, DatasetAccuracy, TopK, DatasetTo
 
 
 def loadv2(session):
-    for p in pathlib.Path('../output/pr_dataset/a').glob('*'):
+    for p in pathlib.Path('../output/pr_dataset').glob('*'):
         if len(os.listdir(p)) > 0:
-            classifier, dataset = insert_dataset(p, session)
+            filename = os.path.join(p, 'mean', 'means_true_positive.csv')
+            df = pd.read_csv(filename, sep=';', index_col=False, header=0)
+
+            count_levels = len(np.unique(df['labels'].tolist()))
+            classifier, dataset = insert_dataset(count_levels, p, session)
 
 
             filename = os.path.join(p, 'mean', 'means.csv')
@@ -34,7 +39,7 @@ def loadv2(session):
                 session.commit()
 
             insert_topk(classifier, dataset, p, session)
-            break
+            # break
 
 
 def insert_topk(classifier:str, dataset:Dataset, p, session):

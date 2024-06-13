@@ -50,6 +50,7 @@ class Dataset(Base):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     minimum = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    count_levels = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
     n_features = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
     n_samples = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
     width = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)

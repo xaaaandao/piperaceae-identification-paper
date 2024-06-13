@@ -36,9 +36,14 @@ def extract_datasetv1(path: pathlib.Path):
 
 
 def loadv1(session):
-    for p in pathlib.Path('../output/07-05-2023').rglob('*clf=*'):
-        if len(os.listdir(p)) > 0:
+    for p in pathlib.Path('/media/xandao/Novo volume/v1/resultados/pr').rglob('*clf=*'):
+        if len(os.listdir(p)) > 0 and os.path.exists(os.path.join(p, 'info.csv')):
+            files = [p for p in pathlib.Path(os.path.join(p)).rglob('confusion_matrix+max.csv')]
+            df = pd.read_csv(files[0], sep=';', header=0, index_col=0)
+            count_levels = len(df.index.tolist())
+
             classifier, values = extract_datasetv1(p)
+            values.update({'count_levels': count_levels})
             dataset = exists_dataset(session, values)
             if not dataset:
                 dataset = create_dataset(**values)
@@ -48,7 +53,7 @@ def loadv1(session):
                 insert_accuracy(classifier, dataset, p, rule, session)
                 insert_f1(classifier, dataset, p, rule, session)
                 insert_topk(classifier, dataset, p, rule, session)
-            break
+            # break
 
 
 def insert_accuracy(classifier: str, dataset:Dataset, path:pathlib.Path | LiteralString | str, rule: str, session):
