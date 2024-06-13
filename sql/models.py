@@ -17,11 +17,7 @@ class DatasetF1(Base):
                                                                           primary_key=True)
     f1_id: sqlalchemy.orm.Mapped[int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('f1.id'), primary_key=True)
     classifier = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-
-    # association between Assocation -> Child
     f1: sqlalchemy.orm.Mapped['F1'] = sqlalchemy.orm.relationship(back_populates='datasets')
-
-    # association between Assocation -> Parent
     dataset: sqlalchemy.orm.Mapped['Dataset'] = sqlalchemy.orm.relationship(back_populates='f1s')
 
 
@@ -33,11 +29,7 @@ class DatasetAccuracy(Base):
     accuracy_id: sqlalchemy.orm.Mapped[int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('accuracy.id'),
                                                                            primary_key=True)
     classifier = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-
-    # association between Assocation -> Child
     accuracy: sqlalchemy.orm.Mapped['Accuracy'] = sqlalchemy.orm.relationship(back_populates='datasets')
-
-    # association between Assocation -> Parent
     dataset: sqlalchemy.orm.Mapped['Dataset'] = sqlalchemy.orm.relationship(back_populates='accuracies')
 
 
@@ -49,11 +41,7 @@ class DatasetTopK(Base):
     topk_id: sqlalchemy.orm.Mapped[int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('topk.id'),
                                                                            primary_key=True)
     classifier = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-
-    # association between Assocation -> Child
     topk: sqlalchemy.orm.Mapped['TopK'] = sqlalchemy.orm.relationship(back_populates='datasets')
-
-    # association between Assocation -> Parent
     dataset: sqlalchemy.orm.Mapped['Dataset'] = sqlalchemy.orm.relationship(back_populates='topks')
 
 class Dataset(Base):
@@ -81,7 +69,8 @@ class Accuracy(Base):
     __tablename__ = 'accuracy'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
-    accuracy = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
+    mean_accuracy = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
+    std_accuracy = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
     rule = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     datasets: sqlalchemy.orm.Mapped[List['DatasetAccuracy']] = sqlalchemy.orm.relationship(back_populates='accuracy')
 
@@ -90,7 +79,8 @@ class F1(Base):
     __tablename__ = 'f1'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
-    f1 = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
+    mean_f1 = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
+    std_f1 = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
     rule = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     datasets: sqlalchemy.orm.Mapped[List['DatasetF1']] = sqlalchemy.orm.relationship(back_populates='f1')
 
@@ -100,6 +90,7 @@ class TopK(Base):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     k = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
-    score = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
+    mean_score = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
+    std_score = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
     rule = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     datasets: sqlalchemy.orm.Mapped[List['DatasetTopK']] = sqlalchemy.orm.relationship(back_populates='topk')

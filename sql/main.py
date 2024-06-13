@@ -1,31 +1,4 @@
-import os
-import pathlib
-import sqlite3
-
-import numpy as np
-import pandas as pd
-import sqlalchemy as sa
-
-from sql.database import connect, close
-from sql.models import get_base
-from sql.v2 import loadv2
-
-
-def loadv1(session):
-    for p in pathlib.Path('../output/01-06-2023').rglob('*clf=*'):
-        if len(os.listdir(p)) <= 0:
-            raise IsADirectoryError('%s invalid' % p.name)
-
-
-        for rule in ['max', 'mult', 'sum']:
-            for metric in ['accuracy']:
-                filename = os.path.join(p, 'mean', 'accuracy', 'mean+%s+%s.csv' % (metric, rule))
-                print(filename)
-                df = pd.read_csv(filename, index_col=0, header=None, sep=';')
-                print(df.loc['mean_accuracy'][1])
-                print(df.loc['mean_accuracy'][1])
-
-
+from sql.v1 import loadv1
 
 
 def main():
