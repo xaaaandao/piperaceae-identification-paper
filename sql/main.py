@@ -5,6 +5,7 @@ import numpy as np
 from sql.database import connect, close
 from sql.models import get_base
 from sql.v1 import loadv1, extract_datasetv1
+from sql.v2 import loadv2
 
 
 def main():
@@ -15,10 +16,8 @@ def main():
     base = get_base()
     base.metadata.create_all(engine)
 
-    # loadv2(session)
-    loadv1(session)
-    # test = 'clf=a+len=B+ex=c+ft=d+c=e+dt=f+m=g'
-    # extract_dataset(test)
+    loadv2(session)
+    # loadv1(session)
 
     close(engine, session)
 

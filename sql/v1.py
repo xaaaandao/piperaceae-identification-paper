@@ -1,20 +1,14 @@
 import os
 import pathlib
 import re
+from typing import LiteralString
 
 import pandas as pd
+import sqlalchemy
 
 from sql.database import insert
 from sql.dataset import exists_dataset, create_dataset
-from sql.models import F1, Accuracy, DatasetF1, DatasetAccuracy, TopK, DatasetTopK
-
-
-def create_f1(df: pd.DataFrame, rule: str) -> F1:
-    return F1(mean_f1=df.loc['mean_f1'][1], std_f1=df.loc['std_f1'][1], rule=rule)
-
-
-def create_accuracy(df: pd.DataFrame, rule: str) -> Accuracy:
-    return Accuracy(mean_accuracy=df.loc['mean_accuracy'][1], std_accuracy=df.loc['std_accuracy'][1], rule=rule)
+from sql.models import F1, Accuracy, DatasetF1, DatasetAccuracy, TopK, DatasetTopK, Dataset
 
 
 def get_n_samples(path: pathlib.Path):
@@ -41,54 +35,59 @@ def extract_datasetv1(path: pathlib.Path):
     return classifier, values
 
 
-def insert_topk(classifier, dataset, path, rule, session):
+def loadv1(session):
+    for p in pathlib.Path('../output/01-06-2023').rglob('*clf=*'):
+        if len(os.listdir(p)) > 0:
+            classifier, values = extract_datasetv1(p)
+            dataset = exists_dataset(session, values)
+            if not dataset:
+                dataset = create_dataset(**values)
+                insert(dataset, session)
+
+            for rule in ['max', 'mult', 'sum']:
+                insert_accuracy(classifier, dataset, p, rule, session)
+                insert_f1(classifier, dataset, p, rule, session)
+                insert_topk(classifier, dataset, p, rule, session)
+
+
+def insert_accuracy(classifier: str, dataset:Dataset, path:pathlib.Path | LiteralString | str, rule: str, session):
+    filename = os.path.join(path, 'mean', 'accuracy', 'mean+accuracy+%s.csv' % rule)
+    c = session.query(DatasetAccuracy).filter(sqlalchemy.and_(DatasetAccuracy.dataset.__eq__(dataset), DatasetAccuracy.classifier.__eq__(classifier))).count()
+    if c == 0:
+        df = pd.read_csv(filename, index_col=0, header=None, sep=';')
+        accuracy = Accuracy(mean=df.loc['mean_accuracy'][1], std=df.loc['std_accuracy'][1], rule=rule)
+        dataset_accuracy = DatasetAccuracy(classifier=classifier)
+        dataset_accuracy.accuracy = accuracy
+        insert(accuracy, session)
+        dataset.accuracies.append(dataset_accuracy)
+        session.commit()
+
+
+def insert_f1(classifier: str, dataset:Dataset, path:pathlib.Path | LiteralString | str, rule: str, session):
+    c = session.query(DatasetF1).filter(sqlalchemy.and_(DatasetF1.dataset.__eq__(dataset), DatasetF1.classifier.__eq__(classifier))).count()
+    if c == 0:
+        filename = os.path.join(path, 'mean', 'f1', 'mean+f1+%s.csv' % rule)
+        df = pd.read_csv(filename, index_col=0, header=None, sep=';')
+        f1 = F1(mean=df.loc['mean_f1'][1], std_f1=df.loc['std'][1], rule=rule)
+        dataset_f1 = DatasetF1(classifier=classifier)
+        dataset_f1.f1 = f1
+        insert(f1, session)
+        dataset.f1s.append(dataset_f1)
+        session.commit()
+
+
+def insert_topk(classifier: str, dataset:Dataset, path:pathlib.Path | LiteralString | str, rule: str, session):
     filename = os.path.join(path, 'mean', 'topk', 'mean_topk+%s.csv' % rule)
     df = pd.read_csv(filename, sep=';', index_col=False, header=0)
 
-    dict_cols = {j:i for i,j in enumerate(df.columns)}
-    for row in df.values:
-        topk = TopK(k=row[dict_cols['k']], mean_score=row[dict_cols['mean']], std_score=row[dict_cols['std']], rule=rule)
-        dataset_topk = DatasetTopK(classifier=classifier)
-        dataset_topk.topk = topk
-        insert(topk, session)
-        dataset.topks.append(dataset_topk)
-        session.commit()
-
-def loadv1(session):
-    for p in pathlib.Path('../output/01-06-2023').rglob('*clf=*'):
-        if len(os.listdir(p)) <= 0:
-            raise IsADirectoryError('%s invalid' % p.name)
-
-        classifier, values = extract_datasetv1(p)
-        dataset = exists_dataset(session, values)
-        if not dataset:
-            dataset = create_dataset(**values)
-            insert(dataset, session)
-
-        for rule in ['max', 'mult', 'sum']:
-            insert_accuracy(classifier, dataset, p, rule, session)
-            insert_f1(classifier, dataset, p, rule, session)
-            insert_topk(classifier, dataset, p, rule, session)
-
-
-
-def insert_accuracy(classifier, dataset, path, rule, session):
-    filename = os.path.join(path, 'mean', 'accuracy', 'mean+accuracy+%s.csv' % rule)
-    df = pd.read_csv(filename, index_col=0, header=None, sep=';')
-    accuracy = create_accuracy(df, rule)
-    dataset_accuracy = DatasetAccuracy(classifier=classifier)
-    dataset_accuracy.accuracy = accuracy
-    insert(accuracy, session)
-    dataset.accuracies.append(dataset_accuracy)
-    session.commit()
-
-
-def insert_f1(classifier, dataset, path, rule, session):
-    filename = os.path.join(path, 'mean', 'f1', 'mean+f1+%s.csv' % rule)
-    df = pd.read_csv(filename, index_col=0, header=None, sep=';')
-    f1 = create_f1(df, rule)
-    dataset_f1 = DatasetF1(classifier=classifier)
-    dataset_f1.f1 = f1
-    insert(f1, session)
-    dataset.f1s.append(dataset_f1)
-    session.commit()
+    dict_cols = {j: i for i, j in enumerate(df.columns)}
+    c = session.query(DatasetTopK).filter(sqlalchemy.and_(DatasetTopK.dataset.__eq__(dataset), DatasetTopK.classifier.__eq__(classifier))).count()
+    if c == 0:
+        for row in df.values:
+            topk = TopK(k=row[dict_cols['k']], mean=row[dict_cols['mean']], std=row[dict_cols['std']],
+                        rule=rule)
+            dataset_topk = DatasetTopK(classifier=classifier)
+            dataset_topk.topk = topk
+            insert(topk, session)
+            dataset.topks.append(dataset_topk)
+            session.commit()

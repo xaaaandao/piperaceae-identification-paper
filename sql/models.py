@@ -69,8 +69,8 @@ class Accuracy(Base):
     __tablename__ = 'accuracy'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
-    mean_accuracy = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
-    std_accuracy = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
+    mean = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
+    std = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
     rule = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     datasets: sqlalchemy.orm.Mapped[List['DatasetAccuracy']] = sqlalchemy.orm.relationship(back_populates='accuracy')
 
@@ -79,8 +79,8 @@ class F1(Base):
     __tablename__ = 'f1'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
-    mean_f1 = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
-    std_f1 = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
+    mean = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
+    std = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
     rule = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     datasets: sqlalchemy.orm.Mapped[List['DatasetF1']] = sqlalchemy.orm.relationship(back_populates='f1')
 
@@ -90,7 +90,7 @@ class TopK(Base):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     k = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
-    mean_score = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
-    std_score = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
+    mean = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
+    std = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
     rule = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     datasets: sqlalchemy.orm.Mapped[List['DatasetTopK']] = sqlalchemy.orm.relationship(back_populates='topk')

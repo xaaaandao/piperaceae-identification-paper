@@ -10,45 +10,34 @@ from sql.database import insert
 from sql.models import Dataset
 
 
-def exists_dataset(df: pd.DataFrame, session)->Dataset:
-    extractor, minimum, n_features, n_samples, name, region = get_dataset_values(df)
-    dataset = session.query(Dataset) \
-        .filter(sa.and_(Dataset.name.__eq__(name),
-                        Dataset.model.__eq__(extractor),
-                        Dataset.minimum.__eq__(minimum),
-                        Dataset.n_features.__eq__(n_features),
-                        Dataset.n_samples.__eq__(n_samples),
-                        Dataset.name.__eq__(name),
-                        Dataset.region.__eq__(region))) \
-        .first()
-    return dataset
-
-
 def create_dataset(**values:dict)->Dataset:
     return Dataset(**values)
 
 
-def insert_dataset(path: pathlib.Path | LiteralString | str, session)->Dataset:
+def insert_dataset(path: pathlib.Path | LiteralString | str, session)->(str, Dataset):
     filename = os.path.join(path, 'dataset.csv')
 
     if not os.path.exists(filename):
         print('%s invalid' % filename)
     df = pd.read_csv(filename, sep=';', index_col=False, header=0, na_filter=False)
+    df.replace(to_replace='None', value=np.nan, inplace=True)
+    values = df.to_dict('records')[0]
+    classifier = values['classifier']
 
-    dataset = exists_dataset(df, session)
+    df = pd.read_csv(os.path.join(path, 'image.csv'), sep=';', index_col=False, header=0, na_filter=False)
+    values_image = df.to_dict('records')[0]
+
+    values.update({'n_features': values['count_features'],'n_samples': values['count_samples'], 'version':2, 'height':values_image['height'], 'width':values_image['width'], 'color': values_image['color']})
+    for key in ['classifier', 'descriptor', 'extractor', 'format', 'input', 'count_samples', 'count_features']:
+        values.__delitem__(key)
+    dataset = exists_dataset(session, values)
 
     if not dataset:
-        dataset = create_dataset(df)
+        dataset = create_dataset(**values)
         insert(dataset, session)
 
-    return dataset
+    return classifier, dataset
 
-def get_classifier(path: pathlib.Path | LiteralString | str)->Dataset:
-    filename = os.path.join(path, 'dataset.csv')
-    if not os.path.exists(filename):
-        print('%s invalid' % filename)
-    df = pd.read_csv(filename, sep=';', index_col=False, header=0, na_filter=False)
-    return df['classifier'][0]
 
 def get_dataset_values(df: pd.DataFrame)->Any:
     extractor = get_feature_name(df)
@@ -56,7 +45,7 @@ def get_dataset_values(df: pd.DataFrame)->Any:
     name = df['name'][0]
     n_features = int(df['count_features'][0])
     n_samples = int(df['count_samples'][0])
-    region = df['count_features'][0].astype(str)
+    region = df['region'][0].astype(str)
     return extractor, minimum, n_features, n_samples, name, region
 
 
@@ -76,5 +65,8 @@ def exists_dataset(session, values:dict) -> Dataset:
                         Dataset.minimum.__eq__(values['minimum']),
                         Dataset.n_features.__eq__(values['n_features']),
                         Dataset.n_samples.__eq__(values['n_samples']),
-                        Dataset.region.__eq__(values['region']))) \
+                        Dataset.region.__eq__(values['region']),
+                        Dataset.color.__eq__(values['color']),
+                        Dataset.height.__eq__(values['height']),
+                        Dataset.width.__eq__(values['width']))) \
         .first()
