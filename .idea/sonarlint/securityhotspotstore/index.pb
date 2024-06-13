@@ -64,3 +64,5 @@ predict.py,9/1/91731ca614e5c56e746c690e96c1647309902f9c
 ¤output/pr_dataset/a/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=256+width=256+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/mean/means.csv,d/a/da59e71bc637098a3474139741388975dc79190b
 Ú
 ©output/pr_dataset/a/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=256+width=256+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/mean/means_topk.csv,1/a/1a366b2071ce79b10dd44601edd1818a655568c1
+­
+}output/01-06-2023/01-06-2023+00-40-40/clf=SVC+len=400+ex=mobilenetv2+ft=1280+c=RGB+dt=br_dataset+m=10/mean/f1/mean+f1+max.csv,4/3/43b87c0376467d4a18765ff36477de2291b64418

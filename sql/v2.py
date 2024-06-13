@@ -34,6 +34,7 @@ def loadv2(session):
                 session.commit()
 
             insert_topk(classifier, dataset, p, session)
+            break
 
 
 def insert_topk(classifier:str, dataset:Dataset, p, session):

@@ -27,7 +27,7 @@ def insert_dataset(path: pathlib.Path | LiteralString | str, session)->(str, Dat
     df = pd.read_csv(os.path.join(path, 'image.csv'), sep=';', index_col=False, header=0, na_filter=False)
     values_image = df.to_dict('records')[0]
 
-    values.update({'n_features': values['count_features'],'n_samples': values['count_samples'], 'version':2, 'height':values_image['height'], 'width':values_image['width'], 'color': values_image['color']})
+    values.update({'n_features': values['count_features'],'n_samples': values['count_samples'], 'version':2, 'height':values_image['height'], 'width':values_image['width'], 'color': values_image['color'], 'path':path.name})
     for key in ['classifier', 'descriptor', 'extractor', 'format', 'input', 'count_samples', 'count_features']:
         values.__delitem__(key)
     dataset = exists_dataset(session, values)
@@ -68,5 +68,6 @@ def exists_dataset(session, values:dict) -> Dataset:
                         Dataset.region.__eq__(values['region']),
                         Dataset.color.__eq__(values['color']),
                         Dataset.height.__eq__(values['height']),
+                        Dataset.path.__eq__(values['path']),
                         Dataset.width.__eq__(values['width']))) \
         .first()

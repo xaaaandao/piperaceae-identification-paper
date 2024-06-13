@@ -18,7 +18,7 @@ def get_n_samples(path: pathlib.Path):
 
 
 def extract_datasetv1(path: pathlib.Path):
-    if '+region=' in path.name:
+    if '+r=' in path.name:
         pattern = r'clf=(?P<classifier>.+)\+len=(?P<image_size>.+)\+ex=(?P<model>.+)\+ft=(?P<n_features>.+)\+c=(?P<color>.+)\+dt=(?P<name>.+)\+r=(?P<region>.+)\+m=(?P<minimum>.+)'
     else:
         pattern = r'clf=(?P<classifier>.+)\+len=(?P<image_size>.+)\+ex=(?P<model>.+)\+ft=(?P<n_features>.+)\+c=(?P<color>.+)\+dt=(?P<name>.+)\+m=(?P<minimum>.+)'
@@ -28,7 +28,7 @@ def extract_datasetv1(path: pathlib.Path):
     if 'region' not in values.keys():
         values.update({'region': None})
     values.update(
-        {'n_samples': get_n_samples(path), 'version': 1, 'height': values['image_size'], 'width': values['image_size']})
+        {'n_samples': get_n_samples(path), 'version': 1, 'height': values['image_size'], 'width': values['image_size'], 'path': path.name})
     classifier = values['classifier']
     values.__delitem__('classifier')
     values.__delitem__('image_size')
@@ -36,7 +36,7 @@ def extract_datasetv1(path: pathlib.Path):
 
 
 def loadv1(session):
-    for p in pathlib.Path('../output/01-06-2023').rglob('*clf=*'):
+    for p in pathlib.Path('../output/07-05-2023').rglob('*clf=*'):
         if len(os.listdir(p)) > 0:
             classifier, values = extract_datasetv1(p)
             dataset = exists_dataset(session, values)
@@ -48,6 +48,7 @@ def loadv1(session):
                 insert_accuracy(classifier, dataset, p, rule, session)
                 insert_f1(classifier, dataset, p, rule, session)
                 insert_topk(classifier, dataset, p, rule, session)
+            break
 
 
 def insert_accuracy(classifier: str, dataset:Dataset, path:pathlib.Path | LiteralString | str, rule: str, session):
@@ -68,7 +69,7 @@ def insert_f1(classifier: str, dataset:Dataset, path:pathlib.Path | LiteralStrin
     if c == 0:
         filename = os.path.join(path, 'mean', 'f1', 'mean+f1+%s.csv' % rule)
         df = pd.read_csv(filename, index_col=0, header=None, sep=';')
-        f1 = F1(mean=df.loc['mean_f1'][1], std_f1=df.loc['std'][1], rule=rule)
+        f1 = F1(mean=df.loc['mean_f1'][1], std=df.loc['std_f1'][1], rule=rule)
         dataset_f1 = DatasetF1(classifier=classifier)
         dataset_f1.f1 = f1
         insert(f1, session)

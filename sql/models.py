@@ -58,6 +58,7 @@ class Dataset(Base):
     color = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     contrast = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
     patch = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    path = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     model = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     region = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     f1s: sqlalchemy.orm.Mapped[List['DatasetF1']] = sqlalchemy.orm.relationship(back_populates='dataset')
