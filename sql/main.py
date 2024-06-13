@@ -4,7 +4,7 @@ import numpy as np
 
 from sql.database import connect, close
 from sql.models import get_base
-from sql.v1 import loadv1, extract_dataset
+from sql.v1 import loadv1, extract_datasetv1
 
 
 def main():

@@ -25,8 +25,7 @@ def exists_dataset(df: pd.DataFrame, session)->Dataset:
 
 
 def create_dataset(**values:dict)->Dataset:
-    # extractor, minimum, n_features, n_samples, name, region = get_dataset_values(df)
-    return Dataset(values)
+    return Dataset(**values)
 
 
 def insert_dataset(path: pathlib.Path | LiteralString | str, session)->Dataset:
@@ -73,7 +72,7 @@ def get_feature_name(df: pd.DataFrame)->str:
 def exists_dataset(session, values:dict) -> Dataset:
     return session.query(Dataset) \
         .filter(sa.and_(Dataset.name.__eq__(values['name']),
-                        Dataset.model.__eq__(values['extractor']),
+                        Dataset.model.__eq__(values['model']),
                         Dataset.minimum.__eq__(values['minimum']),
                         Dataset.n_features.__eq__(values['n_features']),
                         Dataset.n_samples.__eq__(values['n_samples']),
