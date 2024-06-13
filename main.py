@@ -124,8 +124,6 @@ def main(config, clf, input, output, pca):
             logging.info('the current classifier is %s' % classifier_name)
 
             dataset.count_features = x.shape[1]
-            # ran = list(
-            #     pathlib.Path(output).rglob('*%s*' + dataset.get_output_name(classifier_name, dataset.count_features)))
 
             target = dataset.get_output_name(classifier_name, dataset.count_features)
             rans = [p.resolve() for p in pathlib.Path(output).rglob('*%s*' % target)]

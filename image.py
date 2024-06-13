@@ -18,7 +18,7 @@ class Image:
         self.color = data['color'].values[0]
         self.contrast = data['contrast'].values[0]
         self.height = data['height'].values[0]
-        self.patch = data['patch'].values[0]
+        self.patch = int(data['patch'].values[0])
         self.width = data['width'].values[0]
 
     def save(self, output:pathlib.Path | LiteralString | str) -> None:

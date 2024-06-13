@@ -70,8 +70,6 @@ b
 ˜output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=nan+min=nan+mod=vgg16+clf=DecisionTreeClassifier/fold+2/best+evals.csv,0/e/0ee7a2198d3cfb9d3e15dd2568c2bea3ca423ac9
 Ç
 –output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=nan+min=nan+mod=vgg16+clf=DecisionTreeClassifier/mean/best+means.csv,8/4/84fb8cdc104e5481ab184c4b1e8a4410b9669ea8
-È
-—output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=nan+min=nan+mod=vgg16+clf=DecisionTreeClassifier/fold+1/predicts2.csv,2/e/2e9c9db9ee0aced95221aa86cefef6d03d81cfd5
 ‹
 Úoutput/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=nan+min=nan+mod=vgg16+clf=DecisionTreeClassifier/fold+1/confusion_matrix/multilabel/max/confusion_matrix_multilabel=Peperomia+blanda.csv,9/6/96f8d17506bce55e538d3d349ddb54657ae3cbc8
 
@@ -96,8 +94,6 @@ b
 ³output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=nan+min=nan+mod=vgg16+clf=DecisionTreeClassifier/fold+2/confusion_matrix/confusion_matrix+max.csv,8/d/8dc3ebda9742c5ddfceb7b7d49fa8a794f636c09
 å
 ´output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=nan+min=nan+mod=vgg16+clf=DecisionTreeClassifier/fold+2/confusion_matrix/confusion_matrix+mult.csv,0/7/07a0ddfe358c3852ce6b5ce88eb47dbbe69362fc
-Á
-output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=nan+min=nan+mod=vgg16+clf=DecisionTreeClassifier/best_fold.csv,1/5/1532611913fc3d880da7e70a3a52e9312011ea79
 Æ
 •output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=nan+min=nan+mod=vgg16+clf=DecisionTreeClassifier/best/best_fold.csv,e/1/e1e3c1bc4c069857b71fd8e3b9aa0a39e7772f00
 Ì
@@ -132,3 +128,27 @@ b
 ›output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=nan+min=nan+mod=vgg16+clf=DecisionTreeClassifier/fold+1/true_positive.csv,e/d/ed773f437e4a3a0689a25982a3a793d8f2bfa6b7
 Ð
 Ÿoutput/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=nan+min=nan+mod=vgg16+clf=DecisionTreeClassifier/mean/means_true_positive.csv,b/5/b5e9905f4686628d533ff66a4dd7c6ca3be146c1
+4
+c.sh,5/b/5bac510be471dab70367952fb3a95a01fdf5a813
+;
+sql/main.py,5/a/5ab62b14187a8c22fe25be37e03e9ea530447cf1
+Ê
+™output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=nan+min=nan+mod=vgg16+clf=DecisionTreeClassifier/fold+5/evaluations.csv,2/c/2cdc39793524d038bd71cdd74e0e4d9d06c3a9b0
+Ã
+’output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=nan+min=nan+mod=vgg16+clf=DecisionTreeClassifier/fold+5/topk.csv,d/7/d74475cee375baf1e3d3fa0f15d745eabdfbbb17
+?
+sql/database.py,f/2/f2af418489ef1153f2008980457e32945042a01a
+9
+	sql/v2.py,4/5/459caef38abfa33857ce1b0e37779a0ca44b8854
+=
+sql/models.py,6/8/6828d86faa0db51d86057814e21e322d1a3671d6
+>
+sql/dataset.py,4/c/4c7411a5d8635f6ac68538e46895ff133efbff3f
+Õ
+¤output/pr_dataset/a/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=256+width=256+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/mean/means.csv,d/a/da59e71bc637098a3474139741388975dc79190b
+Ú
+©output/pr_dataset/a/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=256+width=256+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/mean/means_topk.csv,1/a/1a366b2071ce79b10dd44601edd1818a655568c1
+ž
+noutput/01-06-2023/01-06-2023+00-40-40/clf=SVC+len=400+ex=mobilenetv2+ft=1280+c=RGB+dt=br_dataset+m=10/info.csv,2/5/25cb0f90ee5d700835a3da03372a4796a4583d34
+º
+‰output/01-06-2023/01-06-2023+00-40-40/clf=SVC+len=400+ex=mobilenetv2+ft=1280+c=RGB+dt=br_dataset+m=10/mean/accuracy/mean+accuracy+max.csv,d/0/d0ffe45ee216d368df07427fa636836a93bdbd80
