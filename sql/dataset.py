@@ -14,7 +14,7 @@ def create_dataset(**values:dict)->Dataset:
     return Dataset(**values)
 
 
-def insert_dataset(count_levels: int, path: pathlib.Path | LiteralString | str, session)->(str, Dataset):
+def insert_dataset(path: pathlib.Path | LiteralString | str, session)->(str, Dataset):
     filename = os.path.join(path, 'dataset.csv')
 
     if not os.path.exists(filename):
@@ -27,7 +27,7 @@ def insert_dataset(count_levels: int, path: pathlib.Path | LiteralString | str, 
     df = pd.read_csv(os.path.join(path, 'image.csv'), sep=';', index_col=False, header=0, na_filter=False)
     values_image = df.to_dict('records')[0]
 
-    values.update({'n_features': values['count_features'],'n_samples': values['count_samples'], 'version':2, 'height':values_image['height'], 'width':values_image['width'], 'color': values_image['color'], 'path':path.name, 'count_levels': count_levels})
+    values.update({'n_features': values['count_features'],'n_samples': values['count_samples'], 'version':2, 'height':values_image['height'], 'width':values_image['width'], 'color': values_image['color'], 'path':path.name})
     for key in ['classifier', 'descriptor', 'extractor', 'format', 'input', 'count_samples', 'count_features']:
         values.__delitem__(key)
     dataset = exists_dataset(session, values)

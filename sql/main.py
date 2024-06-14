@@ -17,7 +17,7 @@ def main():
     base.metadata.create_all(engine)
 
     loadv2(session)
-    loadv1(session)
+    # loadv1(session)
 
     close(engine, session)
 

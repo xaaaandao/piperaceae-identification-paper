@@ -36,7 +36,7 @@ def extract_datasetv1(path: pathlib.Path):
 
 
 def loadv1(session):
-    for p in pathlib.Path('/media/xandao/Novo volume/v1/resultados/pr').rglob('*clf=*'):
+    for p in pathlib.Path('/media/xandao/6844EF7A44EF4980/resultados/regions').rglob('*clf=*'):
         if len(os.listdir(p)) > 0 and os.path.exists(os.path.join(p, 'info.csv')):
             files = [p for p in pathlib.Path(os.path.join(p)).rglob('confusion_matrix+max.csv')]
             df = pd.read_csv(files[0], sep=';', header=0, index_col=0)
