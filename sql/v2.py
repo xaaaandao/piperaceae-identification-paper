@@ -1,11 +1,9 @@
 import os
 import pathlib
-from typing import Any
 
 import pandas as pd
-import sqlalchemy
 
-from sql.database import insert
+from sql.database import insert, exists_metric
 from sql.dataset import insert_dataset
 from sql.models import F1, Accuracy, DatasetF1, DatasetAccuracy, TopK, DatasetTopK, Dataset
 
@@ -77,21 +75,6 @@ def insert_topk(classifier: str, dataset: Dataset, dict_cols:dict, df:pd.DataFra
         insert(topk, session)
         dataset.topks.append(dataset_topk)
         session.commit()
-
-
-def exists_metric(classifier: str, dataset:Dataset, session, table: Any):
-    """
-    Retorna a quantidade de registros de um determinado dataset e classificador.
-    :param classifier: nome do classificador que está sendo procurado.
-    :param dataset: classe dataset.
-    :param session: sessão do banco de dados.
-    :param table: tabela aonde deve ser feito a consulta.
-    :return: quantidade de registros.
-    """
-    return session.query(table) \
-        .filter(sqlalchemy.and_(table.dataset.__eq__(dataset),
-                                table.classifier.__eq__(classifier))) \
-        .count()
 
 
 def insert_accuracy(classifier:str, dataset:Dataset, dict_cols:dict, row, session):

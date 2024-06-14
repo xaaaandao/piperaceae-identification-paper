@@ -1,6 +1,5 @@
-from typing import Optional, List
+from typing import List
 
-import sqlalchemy
 import sqlalchemy.orm
 
 Base = sqlalchemy.orm.declarative_base()

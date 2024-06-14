@@ -11,10 +11,21 @@ from sql.models import Dataset
 
 
 def create_dataset(**values:dict)->Dataset:
+    """
+    Retorna uma instância de dataset.
+    :param values: dicionário com as informações do dataset.
+    :return: dataset
+    """
     return Dataset(**values)
 
 
 def insert_dataset(path: pathlib.Path | LiteralString | str, session)->(str, Dataset):
+    """
+    Carrega as informações do dataset e adiciona no banco de dados (caso não exista).
+    :param path: caminho do arquivo CSV.
+    :param session: sessão do banco de dados.
+    :return: classifier, dataset
+    """
     filename = os.path.join(path, 'dataset.csv')
 
     if not os.path.exists(filename):
@@ -39,17 +50,28 @@ def insert_dataset(path: pathlib.Path | LiteralString | str, session)->(str, Dat
     return classifier, dataset
 
 
-def get_dataset_values(df: pd.DataFrame)->Any:
-    extractor = get_feature_name(df)
-    minimum = int(df['minimum'][0])
-    name = df['name'][0]
-    n_features = int(df['count_features'][0])
-    n_samples = int(df['count_samples'][0])
-    region = df['region'][0].astype(str)
-    return extractor, minimum, n_features, n_samples, name, region
+# def get_dataset_values(df: pd.DataFrame)->Any:
+#     """
+#     Verifica se existe um dataset, e retorna a sua primeira ocorrência.
+#     :param session: sessão do banco de dados.
+#     :param values: dicionário com as informações do dataset.
+#     :return:
+#     """
+#     extractor = get_feature_name(df)
+#     minimum = int(df['minimum'][0])
+#     name = df['name'][0]
+#     n_features = int(df['count_features'][0])
+#     n_samples = int(df['count_samples'][0])
+#     region = df['region'][0].astype(str)
+#     return extractor, minimum, n_features, n_samples, name, region
 
 
 def get_feature_name(df: pd.DataFrame)->str:
+    """
+    Verifica qual coluna está preenchida (model, descriptor ou extractor), e retorna o valor qye está nessa coluna
+    :param df: DataFrame com as informações do dataset.
+    :return: string com o nome do extrator de features utilizado.
+    """
     if 'model' in df.columns:
         return df['model'][0]
     if 'descriptor' in df.columns:
@@ -59,6 +81,12 @@ def get_feature_name(df: pd.DataFrame)->str:
 
 
 def exists_dataset(session, values:dict) -> Dataset:
+    """
+    Verifica se existe um dataset, e retorna a sua primeira ocorrência.
+    :param session: sessão do banco de dados.
+    :param values: dicionário com as informações do dataset.
+    :return:
+    """
     return session.query(Dataset) \
         .filter(sa.and_(Dataset.name.__eq__(values['name']),
                         Dataset.count_levels.__eq__(values['count_levels']),
