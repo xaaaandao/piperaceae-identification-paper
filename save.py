@@ -1,12 +1,8 @@
-import collections
-import itertools
-import math
 import pathlib
 from typing import LiteralString, Any
 
 import joblib
 import logging
-import numpy as np
 import os
 import pandas as pd
 
@@ -18,7 +14,7 @@ def save_best(df: pd.DataFrame, output: pathlib.Path | LiteralString | str):
     """
     Salva em um arquivo CSV a melhor média, ou seja, a médiaa com o maior valor
     de f1 e acurácia.
-    :param df:
+    :param df: Dataframe aonde será procurado o melhor valor.
     :param output: local aonde as informações do melhor classificador deve ser salvo.
     """
     filename = os.path.join(output, 'best+means.csv')

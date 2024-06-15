@@ -8,10 +8,18 @@ from config import Config
 
 
 def get_classifiers() -> list:
+    """
+    Lista com os nomes dos classificadores disponíveis.
+    :return: list, com os nomes dos classificadores disponíveis.
+    """
     return ['DecisionTreeClassifier', 'RandomForestClassifier', 'KNeighborsClassifier', 'MLPClassifier', 'SVC']
 
 
 def select_classifiers(config: Config, selected: list) -> list:
+    """
+    Retorna uma lista de objetos dos classificadores selecionados.
+    :return: list, retorna uma lista com os classificadores (objetos) selecionados.
+    """
     classifiers = [
         DecisionTreeClassifier(random_state=config.seed),
         KNeighborsClassifier(n_jobs=config.n_jobs),
