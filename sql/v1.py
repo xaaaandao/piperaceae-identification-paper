@@ -6,7 +6,7 @@ from typing import LiteralString
 import pandas as pd
 
 from sql.database import insert, exists_metric
-from sql.dataset import exists_dataset, create_dataset
+from sql.dataset import exists_dataset, create_dataset, insert_topk, insert_f1, insert_accuracy
 from sql.models import F1, Accuracy, DatasetF1, DatasetAccuracy, TopK, DatasetTopK, Dataset
 
 
@@ -65,9 +65,9 @@ def insert_means(classifier:str, dataset:Dataset, path:pathlib.Path, session):
     :return: nada.
     """
     for rule in ['max', 'mult', 'sum']:
-        insert_accuracy(classifier, dataset, path, rule, session)
-        insert_f1(classifier, dataset, path, rule, session)
-        insert_topk(classifier, dataset, path, rule, session)
+        load_accuracy(classifier, dataset, path, rule, session)
+        load_f1(classifier, dataset, path, rule, session)
+        load_topk(classifier, dataset, path, rule, session)
 
 
 def insert_dataset(count_levels:int, path:pathlib.Path, session):
@@ -99,7 +99,7 @@ def get_count_levels(path:pathlib.Path) -> int:
     return len(df.index.tolist())
 
 
-def insert_accuracy(classifier: str, dataset:Dataset, path:pathlib.Path | LiteralString | str, rule: str, session):
+def load_accuracy(classifier: str, dataset:Dataset, path: pathlib.Path | LiteralString | str, rule: str, session):
     """
     Insere os valores na tabela acurácia, e logo após insere na tabela many to many
     equivalente.
@@ -118,14 +118,10 @@ def insert_accuracy(classifier: str, dataset:Dataset, path:pathlib.Path | Litera
     accuracy = Accuracy(mean=df.loc['mean_accuracy'][1],
                         std=df.loc['std_accuracy'][1],
                         rule=rule)
-    dataset_accuracy = DatasetAccuracy(classifier=classifier)
-    dataset_accuracy.accuracy = accuracy
-    insert(accuracy, session)
-    dataset.accuracies.append(dataset_accuracy)
-    session.commit()
+    insert_accuracy(accuracy, classifier, dataset, session)
 
 
-def insert_f1(classifier: str, dataset:Dataset, path:pathlib.Path | LiteralString | str, rule: str, session):
+def load_f1(classifier: str, dataset:Dataset, path: pathlib.Path | LiteralString | str, rule: str, session):
     """
     Insere os valores na tabela f1, e logo após insere na tabela many to many
     equivalente.
@@ -142,14 +138,10 @@ def insert_f1(classifier: str, dataset:Dataset, path:pathlib.Path | LiteralStrin
     filename = os.path.join(path, 'mean', 'f1', 'mean+f1+%s.csv' % rule)
     df = pd.read_csv(filename, index_col=0, header=None, sep=';')
     f1 = F1(mean=df.loc['mean_f1'][1], std=df.loc['std_f1'][1], rule=rule)
-    dataset_f1 = DatasetF1(classifier=classifier)
-    dataset_f1.f1 = f1
-    insert(f1, session)
-    dataset.f1s.append(dataset_f1)
-    session.commit()
+    insert_f1(classifier, dataset, f1, session)
 
 
-def insert_topk(classifier: str, dataset:Dataset, path:pathlib.Path | LiteralString | str, rule: str, session):
+def load_topk(classifier: str, dataset:Dataset, path: pathlib.Path | LiteralString | str, rule: str, session):
     """
     Insere os valores na tabela topk, e logo após insere na tabela many to many
     equivalente.
@@ -169,8 +161,6 @@ def insert_topk(classifier: str, dataset:Dataset, path:pathlib.Path | LiteralStr
 
     for row in df.values:
         topk = TopK(k=row[dict_cols['k']], mean=row[dict_cols['mean']], std=row[dict_cols['std']], rule=rule)
-        dataset_topk = DatasetTopK(classifier=classifier)
-        dataset_topk.topk = topk
-        insert(topk, session)
-        dataset.topks.append(dataset_topk)
-        session.commit()
+        insert_topk(classifier, dataset, session, topk)
+
+

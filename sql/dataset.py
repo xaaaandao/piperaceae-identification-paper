@@ -7,7 +7,7 @@ import pandas as pd
 import sqlalchemy as sa
 
 from sql.database import insert
-from sql.models import Dataset
+from sql.models import Dataset, DatasetAccuracy, DatasetF1, DatasetTopK
 
 
 def create_dataset(**values:dict)->Dataset:
@@ -100,3 +100,57 @@ def exists_dataset(session, values:dict) -> Dataset:
                         Dataset.path.__eq__(values['path']),
                         Dataset.width.__eq__(values['width']))) \
         .first()
+
+
+def insert_accuracy(accuracy, classifier, dataset, session):
+    """
+    Insere os valores na tabela acurácia, e logo após insere na tabela many to many
+    equivalente.
+    :param classifier: nome do classificador.
+    :param dataset: classe dataset.
+    :param dict_cols: dicionário com as colunas.
+    :param row: linha do csv.
+    :param session: sessão do banco de dados.
+    :return: nada.
+    """
+    dataset_accuracy = DatasetAccuracy(classifier=classifier)
+    dataset_accuracy.accuracy = accuracy
+    insert(accuracy, session)
+    dataset.accuracies.append(dataset_accuracy)
+    session.commit()
+
+
+def insert_f1(classifier, dataset, f1, session):
+    """
+    Insere os valores na tabela f1, e logo após insere na tabela many to many
+    equivalente.
+    :param classifier: nome do classificador.
+    :param dataset: classe dataset.
+    :param dict_cols: dicionário com as colunas.
+    :param row: linha do csv.
+    :param session: sessão do banco de dados.
+    :return: nada.
+    """
+    dataset_f1 = DatasetF1(classifier=classifier)
+    dataset_f1.f1 = f1
+    insert(f1, session)
+    dataset.f1s.append(dataset_f1)
+    session.commit()
+
+
+def insert_topk(classifier, dataset, session, topk):
+    """
+    Insere os valores na tabela topk, e logo após insere na tabela many to many
+    equivalente.
+    :param classifier: nome do classificador.
+    :param dataset: classe dataset.
+    :param dict_cols: dicionário com as colunas.
+    :param df: dataframe do arquivo CSV.
+    :param session: sessão do banco de dados.
+    :return: nada.
+    """
+    dataset_topk = DatasetTopK(classifier=classifier)
+    dataset_topk.topk = topk
+    insert(topk, session)
+    dataset.topks.append(dataset_topk)
+    session.commit()

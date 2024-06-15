@@ -2,7 +2,7 @@ import collections
 import itertools
 import math
 import pathlib
-from typing import LiteralString
+from typing import LiteralString, Any
 
 import joblib
 import logging
@@ -119,7 +119,7 @@ def save_best_info_classifier(classifier, output):
     logging.info('Saving %s' % filename)
 
 
-def save(classifier, config: Config, dataset: Dataset, folds: list, means: list,
+def save(classifier: Any, config: Config, dataset: Dataset, folds: list, means: list,
          output: pathlib.Path | LiteralString | str):
     config.save(output)
     dataset.save(classifier, output)
