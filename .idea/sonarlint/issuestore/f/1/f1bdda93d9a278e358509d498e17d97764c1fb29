@@ -1,7 +1,5 @@
 
-qpython:S1192%"RDefine a constant instead of duplicating this literal '%d/%m/%Y %H:%M:%S' 3 times.(╔╚■С8ои╦я■1
-=python:S125"Remove this commented out code.(РЎ▐╚8ои╦я■1
-Bpython:S125"Remove this commented out code.(╘л·▐№    8ои╦я■1
-Jpython:S1481x"+Remove the unused local variable "results".(ПуюБ8ои╦я■1
-xpython:S3776]"TRefactor this function to reduce its Cognitive Complexity from 20 to the 15 allowed.(═каБ√    8ои╦я■1
-rpython:S1226]"NIntroduce a new variable or use its initial value before reassigning 'config'.(═каБ√    8ои╦я■1
+qpython:S1192"RDefine a constant instead of duplicating this literal '%d/%m/%Y %H:%M:%S' 3 times.(╔╚■С8ои╦я■1
+Jpython:S1481v"+Remove the unused local variable "results".(ПуюБ8ои╦я■1
+xpython:S3776["TRefactor this function to reduce its Cognitive Complexity from 20 to the 15 allowed.(═каБ√    8ои╦я■1
+rpython:S1226["NIntroduce a new variable or use its initial value before reassigning 'config'.(═каБ√    8ои╦я■1

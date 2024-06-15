@@ -13,7 +13,6 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
-# import config
 from classifiers import get_classifiers, select_classifiers
 from config import Config
 from dataset import Dataset
@@ -23,14 +22,6 @@ from mean import Mean
 from models import Model
 from save import save
 
-# from dataset import load_dataset, split_folds
-
-FOLDS = 5
-GPU_ID = 0
-N_JOBS = -1
-SEED = 1234
-OUTPUT = '/home/none/results'
-VERBOSE = 42
 
 datefmt = '%d-%m-%Y+%H-%M-%S'
 dateandtime = datetime.datetime.now().strftime(datefmt)
@@ -65,22 +56,29 @@ parameters = {
     }
 }
 
-def has_pca(dataset: Dataset, extractors: dict, x: np.ndarray) -> list:
-    return [PCA(n_components=d, random_state=SEED).fit_transform(x) for d in extractors[dataset.model.lower()] if
-            d < dataset.features]
+def has_pca(config: Config, dataset: Dataset, extractors: dict, x: np.ndarray) -> list:
+    """
+    Aplica PCA no conjunto de dados. Os valores estão definidos em um dicionário.
+    :param config: classe config com os valores das configurações dos experimentos.
+    :param dataset: classe dataset com informações do conjunto de dados.
+    :param extractors: dicionário com os extratores
+    :param x: matriz com as features.
+    :return: list, lista com as features reduzidas.
+    """
+    return [PCA(n_components=d, random_state=config.seed).fit_transform(x) for d in extractors[dataset.model.lower()] if d < dataset.features]
 
 
-def apply_pca(dataset: Dataset, extractors: dict, pca: bool, x: np.ndarray) -> list:
-    return has_pca(dataset, extractors, x) if pca and dataset.model else [x]
-
-
-def get_output_name(classifier_name: str, dataset: Dataset) -> str:
-    path = ''
-    for k, v in dataset.__dict__.items():
-        print(k, v, type(v))
-        if v and not isinstance(v, list) and not isinstance(v, Image) and 'input' not in k:
-            path = path + '%s+%s-' % (k, str(v))
-    return path + 'clf+%s' % classifier_name
+def apply_pca(config: Config, dataset: Dataset, extractors: dict, pca: bool, x: np.ndarray) -> list:
+    """
+    Verifica se é necessário aplicar o PCA.
+    :param config: classe config com os valores das configurações dos experimentos.
+    :param dataset: classe dataset com informações do conjunto de dados.
+    :param extractors: dicionário com os extratores
+    :param pca: booleano que indica se é necessário aplicar ou não o PCA.
+    :param x: matriz com as features.
+    :return: list, lista com as features reduzidas.
+    """
+    return has_pca(config, dataset, extractors, x) if pca and dataset.model else [x]
 
 
 @click.command()
@@ -115,7 +113,7 @@ def main(config, clf, input, output, pca):
         logging.error('x contains NaN values')
         raise ValueError
 
-    xs = apply_pca(dataset, model.models, pca, x)
+    xs = apply_pca(config, dataset, model.models, pca, x)
 
     results = []
     for x in xs:

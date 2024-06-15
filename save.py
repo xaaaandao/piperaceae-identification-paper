@@ -95,7 +95,12 @@ def save_folds(config: Config, dataset: Dataset, folds: list, output: pathlib.Pa
     save_best_fold(folds, output)
 
 
-def save_best_classifier(classifier, output):
+def save_best_classifier(classifier: Any, output: pathlib.Path | LiteralString | str):
+    """
+    Salva o melhor classificador encontrado pela função GridSearchCV.
+    :param classifier: classificador com os melhores hiperparâmetros.
+    :param output: local aonde o melhor classificador deve ser salvo.
+    """
     output = os.path.join(output, 'best')
     os.makedirs(output, exist_ok=True)
     filename = os.path.join(output, 'best_classifier.pkl')
@@ -109,7 +114,12 @@ def save_best_classifier(classifier, output):
         logging.warning('problems in save model (%s)' % filename)
 
 
-def save_best_info_classifier(classifier, output):
+def save_best_info_classifier(classifier: Any, output: pathlib.Path | LiteralString | str):
+    """
+    Salva as informações com melhor classificador encontrado pela função GridSearchCV.
+    :param classifier: classificador com os melhores hiperparâmetros.
+    :param output: local aonde as informações do melhor classificador deve ser salvo.
+    """
     output = os.path.join(output, 'best')
     os.makedirs(output, exist_ok=True)
     filename = os.path.join(output, 'best_classifier.csv')
@@ -121,6 +131,15 @@ def save_best_info_classifier(classifier, output):
 
 def save(classifier: Any, config: Config, dataset: Dataset, folds: list, means: list,
          output: pathlib.Path | LiteralString | str):
+    """
+    Chama as todas as funções que salvam.
+    :param classifier: classificador com os melhores hiperparâmetros.
+    :param config: classe config com os valores das configurações dos experimentos.
+    :param dataset: classe dataset com informações do conjunto de dados.
+    :param folds: lista com as execuções dos folds.
+    :param means: lista com as médias das execuções.
+    :param output: local aonde as informações do melhor classificador deve ser salvo.
+    """
     config.save(output)
     dataset.save(classifier, output)
 
