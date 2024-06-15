@@ -105,7 +105,7 @@ class Evaluate:
         Cria uma lista com os levels (classes), ou seja, nome e a quantidade de treinos e testes, que serão utilizados na matriz de confusão.
         :param count_train: coleção com a quantidade de treinos da matriz de confusão.
         :param count_test: coleção com a quantidade de testes da matriz de confusão.
-        :param levels: levels (classes), ou seja, nome das espécies utilizadas.
+        :param levels: levels (classes) com nome das espécies utilizadas.
         :param patch: quantidade de divisões da imagem.
         :return: lista com o nome das classes e a quantidade de treinos de testes.
         """
@@ -119,7 +119,7 @@ class Evaluate:
         Salva todas as matrizes de confusão.
         :param count_train: coleção com a quantidade de treinos da matriz de confusão.
         :param count_test: coleção com a quantidade de testes da matriz de confusão.
-        :param levels: levels (classes), ou seja, nome das espécies utilizadas.
+        :param levels: levels (classes) com nome das espécies utilizadas.
         :param patch: quantidade de divisões da imagem.
         :param rule: regra que gerou as matrizes de confusão.
         :return: lista com o nome das classes e a quantidade de treinos de testes.
@@ -132,7 +132,7 @@ class Evaluate:
     def get_columns(self, levels):
         """
         Cria uma lista com os levels (classes) que serão utilizados na matriz de confusão.
-        :param levels: levels (classes), ou seja, nome das espécies utilizadas.
+        :param levels: levels (classes) com nome das espécies utilizadas.
         :return: lista com o nome das classes.
         """
         return [level.specific_epithet for level in levels]
