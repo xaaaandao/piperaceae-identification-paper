@@ -1,10 +1,9 @@
 import collections
-import dataclasses
 import itertools
 import logging
 import os
 import pathlib
-from typing import LiteralString, Any
+from typing import LiteralString
 
 import numpy as np
 import pandas as pd
@@ -13,22 +12,8 @@ from sklearn.model_selection import StratifiedKFold
 
 from config import Config
 from image import Image
-
-
-
-@dataclasses.dataclass
-class Level:
-    specific_epithet: str = dataclasses.field(default=None)
-    label: int = dataclasses.field(default=None)
-
-    def __eq__(self, label: int, specific_epithet: str) -> bool:
-        return self.label.__eq__(label) and self.specific_epithet.__eq__(specific_epithet)
-
-
-@dataclasses.dataclass
-class Sample:
-    filename: str = dataclasses.field(default=None)
-    level: Level = dataclasses.field(default=None)
+from level import Level
+from sample import Sample
 
 
 class Dataset:
@@ -62,7 +47,7 @@ class Dataset:
 
 
     def load(self):
-        self.load_csv()
+        self.load_dataset()
         self.load_samples()
 
     def _print(self):
@@ -73,6 +58,9 @@ class Dataset:
         return df[['fold', 'specific_epithet']].drop_duplicates(subset=['specific_epithet', 'fold'], keep='last')
 
     def load_samples(self):
+        """
+        Carrega as informações o arquivo CSV que contém as informações das amostras.
+        """
         filename = os.path.join(self.input, 'samples.csv')
 
         if not os.path.exists(filename):
@@ -80,10 +68,34 @@ class Dataset:
 
         df = pd.read_csv(filename, index_col=None, header=0, encoding='utf-8', low_memory=False, sep=';')
         dict_cols = {j: i for i, j in enumerate(df.columns)}
-        self.samples = [Sample(row[dict_cols['filename']], Level(row[dict_cols['specific_epithet']], row[dict_cols['fold']])) for row in df.values]
-        self.levels = [Level(row['specific_epithet'], row['fold']) for _, row in self.remove_duplicates(df).iterrows()]
+        self.set_samples(df, dict_cols)
+        self.set_levels(df, dict_cols)
 
-    def load_csv(self):
+    def set_samples(self, df:pd.DataFrame, dict_cols:dict):
+        """
+        O atributo samples recebe todas as informações das amostras utilizadas.
+        :param df: DataFrame com as informações das amostras.
+        :param dict_cols: dicionário com o nome das colunas.
+        """
+        self.samples = [Sample(row[dict_cols['filename']],
+                               Level(row[dict_cols['specific_epithet']],
+                                     row[dict_cols['fold']])) for row in df.values]
+
+    def set_levels(self, df:pd.DataFrame, dict_cols:dict):
+        """
+        O atributo levels recebe todas os levels (espécies) que estão sendo utilizados.
+        Ele utiliza o arquivo de amostras para capturar todas as espécies disponíveis.
+        :param df: DataFrame com as informações das amostras.
+        :param dict_cols: dicionário com o nome das colunas.
+        """
+        self.levels = [Level(row[dict_cols['specific_epithet']],
+                             row[dict_cols['fold']])
+                       for row in self.remove_duplicates(df).values]
+
+    def load_dataset(self):
+        """
+        Carrega as informações o arquivo CSV que contém as informações do dataset.
+        """
         filename = os.path.join(self.input, 'dataset.csv')
 
         if not os.path.exists(filename):
@@ -91,12 +103,26 @@ class Dataset:
 
         df = pd.read_csv(filename, index_col=None, header=0, encoding='utf-8', low_memory=False, sep=';')
         df = df.head(1)  # return first row
+        self.set_dataset(df)
+        self.image = Image(df)
+
+    def set_dataset(self, df):
+        """
+        Os atributos dessa classe recebem os valores presentes dentro do arquivo CSV.
+        :param df: DataFrame com as informações do dataset.
+        """
         for k in self.__dict__.keys():
             if k in df.columns and 'input' not in k:
                 setattr(self, k, df[k].values[0])
-        self.image = Image(df)
 
     def split_folds(self, config: Config, y: np.ndarray):
+        """
+        Essa função gera os indíces de treino e de teste de cada fold, porém eles só são gerados se for passado as features e as classes que essas features pertencem. Essa função considera a quantidade features originais.
+        Por exemplo, se o conjunto de dados é formado por 45 imagens (15 imagens divididas em três partes), é considerado 15.
+        :param config:
+        :param y: vetor de uma dimensão que contém os rótulos que aquela classe pertence.
+        :return: None.
+        """
         np.random.seed(config.seed)
         x = np.random.rand(self.count_samples, self.count_features)
         y = [np.repeat(k, int(v / self.image.patch)) for k, v in dict(collections.Counter(y)).items()]
@@ -107,6 +133,10 @@ class Dataset:
         return list(kf.split(x, y))
 
     def count_in_files(self) -> int:
+        """
+        Concatena todos os arquivos npz para contabilizar a quantidade de amostras.
+        :return: int, com a quantidade de amostras que aquele diretório possui.
+        """
         n_features = []
         for fname in sorted(pathlib.Path(self.input).rglob('*.npz')):
             try:
@@ -124,6 +154,12 @@ class Dataset:
         raise SystemExit
 
     def get_size_features(self) -> int:
+        """
+        Verifica se o atributo count_features tem um valor.
+        Caso positivo, retorna o valor presente no atributo.
+        Caso contrário, contabiliza por meio dos arquivos presentes no diretório.
+        :return:int, com a quantidade de amostras presentes no dataset.
+        """
         return self.count_features if self.count_features else self.count_in_files()
 
     def load_features(self):
@@ -131,6 +167,12 @@ class Dataset:
         return self.load_npz() if 'npz' in self.format else None
 
     def load_npz(self):
+        """
+        Carrega em uma única matriz todas as features de todas as classes.
+        Por fim, é gerado um numpy array com as classes que pertencem aquelas features.
+        :return: x, numpy array com todas as features.
+        :return: y, numpy array com as classes que pertencem aquelas features.
+        """
         x = np.empty(shape=(0, self.get_size_features()), dtype=np.float64)
         y = []
         for fname in sorted(pathlib.Path(self.input).rglob('*.npz')):
@@ -142,6 +184,12 @@ class Dataset:
         return x, y
 
     def get_output_name(self, classifier_name: str, count_features:int) -> str:
+        """
+        Cria o nome da pasta (baseado nos atributos presentes) aonde ficarão salvos os resultados.
+        :param classifier_name: nome do classificador.
+        :param count_features: números de features.
+        :return: str, nome da pasta.
+        """
         model = 'empty'
         for k, v in self.__dict__.items():
             if k in ['model', 'descriptor', 'extractor'] and v:
@@ -157,6 +205,12 @@ class Dataset:
                  self.name, str(self.minimum), model, classifier_name)
 
     def save(self, classifier, output: pathlib.Path | LiteralString | str):
+        """
+        Salva em um arquivo CSV todos os valores presentes no atributos da classe
+        Dataset.
+        :param classifier: nome do classificador utilizado.
+        :param output: local aonde o arquivo CSV será salvo.
+        """
         filename = os.path.join(output, 'dataset.csv')
         keys = ['descriptor','extractor','count_samples','count_features','format','input','minimum','model','name','region']
         data = dict()
