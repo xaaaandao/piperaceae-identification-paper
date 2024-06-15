@@ -31,9 +31,13 @@ class Predict:
         self.y_true = y_true
         self.eval = eval
         self.predict_by_rule()
-        self.evaluate()
+        self.set_evaluate()
 
     def predict_by_rule(self):
+        """
+        Gera as predições baseado no valor que está no atributo rule.
+        Por fim, ele calcula gera o y_true que é um np.ndarry com as classes corretas.
+        """
         match self.rule:
             case 'max':
                 self.y_pred, self.y_score = max_rule(self.count_test, len(self.levels), self.patch, self.y_pred_proba)
@@ -43,10 +47,17 @@ class Predict:
                 self.y_pred, self.y_score = mult_rule(self.count_test, len(self.levels), self.patch, self.y_pred_proba)
         self.y_true = y_true_no_patch(self.count_test, self.patch, self.y_test)
 
-    def evaluate(self):
+    def set_evaluate(self):
+        """
+        Atribui ao atributo eval a classe Evaluate. Ela possui informações das métricas do experimento.
+        """
         self.eval = Evaluate(self.levels, self.y_pred, self.y_score, self.y_true)
 
     def save(self):
+        """
+        Salva o valor gerado pela métrica f1, acurácia baseado em uma regra.
+        :return: pd.Dataframe, dataframe com os valores de f1, acurácia e rule.
+        """
         data = {
             'f1': [self.eval.f1],
             'accuracy': [self.eval.accuracy],

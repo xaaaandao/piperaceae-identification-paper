@@ -19,7 +19,7 @@ from dataset import Dataset
 from image import Image
 from fold import Fold
 from mean import Mean
-from models import Features
+from features import Features
 from save import save
 
 

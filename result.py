@@ -20,11 +20,23 @@ class Result:
         self.total_train_no_patch = np.sum([int(v / patch) for v in count_train.values()])
 
     def save(self, levels:list, output: pathlib.Path | LiteralString | str, patch:int):
+        """
+        Salva as informações dos experimentos, predições e métricas.
+        :param levels: lista com os levels (classes) utilizadas no experimento.
+        :param output: local aonde será salvo o arquivo CSV.
+        :param patch: quantidade de divisões da imagem.
+        """
         self.save_info_result(output)
         self.save_predicts(levels, output)
         self.save_evaluations(levels, output, patch)
 
     def save_evaluations(self, levels:list, output: pathlib.Path | LiteralString | str, patch:int):
+        """
+        Salva vários arquivos CSV (individuais) com os valores das métricas (F1, acurácia, top-k).
+        :param levels: lista com os levels (classes) utilizadas no experimento.
+        :param output: local aonde será salvo o arquivo CSV.
+        :param patch: quantidade de divisões da imagem.
+        """
         data = {'f1': [], 'accuracy': [], 'rule': []}
         df = pd.DataFrame(data, columns=data.keys())
 
@@ -57,6 +69,11 @@ class Result:
         self.save_best(df, output)
 
     def save_best(self, df: pd.DataFrame, output: pathlib.Path | LiteralString | str):
+        """
+        Salva em um arquivo CSV os melhores resultados de F1 e acurácia.
+        :param df: pd.Dataframe que contém os valores das métricas.
+        :param output: local aonde será salvo o arquivo CSV.
+        """
         filename = os.path.join(output, 'best+evals.csv')
         data = {'value': [df.query('f1 == f1.max()')['f1'].values[0],
                           df.query('accuracy == accuracy.max()')['accuracy'].values[0]],
@@ -67,6 +84,11 @@ class Result:
         df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
 
     def save_info_result(self, output: pathlib.Path | LiteralString | str):
+        """
+        Salva em um arquivo CSV as informações de tempo, e as quantidades de amostras
+        por classe.
+        :param output: local aonde será salvo o arquivo CSV.
+        """
         filename = os.path.join(output, 'info_results.csv')
 
         data = {
@@ -80,6 +102,11 @@ class Result:
         df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
 
     def save_predicts(self, levels: list, output: pathlib.Path | LiteralString | str):
+        """
+        Salva em um arquivo CSV as predições geradas pelas três regras (sum, mult, max)
+        :param levels: lista com os levels (classes) utilizadas no experimento.
+        :param output: local aonde será salvo o arquivo CSV.
+        """
         filename = os.path.join(output, 'predicts.csv')
 
         data = {
