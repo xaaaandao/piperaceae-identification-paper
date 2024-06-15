@@ -136,7 +136,6 @@ def main(config, clf, input, output, pca):
                     logging.warning('the test exist')
                     sys.exit(1)
 
-            # TODO falta a pasta, e validar se já rodou
             output = os.path.join(output, dataset.get_output_name(classifier_name, dataset.count_features))
             os.makedirs(output, exist_ok=True)
 

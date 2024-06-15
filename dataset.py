@@ -4,7 +4,7 @@ import itertools
 import logging
 import os
 import pathlib
-from typing import LiteralString
+from typing import LiteralString, Any
 
 import numpy as np
 import pandas as pd
@@ -14,16 +14,6 @@ from sklearn.model_selection import StratifiedKFold
 from config import Config
 from image import Image
 
-
-def has_region(input: pathlib.Path | LiteralString | str):
-    regions = ['Norte', 'Nordeste', 'Centro-Oeste', 'Sul', 'Sudeste']
-    for region in regions:
-        if region.lower() in input.lower():
-            return region
-    return None
-
-
-# a
 
 
 @dataclasses.dataclass
@@ -70,112 +60,6 @@ class Dataset:
         self.region = region
         self.samples = samples
 
-    # @property
-    # def descriptor(self):
-    #     return self.descriptor
-    #
-    # @descriptor.setter
-    # def descriptor(self, value):
-    #     self.descriptor = value
-    #
-    # @property
-    # def extractor(self):
-    #     return self.extractor
-    #
-    # @extractor.setter
-    # def extractor(self, value):
-    #     self.extractor = value
-    #
-    # @property
-    # def count_samples(self):
-    #     return self.count_samples
-    #
-    # @count_samples.setter
-    # def count_samples(self, value):
-    #     try:
-    #         print(isinstance(value, np.int64))
-    #         if isinstance(value, np.int64):
-    #             self.count_samples = int(value)
-    #     except:
-    #         raise TypeError('count_samples must be an integer')
-    #
-    # @property
-    # def count_features(self):
-    #     return self.count_features
-    #
-    # @count_features.setter
-    # def count_features(self, value):
-    #     try:
-    #         if isinstance(value, np.int64):
-    #             self.count_features = int(value)
-    #     except:
-    #         raise TypeError('count_features must be an integer')
-    #
-    # @property
-    # def format(self):
-    #     return self.format
-    #
-    # @format.setter
-    # def format(self, value):
-    #     self.format = value
-    #
-    # @property
-    # def input(self):
-    #     return self.input
-    #
-    # @input.setter
-    # def inp(self, value):
-    #     self.input = value
-    #
-    # @property
-    # def image(self):
-    #     return self.image
-    #
-    # @image.setter
-    # def image(self, value):
-    #     self.image = value
-    #
-    # @property
-    # def levels(self):
-    #     return self.levels
-    #
-    # @levels.setter
-    # def levels(self, value):
-    #     self.levels = value
-    #
-    # @property
-    # def minimum(self):
-    #     return self.minimum
-    #
-    # @minimum.setter
-    # def minimum(self, value):
-    #     self.minimum = value
-    #
-    # @property
-    # def name(self):
-    #     return self.name
-    #
-    # @name.setter
-    # def name(self, value):
-    #     self.name = value
-    #
-    # @property
-    # def region(self):
-    #     return self.region
-    #
-    # @region.setter
-    # def region(self, value):
-    #     self.region = value
-    #
-    # @property
-    # def samples(self):
-    #     return self.samples
-    #
-    # @samples.setter
-    # def samples(self, value):
-    #     self.value = value
-
-
 
     def load(self):
         self.load_csv()
@@ -195,8 +79,8 @@ class Dataset:
             logging.warning('file of samples not found')
 
         df = pd.read_csv(filename, index_col=None, header=0, encoding='utf-8', low_memory=False, sep=';')
-        self.samples = [Sample(row['filename'], Level(row['specific_epithet'], row['fold'])) for _, row in
-                         df.iterrows()]
+        dict_cols = {j: i for i, j in enumerate(df.columns)}
+        self.samples = [Sample(row[dict_cols['filename']], Level(row[dict_cols['specific_epithet']], row[dict_cols['fold']])) for row in df.values]
         self.levels = [Level(row['specific_epithet'], row['fold']) for _, row in self.remove_duplicates(df).iterrows()]
 
     def load_csv(self):
@@ -272,28 +156,14 @@ class Dataset:
                  self.image.color, self.image.contrast, self.image.height, self.image.width, self.image.patch, \
                  self.name, str(self.minimum), model, classifier_name)
 
-    def save(self, classifier:str, output: pathlib.Path | LiteralString | str):
+    def save(self, classifier, output: pathlib.Path | LiteralString | str):
         filename = os.path.join(output, 'dataset.csv')
-        data = {
-            'classifier': [classifier.best_estimator_.__class__.__name__],
-            'descriptor' : [],
-            'extractor' : [],
-            'count_samples' : [],
-            'count_features' : [],
-            'count_levels' : [],
-            'format' : [],
-            'input' : [],
-            'minimum' : [],
-            'model' : [],
-            'name' : [],
-            'region' : [],
-        }
-        for k in data.keys():
-            if k not in 'classifier':
-                data[k].append(getattr(self, k))
-            if k in 'count_levels':
-                data[k].append(len(self.levels))
-
+        keys = ['descriptor','extractor','count_samples','count_features','format','input','minimum','model','name','region']
+        data = dict()
+        for k in keys:
+            data.update({k: [getattr(self, k)]})
+        data.update({'classifier': [classifier.best_estimator_.__class__.__name__],
+                     'count_levels': [len(self.levels)]})
         df = pd.DataFrame(data, columns=data.keys())
         df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
 

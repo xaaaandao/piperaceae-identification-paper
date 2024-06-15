@@ -23,17 +23,9 @@ class Config:
 
     def save(self, output: pathlib.Path | LiteralString | str) -> None:
         filename = os.path.join(output, 'config.csv')
-        data = {
-            'backend':[],
-            'metrics':[],
-            'folds':[],
-            'cv_metric':[],
-            'n_jobs':[],
-            'seed':[],
-            'verbose':[],
-        }
+        data = dict()
         for k, v in self.__dict__.items():
-            data[k].append(v)
+            data.update({k: [v]})
         df = pd.DataFrame(data, columns=data.keys())
         df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
 

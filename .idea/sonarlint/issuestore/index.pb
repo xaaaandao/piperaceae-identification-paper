@@ -59,3 +59,9 @@ predict.py,9/1/91731ca614e5c56e746c690e96c1647309902f9c
 sql/dataset.py,4/c/4c7411a5d8635f6ac68538e46895ff133efbff3f
 9
 	sql/v1.py,b/1/b179c2f63d3d7996a3173a06305b709745428f99
+Ç
+–output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=nan+min=nan+mod=vgg16+clf=DecisionTreeClassifier/mean/best+means.csv,8/4/84fb8cdc104e5481ab184c4b1e8a4410b9669ea8
+Â
+‘output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=nan+min=nan+mod=vgg16+clf=DecisionTreeClassifier/mean/means.csv,8/0/80c74c525bce107de5bdac44706edbc2d152d45b
+Ç
+–output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=nan+min=nan+mod=vgg16+clf=DecisionTreeClassifier/mean/means_topk.csv,8/1/8182ea73a5f931c00a966e2bcbf808f0ea4aa94d

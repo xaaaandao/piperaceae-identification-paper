@@ -160,7 +160,7 @@ def load_topk(classifier: str, dataset:Dataset, path: pathlib.Path | LiteralStri
     dict_cols = {j: i for i, j in enumerate(df.columns)}
 
     for row in df.values:
-        topk = TopK(k=row[dict_cols['k']], mean=row[dict_cols['mean']], std=row[dict_cols['std']], rule=rule)
+        topk = TopK(k=row[dict_cols['k']], mean=row[dict_cols['mean']], std=row[dict_cols['std']], rule=rule, percent=row[dict_cols['percent']])
         insert_topk(classifier, dataset, session, topk)
 
 

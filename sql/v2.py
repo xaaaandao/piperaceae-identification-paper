@@ -80,6 +80,7 @@ def load_f1(classifier:str, dataset:Dataset, dict_cols:dict, row, session):
 
     f1 = F1(mean=row[dict_cols['mean']],
             std=row[dict_cols['std']],
-            rule=row[dict_cols['rule']])
+            rule=row[dict_cols['rule']],
+            percent=row[dict_cols['mean+100']])
     insert_f1(classifier, dataset, f1, session)
 

@@ -1,8 +1,8 @@
 
-`python:S5722""<Remove 1 parameters. Method __eq__ should have 2 parameters.(ûÙúÿÿÿÿ8Ð°ÄŸ2
-|python:S57175"]Change this default value to "None" and initialize this parameter inside the function/method.(ºÓ“8Ñ°ÄŸ2
-python:S5717:"]Change this default value to "None" and initialize this parameter inside the function/method.(…þ‚ùÿÿÿÿ8Ñ°ÄŸ2
-Bpython:S125I"Remove this commented out code.(ž‡¡Üúÿÿÿÿ8Ñ°ÄŸ2
-cpython:S6711Ù"DUse a "numpy.random.Generator" here instead of this legacy function.(Û¡q8Ñ°ÄŸ2
-\python:S5754æ"<Specify an exception class to catch or reraise the exception(ˆÊÉ·8Ñ°ÄŸ2
-Spython:S1135ö"4Complete the task associated to this "TODO" comment.(òºßP8Ñ°ÄŸ2
+`python:S5722"<Remove 1 parameters. Method __eq__ should have 2 parameters.(ûÙúÿÿÿÿ8ì·²à2
+|python:S5717+"]Change this default value to "None" and initialize this parameter inside the function/method.(ºÓ“8í·²à2
+python:S57170"]Change this default value to "None" and initialize this parameter inside the function/method.(…þ‚ùÿÿÿÿ8í·²à2
+Bpython:S6741S"Do not use "DataFrame.values".(³¶ôŽùÿÿÿÿ8í·²à2
+bpython:S6711e"DUse a "numpy.random.Generator" here instead of this legacy function.(Û¡q8í·²à2
+[python:S5754r"<Specify an exception class to catch or reraise the exception(ˆÊÉ·8í·²à2
+Spython:S1135‚"4Complete the task associated to this "TODO" comment.(òºßP8í·²à2

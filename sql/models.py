@@ -93,5 +93,6 @@ class TopK(Base):
     k = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
     mean = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
     std = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
+    percent = sqlalchemy.Column(sqlalchemy.Float, nullable=True)
     rule = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     datasets: sqlalchemy.orm.Mapped[List['DatasetTopK']] = sqlalchemy.orm.relationship(back_populates='topk')
