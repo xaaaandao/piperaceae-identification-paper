@@ -19,7 +19,7 @@ from dataset import Dataset
 from image import Image
 from fold import Fold
 from mean import Mean
-from models import Model
+from models import Features
 from save import save
 
 
@@ -92,7 +92,7 @@ def main(config, clf, input, output, pca):
     config = Config()
     config._print()
     classifiers = select_classifiers(config, clf)
-    model = Model()
+    model = Features()
 
     if len(classifiers) == 0:
         raise SystemExit('classifiers choosed not found')
@@ -113,7 +113,7 @@ def main(config, clf, input, output, pca):
         logging.error('x contains NaN values')
         raise ValueError
 
-    xs = apply_pca(config, dataset, model.models, pca, x)
+    xs = apply_pca(config, dataset, model.features, pca, x)
 
     results = []
     for x in xs:

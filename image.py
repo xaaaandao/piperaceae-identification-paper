@@ -22,6 +22,10 @@ class Image:
         self.width = data['width'].values[0]
 
     def save(self, output:pathlib.Path | LiteralString | str) -> None:
+        """
+        Salva em um arquivo CSV os valores presentes nos atributos da classe imagem.
+        :param output: local onde será salvo o arquivo.
+        """
         filename = os.path.join(output, 'image.csv')
         data = {'color': [], 'contrast': [], 'height': [], 'width': [], 'patch': []}
         for k, v in self.__dict__.items():
