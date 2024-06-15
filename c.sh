@@ -6,7 +6,7 @@ for minimum in 5 10 20; do
       for size in 256 400 512; do
         for color in GRAYSCALE RGB; do
           for classifier in DecisionTreeClassifier RandomForestClassifier KNeighborsClassifier MLPClassifier SVC; do
-            python main.py -i /home/xandao/v2/${dataset}+${minimum}/${color}/${size}/${model} -c ${classifier}
+            python main.py -i /home/xandao/dataset/${dataset}+${minimum}/${color}/${size}/${model} -c ${classifier}
           done
         done
       done
