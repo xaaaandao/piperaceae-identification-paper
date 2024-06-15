@@ -25,6 +25,13 @@ class Fold:
         self.y = y
 
     def run(self, classifier: Any, dataset: Dataset):
+        """
+        Separa o dataset (treino e teste), usa o classificador para treinar e predizer.
+        Com a predição é aplicado a regra da soma, multiplicação e máximo.
+        Por fim, é feito gerado as métricas.
+        :param classifier: classificador com os melhores hiperparâmetros.
+        :param dataset: classe com as informações do dataset.
+        """
         x_train, y_train = split_dataset(self.idx_train, dataset.count_features, dataset.image.patch, self.x, self.y)
         x_test, y_test = split_dataset(self.idx_test, dataset.count_features, dataset.image.patch, self.x, self.y)
 
@@ -49,6 +56,12 @@ class Fold:
         self.result = Result(self.count_train, self.count_test, dataset.image.patch, predicts, end_timeit)
 
     def save_count_train_test(self, levels: list, output: pathlib.Path | LiteralString | str, patch:int):
+        """
+        Salva em um arquivo CSV a quantidade de treinos e testes de cada classe.
+        :param levels: lista com os levels (classes) que estão presentes no experimento.
+        :param output: local onde será salvo o arquivo CSV.
+        :param patch: quantidade de divisões da imagem.
+        """
         filename = os.path.join(output, 'count_train_test.csv')
 
         logging.info('Saving')
@@ -64,6 +77,13 @@ class Fold:
         logging.info('Saving %s' % filename)
 
     def save(self, levels:list, output: pathlib.Path | LiteralString | str, patch:int):
+        """
+        Chama as funções que salvam as quantidades de amostras utilizadas no treino e teste,
+        e o resultado de cada fold.
+        :param levels: lista com os levels (classes) que estão presentes no experimento.
+        :param output: local onde será salvo o arquivo CSV.
+        :param patch: quantidade de divisões da imagem.
+        """
         output = os.path.join(output, 'fold+%d' % (self.fold))
         os.makedirs(output, exist_ok=True)
         self.save_count_train_test(levels, output, patch)
