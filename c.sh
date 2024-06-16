@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 
-for minimum in 5 10 20; do
-  for model in vgg16 mobilenetv2 resnet50v2; do
+python setup build_ext --inplace
+
+
+for minimum in 5; do # 10 20; do
+  for model in vgg16; # do mobilenetv2 resnet50v2; do
     for dataset in pr_dataset; do
-      for size in 256 400 512; do
-        for color in GRAYSCALE RGB; do
-          for classifier in DecisionTreeClassifier RandomForestClassifier KNeighborsClassifier MLPClassifier SVC; do
+      for size in 256; do # 400 512; do
+        for color in GRAYSCALE; do # RGB; do
+          for classifier in DecisionTreeClassifier; do # RandomForestClassifier KNeighborsClassifier MLPClassifier SVC; do
             python main.py -i /home/xandao/dataset/${dataset}+${minimum}/${color}/${size}/${model} -c ${classifier}
           done
         done

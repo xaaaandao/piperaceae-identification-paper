@@ -67,30 +67,30 @@ class Dataset:
             logging.warning('file of samples not found')
 
         df = pd.read_csv(filename, index_col=None, header=0, encoding='utf-8', low_memory=False, sep=';')
-        dict_cols = {j: i for i, j in enumerate(df.columns)}
-        self.set_samples(df, dict_cols)
-        self.set_levels(df, dict_cols)
+        self.set_samples(df)
+        self.set_levels(df)
 
-    def set_samples(self, df:pd.DataFrame, dict_cols:dict):
+    def set_samples(self, df:pd.DataFrame):
         """
         O atributo samples recebe todas as informações das amostras utilizadas.
         :param df: DataFrame com as informações das amostras.
-        :param dict_cols: dicionário com o nome das colunas.
         """
+        dict_cols = {j: i for i, j in enumerate(df.columns)}
         self.samples = [Sample(row[dict_cols['filename']],
                                Level(row[dict_cols['specific_epithet']],
                                      row[dict_cols['fold']])) for row in df.values]
 
-    def set_levels(self, df:pd.DataFrame, dict_cols:dict):
+    def set_levels(self, df:pd.DataFrame):
         """
         O atributo levels recebe todas os levels (espécies) que estão sendo utilizados.
         Ele utiliza o arquivo de amostras para capturar todas as espécies disponíveis.
         :param df: DataFrame com as informações das amostras.
-        :param dict_cols: dicionário com o nome das colunas.
         """
+        df = self.remove_duplicates(df)
+        dict_cols = {j: i for i, j in enumerate(df.columns)}
         self.levels = [Level(row[dict_cols['specific_epithet']],
                              row[dict_cols['fold']])
-                       for row in self.remove_duplicates(df).values]
+                       for row in df.values]
 
     def load_dataset(self):
         """
