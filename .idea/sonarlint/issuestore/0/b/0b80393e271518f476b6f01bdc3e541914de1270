@@ -1,6 +1,6 @@
 
-|python:S5717"]Change this default value to "None" and initialize this parameter inside the function/method.(ºÓ“8‚½óä2
-python:S5717!"]Change this default value to "None" and initialize this parameter inside the function/method.(…ş‚ùÿÿÿÿ8‚½óä2
-bpython:S6711"DUse a "numpy.random.Generator" here instead of this legacy function.(Û¡q8‚½óä2
-\python:S5754"<Specify an exception class to catch or reraise the exception(ˆÊÉ·8‚½óä2
-Spython:S1135¦"4Complete the task associated to this "TODO" comment.(òºßP8‚½óä2
+|python:S5717"]Change this default value to "None" and initialize this parameter inside the function/method.(ºÓ“8¦­ßÁˆ2
+python:S5717!"]Change this default value to "None" and initialize this parameter inside the function/method.(…ş‚ùÿÿÿÿ8¦­ßÁˆ2
+cpython:S6711"DUse a "numpy.random.Generator" here instead of this legacy function.(Û¡q8¦­ßÁˆ2
+\python:S5754’"<Specify an exception class to catch or reraise the exception(ˆÊÉ·8¦­ßÁˆ2
+Spython:S1135¨"4Complete the task associated to this "TODO" comment.(òºßP8¦­ßÁˆ2
