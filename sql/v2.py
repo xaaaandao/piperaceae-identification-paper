@@ -9,7 +9,7 @@ from sql.models import F1, Accuracy, DatasetF1, DatasetAccuracy, TopK, DatasetTo
 
 
 def loadv2(session):
-    for path in pathlib.Path('/home/xandao/v2/').rglob('*ft=*'):
+    for path in pathlib.Path('/home/xandao/Documentos/mestrado/v2/results/').rglob('*ft=*'):
         if len(os.listdir(path)) > 0:
             classifier, dataset = insert_dataset(path, session)
             insert_means(classifier, dataset, path, session)
@@ -56,7 +56,8 @@ def load_topk(classifier: str, dataset: Dataset, path: pathlib.Path, session):
         topk = TopK(k=row[dict_cols['k']],
                     rule=row[dict_cols['rule']],
                     mean=row[dict_cols['mean']],
-                    std=row[dict_cols['std']])
+                    std=row[dict_cols['std']],
+                    percent=row[dict_cols['mean+100']])
         insert_topk(classifier, dataset, session, topk)
 
 
@@ -80,7 +81,6 @@ def load_f1(classifier:str, dataset:Dataset, dict_cols:dict, row, session):
 
     f1 = F1(mean=row[dict_cols['mean']],
             std=row[dict_cols['std']],
-            rule=row[dict_cols['rule']],
-            percent=row[dict_cols['mean+100']])
+            rule=row[dict_cols['rule']])
     insert_f1(classifier, dataset, f1, session)
 

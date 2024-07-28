@@ -11,7 +11,7 @@ from sql.models import F1, Accuracy, DatasetF1, DatasetAccuracy, TopK, DatasetTo
 
 
 def loadv1(session):
-    for p in pathlib.Path('/media/xandao/6844EF7A44EF4980/resultados/regions').rglob('*clf=*'):
+    for p in pathlib.Path('/home/xandao/Documentos/mestrado/v1/resultados/regions').rglob('*clf=*'):
         if len(os.listdir(p)) > 0 and os.path.exists(os.path.join(p, 'info.csv')):
             count_levels = get_count_levels(p)
             classifier, dataset = insert_dataset(count_levels, p, session)
@@ -25,6 +25,8 @@ def get_count_samples(path: pathlib.Path) -> int:
     :return: inteiro, com a quantidade de amostras.
     """
     filename = os.path.join(path, 'info.csv')
+    if os.stat(filename).st_size == 0:
+        return -1
     df = pd.read_csv(filename, index_col=0, header=None, sep=';')
     return df.loc['n_samples'][1]
 
@@ -114,9 +116,11 @@ def load_accuracy(classifier: str, dataset:Dataset, path: pathlib.Path | Literal
         return
 
     filename = os.path.join(path, 'mean', 'accuracy', 'mean+accuracy+%s.csv' % rule)
+    if os.stat(filename).st_size == 0:
+        return -1
     df = pd.read_csv(filename, index_col=0, header=None, sep=';')
-    accuracy = Accuracy(mean=df.loc['mean_accuracy'][1],
-                        std=df.loc['std_accuracy'][1],
+    accuracy = Accuracy(mean=float(df.loc['mean_accuracy'][1]),
+                        std=float(df.loc['std_accuracy'][1]),
                         rule=rule)
     insert_accuracy(accuracy, classifier, dataset, session)
 
@@ -136,8 +140,10 @@ def load_f1(classifier: str, dataset:Dataset, path: pathlib.Path | LiteralString
         return
 
     filename = os.path.join(path, 'mean', 'f1', 'mean+f1+%s.csv' % rule)
+    if os.stat(filename).st_size == 0:
+        return -1
     df = pd.read_csv(filename, index_col=0, header=None, sep=';')
-    f1 = F1(mean=df.loc['mean_f1'][1], std=df.loc['std_f1'][1], rule=rule)
+    f1 = F1(mean=float(df.loc['mean_f1'][1]), std=float(df.loc['std_f1'][1]), rule=rule)
     insert_f1(classifier, dataset, f1, session)
 
 
@@ -156,11 +162,17 @@ def load_topk(classifier: str, dataset:Dataset, path: pathlib.Path | LiteralStri
         return
 
     filename = os.path.join(path, 'mean', 'topk', 'mean_topk+%s.csv' % rule)
+    if os.stat(filename).st_size == 0:
+        return -1
     df = pd.read_csv(filename, sep=';', index_col=False, header=0)
     dict_cols = {j: i for i, j in enumerate(df.columns)}
 
     for row in df.values:
-        topk = TopK(k=row[dict_cols['k']], mean=row[dict_cols['mean']], std=row[dict_cols['std']], rule=rule, percent=row[dict_cols['percent']])
+        topk = TopK(k=int(row[dict_cols['k']]),
+                    mean=float(row[dict_cols['mean']]),
+                    std=float(row[dict_cols['std']]),
+                    rule=rule,
+                    percent=float(row[dict_cols['percent']]))
         insert_topk(classifier, dataset, session, topk)
 
 
