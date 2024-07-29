@@ -81,3 +81,13 @@ N
 Ÿoutput/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/fold+2/evaluations.csv,d/e/de3abb84da12f57785193065ead32c0a900b9970
 8
 arrays.c,9/b/9b34a8b5d7486dc18b2386307a4985e788c1a17d
+<
+test_mean.py,a/a/aa3ec46a005f1f4ff59a7a339b00b965d2209416
+E
+test/dataet/teste.csv,d/8/d8df1fe4195bdff0d4b0c63827858de400a5af17
+>
+test_result.py,8/9/8948a0ae9edff5a97a9acd5bdac8995f02928581
+H
+test/dataset/dataset.csv,8/d/8deb421b5f823aaa1c75c3084c47593096db0067
+F
+test/test_cython.ipynb,a/4/a4f9c605428a7102ce807ef58125bbd7f84b815e
