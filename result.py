@@ -118,7 +118,7 @@ class Result:
         df = pd.DataFrame(data, columns=data.keys())
 
         if len(levels) > 0:
-            df = df.applymap(lambda row: list(filter(lambda x: x.label.__eq__(row), levels))[0].specific_epithet)
+            df = df.map(lambda row: list(filter(lambda x: x.label.__eq__(row), levels))[0].specific_epithet)
 
         df['equals'] = df.apply(lambda row: row[row == row['y_true']].index.tolist(), axis=1)
         df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')

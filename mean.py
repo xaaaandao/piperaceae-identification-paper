@@ -4,6 +4,7 @@ import logging
 import numpy as np
 import pandas as pd
 
+import fold
 from evaluate import TopK
 
 
@@ -65,11 +66,11 @@ class Mean:
         :param levels: levels (classes) com nome das espécies utilizadas.
         """
         self.mean_topk, self.std_topk = [], []
-        for evaluation in evaluations:
-            for k in range(3, len(levels)):
-                values = list(filter(lambda x: x.k.__eq__(k), evaluation.topk))
-                self.mean_topk.append(TopK(k, topk=np.mean([v.top_k_accuracy_score for v in values])))
-                self.std_topk.append(TopK(k, topk=np.std([v.top_k_accuracy_score for v in values])))
+        tops = list(itertools.chain(*[e.topk for e in evaluations]))
+        for k in range(3, len(levels)):
+            values = list(filter(lambda x: x.k.__eq__(k), tops))
+            self.mean_topk.append(TopK(k, topk=np.mean([v.top_k_accuracy_score for v in values])))
+            self.std_topk.append(TopK(k, topk=np.std([v.top_k_accuracy_score for v in values])))
 
     def save_topk(self) -> pd.DataFrame:
         """

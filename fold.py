@@ -72,7 +72,7 @@ class Fold:
             data['labels'].append(train[0])
 
         df = pd.DataFrame(data, columns=data.keys())
-        df['labels'] = df[['labels']].applymap(lambda row: list(filter(lambda x: x.label.__eq__(row), levels))[0].specific_epithet)
+        df['labels'] = df[['labels']].map(lambda row: list(filter(lambda x: x.label.__eq__(row), levels))[0].specific_epithet)
         df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
         logging.info('Saving %s' % filename)
 

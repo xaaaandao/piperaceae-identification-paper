@@ -9,7 +9,7 @@ from sql.models import F1, Accuracy, DatasetF1, DatasetAccuracy, TopK, DatasetTo
 
 
 def loadv2(session):
-    for path in pathlib.Path('/home/xandao/Documentos/mestrado/v2/results/').rglob('*ft=*'):
+    for path in pathlib.Path('/media/xandao/52A491DD2185B752/mestrado/v2/results/').rglob('*ft=*'):
         if len(os.listdir(path)) > 0:
             classifier, dataset = insert_dataset(path, session)
             insert_means(classifier, dataset, path, session)
