@@ -11,7 +11,7 @@ from sql.models import F1, Accuracy, DatasetF1, DatasetAccuracy, TopK, DatasetTo
 
 
 def loadv1(session):
-    for p in pathlib.Path('/home/xandao/Documentos/mestrado/v1/resultados/regions').rglob('*clf=*'):
+    for p in pathlib.Path('/home/xandao/Documentos/mestrado/v1/resultados/pr').rglob('*clf=*'):
         if len(os.listdir(p)) > 0 and os.path.exists(os.path.join(p, 'info.csv')):
             count_levels = get_count_levels(p)
             classifier, dataset = insert_dataset(count_levels, p, session)
