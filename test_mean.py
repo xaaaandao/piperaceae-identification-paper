@@ -1,16 +1,6 @@
-import string
-import random
 from unittest import TestCase
 
-import numpy as np
-
-from config import Config
-from dataset import Dataset
-from evaluate import Evaluate
-from image import Image
 from level import Level
-from predict import Predict
-from result import Result
 
 
 class TestMean(TestCase):

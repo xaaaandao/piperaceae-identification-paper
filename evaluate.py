@@ -137,18 +137,7 @@ class Evaluate:
         """
         return [level.specific_epithet for level in levels]
 
-    def set_classification_report(self, levels: list, y_pred:np.ndarray, y_true:np.ndarray):
-        """
-        Gera o classification report do experimento.
-        :param levels: lista com os levels (classes) utilizadas no experimento.
-        :param y_pred: np.ndarray com as classes preditas.
-        :param y_true: np.ndarray com as classes verdadeiras.
-        :return: dict, com algumas métricas do experimento.
-        """
-        targets = ['label+%s' % (i) for i in range(1, len(levels) + 1)]
-        if len(levels) > 0:
-            targets = ['%s+%s' % (l.specific_epithet, l.label) for l in sorted(levels, key=lambda x: x.label)]
-        return classification_report(y_pred=y_pred, y_true=y_true, labels=np.arange(1, len(levels) + 1), target_names=targets, zero_division=0, output_dict=True)
+
 
     def save_classification_report(self, output:pathlib.Path | LiteralString | str, rule:str):
         """
@@ -177,15 +166,7 @@ class Evaluate:
         self.save_confusion_matrix_multilabel(levels, output, rule)
         self.save_classification_report(output, rule)
 
-    def set_topk(self, levels:list, y_score:np.ndarray, y_true:np.ndarray):
-        """
-        Gera uma lista com todas os valores de top k possíveis.
-        :param levels: lista com os levels (classes) utilizadas no experimento.
-        :param y_pred: np.ndarray com as classes preditas.
-        :param y_true: np.ndarray com as classes verdadeiras.
-        :return: list, lista com todas os valores de top k.
-        """
-        return [TopK(k, levels=levels, y_score=y_score, y_true=y_true) for k in range(3, len(levels))]
+
 
     def save_topk(self, count_test, levels, output, rule):
         data = {

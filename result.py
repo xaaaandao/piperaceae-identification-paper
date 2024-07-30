@@ -6,125 +6,87 @@ from typing import LiteralString
 
 import numpy as np
 import pandas as pd
+from sklearn.metrics import confusion_matrix, multilabel_confusion_matrix, accuracy_score, f1_score, \
+    classification_report
+
+from arrays import sum_rule, max_rule, mult_rule, y_true_no_patch
+from evaluate import TopK
 
 
 class Result:
-    def __init__(self, count_train: dict, count_test: dict, patch: int, predicts: list, time: float):
+    # n_test, dataset.levels, dataset.image.patch, 'max', y_pred_proba, y_test
+    def __init__(self,
+                 count_test: int,
+                 levels: list,
+                 patch: int,
+                 rule: str,
+                 y_pred_proba: np.ndarray,
+                 y_test: np.ndarray):
+        # y_pred: np.ndarray = None,
+        # y_score: np.ndarray = None,
+        # y_true: np.ndarray = None):
         self.count_test = count_test
-        self.count_train = count_train
-        self.predicts = predicts
-        self.time = time
-        self.total_test = np.sum([v for v in count_test.values()])
-        self.total_train = np.sum([v for v in count_train.values()])
-        self.total_test_no_patch = np.sum([int(v / patch) for v in count_test.values()])
-        self.total_train_no_patch = np.sum([int(v / patch) for v in count_train.values()])
+        self.levels = levels
+        self.patch = patch
+        self.rule = rule
+        self.y_pred_proba = y_pred_proba
+        self.y_test = y_test
+        self.y_pred = None
+        self.y_score = None
+        self.y_true = None
+        self.f1 = None
+        self.accuracy = None
+        self.classification_report = None
+        self.confusion_matrix = None
+        self.confusion_matrix_normalized = None
+        self.confusion_matrix_multilabel = None
+        self.topk = None
+        self.apply_rules()
+        self.evaluate()
 
-    def save(self, levels:list, output: pathlib.Path | LiteralString | str, patch:int):
+    def apply_rules(self):
         """
-        Salva as informações dos experimentos, predições e métricas.
+        Gera as predições baseado no valor que está no atributo rule.
+        Por fim, ele calcula gera o y_true que é um np.ndarray com as classes corretas.
+        """
+        match self.rule:
+            case 'max':
+                self.y_pred, self.y_score = max_rule(self.count_test, len(self.levels), self.patch, self.y_pred_proba)
+            case 'sum':
+                self.y_pred, self.y_score = sum_rule(self.count_test, len(self.levels), self.patch, self.y_pred_proba)
+            case 'mult':
+                self.y_pred, self.y_score = mult_rule(self.count_test, len(self.levels), self.patch, self.y_pred_proba)
+        self.y_true = y_true_no_patch(self.count_test, self.patch, self.y_test)
+
+    def evaluate(self):
+        self.f1 = f1_score(y_true=self.y_true, y_pred=self.y_pred, average='weighted')
+        self.accuracy = accuracy_score(y_pred=self.y_pred, y_true=self.y_true)
+        self.classification_report = self.set_classification_report(self.levels, self.y_pred, self.y_true)
+        self.confusion_matrix = confusion_matrix(y_true=self.y_true, y_pred=self.y_pred)
+        self.confusion_matrix_normalized = confusion_matrix(y_true=self.y_true, y_pred=self.y_pred, normalize='true')
+        self.confusion_matrix_multilabel = multilabel_confusion_matrix(y_pred=self.y_pred, y_true=self.y_true)
+        self.topk = self.set_topk(self.levels, self.y_score, self.y_true)
+
+    def set_topk(self, levels: list, y_score: np.ndarray, y_true: np.ndarray):
+        """
+        Gera uma lista com todas os valores de top k possíveis.
         :param levels: lista com os levels (classes) utilizadas no experimento.
-        :param output: local aonde será salvo o arquivo CSV.
-        :param patch: quantidade de divisões da imagem.
+        :param y_pred: np.ndarray com as classes preditas.
+        :param y_true: np.ndarray com as classes verdadeiras.
+        :return: list, lista com todas os valores de top k.
         """
-        self.save_info_result(output)
-        self.save_predicts(levels, output)
-        self.save_evaluations(levels, output, patch)
+        return [TopK(k, levels=levels, y_score=y_score, y_true=y_true) for k in range(3, len(levels))]
 
-    def save_evaluations(self, levels:list, output: pathlib.Path | LiteralString | str, patch:int):
+    def set_classification_report(self, levels: list, y_pred: np.ndarray, y_true: np.ndarray):
         """
-        Salva vários arquivos CSV (individuais) com os valores das métricas (F1, acurácia, top-k).
+        Gera o classification report do experimento.
         :param levels: lista com os levels (classes) utilizadas no experimento.
-        :param output: local aonde será salvo o arquivo CSV.
-        :param patch: quantidade de divisões da imagem.
+        :param y_pred: np.ndarray com as classes preditas.
+        :param y_true: np.ndarray com as classes verdadeiras.
+        :return: dict, com algumas métricas do experimento.
         """
-        data = {'f1': [], 'accuracy': [], 'rule': []}
-        df = pd.DataFrame(data, columns=data.keys())
-
-        data = {'k': [], 'topk_accuracy_score': [], 'rule': []}
-        df_topk = pd.DataFrame(data, columns=data.keys())
-
-        data  = {
-            'labels': [],
-            'true_positive': [],
-            'rule': []
-        }
-        df_true_positive = pd.DataFrame(data, columns=data.keys())
-
-        for predict in self.predicts:
-            df = pd.concat([df, predict.save()], axis=0)
-            predict.eval.save(self.count_train, self.count_test, levels, output, patch, predict.rule)
-            df_topk = pd.concat([df_topk, predict.eval.save_topk(self.total_test_no_patch, levels, output, predict.rule)], axis=0)
-            p = predict.eval.save_true_positive(self.count_train, self.count_test, levels, patch, predict.rule)
-            df_true_positive = pd.concat([df_true_positive, predict.eval.save_true_positive(self.count_train, self.count_test, levels, patch, predict.rule)],axis=0)
-
-        filename = os.path.join(output, 'evaluations.csv')
-        df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
-
-        filename = os.path.join(output, 'topk.csv')
-        df_topk.sort_values(['k', 'rule'], ascending=[True, False], inplace=True)
-        df_topk.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
-
-        filename = os.path.join(output, 'true_positive.csv')
-        df_true_positive.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
-        self.save_best(df, output)
-
-    def save_best(self, df: pd.DataFrame, output: pathlib.Path | LiteralString | str):
-        """
-        Salva em um arquivo CSV os melhores resultados de F1 e acurácia.
-        :param df: pd.Dataframe que contém os valores das métricas.
-        :param output: local aonde será salvo o arquivo CSV.
-        """
-        filename = os.path.join(output, 'best+evals.csv')
-        data = {'value': [df.query('f1 == f1.max()')['f1'].values[0],
-                          df.query('accuracy == accuracy.max()')['accuracy'].values[0]],
-                'metric': ['f1', 'accuracy'],
-                'rule': [df.query('f1 == f1.max()')['rule'].values[0],
-                         df.query('accuracy == accuracy.max()')['rule'].values[0]]}
-        df = pd.DataFrame(data, columns=data.keys())
-        df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
-
-    def save_info_result(self, output: pathlib.Path | LiteralString | str):
-        """
-        Salva em um arquivo CSV as informações de tempo, e as quantidades de amostras
-        por classe.
-        :param output: local aonde será salvo o arquivo CSV.
-        """
-        filename = os.path.join(output, 'info_results.csv')
-
-        data = {
-            'time': [self.time],
-            'total_test': [self.total_test],
-            'total_train': [self.total_train],
-            'total_test_no_patch': [self.total_test_no_patch],
-            'total_train_no_patch': [self.total_train_no_patch]
-        }
-        df = pd.DataFrame(data, columns=data.keys())
-        df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
-
-    def save_predicts(self, levels: list, output: pathlib.Path | LiteralString | str):
-        """
-        Salva em um arquivo CSV as predições geradas pelas três regras (sum, mult, max)
-        :param levels: lista com os levels (classes) utilizadas no experimento.
-        :param output: local aonde será salvo o arquivo CSV.
-        """
-        filename = os.path.join(output, 'predicts.csv')
-
-        data = {
-            'y_pred+sum': list(itertools.chain(*[p.y_pred.tolist() for p in self.predicts if p.rule.__eq__('sum')])),
-            'y_pred+mult': list(itertools.chain(*[p.y_pred.tolist() for p in self.predicts if p.rule.__eq__('mult')])),
-            'y_pred+max': list(itertools.chain(*[p.y_pred.tolist() for p in self.predicts if p.rule.__eq__('max')])),
-            'y_true': list(itertools.chain(*[self.predicts[0].y_true.tolist()]))
-        }
-        df = pd.DataFrame(data, columns=data.keys())
-
-        if len(levels) > 0:
-            df = df.map(lambda row: list(filter(lambda x: x.label.__eq__(row), levels))[0].specific_epithet)
-
-        df['equals'] = df.apply(lambda row: row[row == row['y_true']].index.tolist(), axis=1)
-        df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
-        logging.info('Saving %s' % filename)
-
-
-
-
-
+        targets = ['label+%s' % (i) for i in range(1, len(self.levels) + 1)]
+        if len(self.levels) > 0:
+            targets = ['%s+%s' % (l.specific_epithet, l.label) for l in sorted(self.levels, key=lambda x: x.label)]
+        return classification_report(y_pred=self.y_pred, y_true=self.y_true, labels=np.arange(1, len(self.levels) + 1),
+                                     target_names=targets, zero_division=0, output_dict=True)

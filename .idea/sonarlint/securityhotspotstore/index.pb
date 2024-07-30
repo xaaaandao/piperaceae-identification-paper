@@ -78,11 +78,33 @@ N
 arrays.c,9/b/9b34a8b5d7486dc18b2386307a4985e788c1a17d
 <
 test_mean.py,a/a/aa3ec46a005f1f4ff59a7a339b00b965d2209416
-E
-test/dataet/teste.csv,d/8/d8df1fe4195bdff0d4b0c63827858de400a5af17
 >
 test_result.py,8/9/8948a0ae9edff5a97a9acd5bdac8995f02928581
 H
 test/dataset/dataset.csv,8/d/8deb421b5f823aaa1c75c3084c47593096db0067
 F
 test/test_cython.ipynb,a/4/a4f9c605428a7102ce807ef58125bbd7f84b815e
+>
+test/result.py,a/1/a1e60cb8a2336f028e60722a555de761cd16f2e4
+Ò
+¡output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/fold+1/true_positive.csv,2/2/22cc95e7834ca642979c1f334e5bf5f9a720d449
+Í
+œoutput/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/fold+1/predicts.csv,e/a/eac2d81bcdbec7752e225400c6865fd9023a43bc
+Ñ
+ output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/fold+1/info_results.csv,b/2/b2c19a09faf77b607f81dae02f9402f4a23bd126
+Õ
+¤output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/fold+1/count_train_test.csv,8/c/8cdf307e8bbf2851658c790ab4bef42bf16d457a
+Ï
+žoutput/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/fold+1/best+evals.csv,9/c/9c1790c3cc57650855a28abdcac016166841b187
+T
+$output/a/fold+1/count_train_test.csv,9/a/9a1f34678d821d99e2aa56a03b67753ab061d74a
+L
+output/a/fold+1/predicts.csv,b/8/b8d73061d4c3fae03d6fa1a789c72dba75ac7c38
+H
+output/a/fold+1/topk.csv,d/d/ddeb41473b824adedab1a1ada67372915bd16076
+Q
+!output/a/fold+1/true_positive.csv,d/3/d34920d45a34d3e9468397e93a6c57b4e7f1f73d
+P
+ output/a/fold+1/info_results.csv,0/3/0315569f6a0dbb72188aac0e10861bfed1600c83
+H
+output/a/fold+2/topk.csv,5/b/5b2dee6418fd846dae0cf616a2a59125ae051343

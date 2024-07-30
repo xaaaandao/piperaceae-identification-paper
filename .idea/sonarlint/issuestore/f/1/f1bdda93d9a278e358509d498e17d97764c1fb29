@@ -1,5 +1,6 @@
 
-—python:S1192"RDefine a constant instead of duplicating this literal '%d/%m/%Y %H:%M:%S' 3 times.(ÉÈş‘8®¨Ëïş1J$4223ef17-77d0-44c9-9140-b3063780f5d4
-ppython:S1481v"+Remove the unused local variable "results".(ãî8®¨Ëïş1J$0b68e0d4-eaa5-4279-8124-fc0a97958cb8
-python:S3776["TRefactor this function to reduce its Cognitive Complexity from 20 to the 15 allowed.(Íª ûÿÿÿÿ8®¨Ëïş1J$32caefdb-70a9-47a7-99c6-1e85463740f3
-˜python:S1226["NIntroduce a new variable or use its initial value before reassigning 'config'.(Íª ûÿÿÿÿ8®¨Ëïş1J$46fa2d37-fc58-4502-9694-af52004ce509
+—python:S1192"RDefine a constant instead of duplicating this literal '%d/%m/%Y %H:%M:%S' 3 times.(ÉÈş‘8®¨Ëïş1J$31c07d92-a1fb-4ea6-8383-9a2c074a8486
+ppython:S1481v"+Remove the unused local variable "results".(ãî8®¨Ëïş1J$e590f6b2-93a5-476a-bb4b-7f302b40f564
+python:S3776["TRefactor this function to reduce its Cognitive Complexity from 20 to the 15 allowed.(Íª ûÿÿÿÿ8®¨Ëïş1J$fe78cc4c-41a8-4a4e-baa4-642d2b92b0af
+˜python:S1226["NIntroduce a new variable or use its initial value before reassigning 'config'.(Íª ûÿÿÿÿ8®¨Ëïş1J$fbcf01b7-6071-4aec-8480-0f0622c6e90a
+dpython:S125"Remove this commented out code.(˜Õå—8ÑÑŞ†2J$e6a1002b-f846-4f29-89f7-b3572df63b91
