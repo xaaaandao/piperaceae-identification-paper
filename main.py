@@ -154,7 +154,8 @@ def main(config, clf, input, output, pca):
                 fold.run(clf, dataset)
                 folds.append(fold)
 
-            # means = [Mean(folds, dataset.levels, 'max'),
+            means = Mean(folds)
+            # Mean(folds, dataset.levels, 'max'),
             #          Mean(folds, dataset.levels, 'sum'),
             #          Mean(folds, dataset.levels, 'mult')]
             # save(clf, config, dataset, folds, means, output)
