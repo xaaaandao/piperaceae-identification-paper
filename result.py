@@ -22,9 +22,6 @@ class Result:
                  rule: str,
                  y_pred_proba: np.ndarray,
                  y_test: np.ndarray):
-        # y_pred: np.ndarray = None,
-        # y_score: np.ndarray = None,
-        # y_true: np.ndarray = None):
         self.count_test = count_test
         self.levels = levels
         self.patch = patch

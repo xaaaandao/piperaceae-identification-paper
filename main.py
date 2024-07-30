@@ -152,13 +152,11 @@ def main(config, clf, input, output, pca):
             for f, idx in enumerate(index, start=1):
                 fold = Fold(f, idx, x, y)
                 fold.run(clf, dataset)
+                fold.save(output)
                 folds.append(fold)
 
-            means = Mean(folds)
-            # Mean(folds, dataset.levels, 'max'),
-            #          Mean(folds, dataset.levels, 'sum'),
-            #          Mean(folds, dataset.levels, 'mult')]
-            # save(clf, config, dataset, folds, means, output)
+            # means = Mean(folds)
+            save(clf, config, dataset, folds, output)
 
 
 if __name__ == '__main__':

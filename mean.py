@@ -12,10 +12,10 @@ from evaluate import TopK
 
 class Mean:
     def __init__(self, folds: list):
-        self.dfs = [f.dfs for f in folds]
+        self.dfs = [f.dataframes for f in folds]
         self.c = self.means()
         self.best()
-        self.top()
+        self.mean_top = self.top()
         self.true_positive()
 
     def means(self):
@@ -29,8 +29,6 @@ class Mean:
     def best(self):
         df_accuracy = self.c.loc[self.c['mean_accuracy'].idxmax()]
         df_f1 = self.c.loc[self.c['mean_f1'].idxmax()]
-        print(df_accuracy['mean_accuracy'], df_accuracy['std_accuracy'], df_accuracy['rule'])
-        print(df_f1['mean_f1'], df_f1['std_f1'], df_accuracy['rule'])
         data = {'metric': ['mean_accuracy', 'mean_f1', 'std_accuracy', 'std_f1'],
                 'value': [df_accuracy['mean_accuracy'], df_f1['mean_f1'], df_accuracy['std_accuracy'], df_f1['std_f1']],
                 'rule': [df_accuracy['rule'], df_f1['rule'], df_accuracy['rule'], df_f1['rule']]}
@@ -43,6 +41,7 @@ class Mean:
         b = evals.groupby(['k', 'rule'])['topk_accuracy_score'].std().reset_index()
         c = evals.groupby(['k', 'rule'])['count_test'].mean().reset_index()
         d = evals.groupby(['k', 'rule'])['count_test'].std().reset_index()
+
         a.rename(columns={'topk_accuracy_score': 'mean_topk_accuracy_score'}, inplace=True)
         b.rename(columns={'topk_accuracy_score': 'std_topk_accuracy_score'}, inplace=True)
         c.rename(columns={'count_test': 'mean_count_test'}, inplace=True)
@@ -51,11 +50,15 @@ class Mean:
         f = c.merge(d, how='inner', on=['rule', 'k'])
         g = e.merge(f, how='inner', on=['rule', 'k'])
         print(g)
-        g['mean_topk_accuracy_score+100'] = (g['mean_topk_accuracy_score'] * 100) / g['mean_count_test']
+        g['mean_topk_accuracy_score+100'] = (g['mean_topk_accuracy_score']) / g['mean_count_test']
         g.to_csv('a.csv', sep=';', quoting=2)
+        return g
         # break
 
     def true_positive(self):
+        if any('true_positive' not in df for df in self.dfs):
+            return None
+
         evals = pd.concat(df['true_positive'] for df in self.dfs)
         a = evals.groupby(['rule', 'labels'])['true_positive'].mean().reset_index()
         b = evals.groupby(['rule', 'labels'])['true_positive'].std().reset_index()
