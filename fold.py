@@ -55,9 +55,7 @@ class Fold:
 
         n_test, n_labels = y_pred_proba.shape
 
-        self.predicts = [Result(n_test, dataset.levels, dataset.image.patch, 'max', y_pred_proba, y_test),
-                         Result(n_test, dataset.levels, dataset.image.patch, 'mult', y_pred_proba, y_test),
-                         Result(n_test, dataset.levels, dataset.image.patch, 'sum', y_pred_proba, y_test)]
+        self.predicts = [Result(n_test, dataset.levels, dataset.image.patch, 'max', y_pred_proba, y_test), Result(n_test, dataset.levels, dataset.image.patch, 'mult', y_pred_proba, y_test), Result(n_test, dataset.levels, dataset.image.patch, 'sum', y_pred_proba, y_test)]
 
         self.create_dfs(dataset)
 
