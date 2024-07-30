@@ -39,6 +39,10 @@ class Fold:
 
         self.count_train = collections.Counter(y_train)
         self.count_test = collections.Counter(y_test)
+        self.total_test = np.sum(list(self.count_test.values()))
+        self.total_train = np.sum(list(self.count_train.values()))
+        self.total_test_no_patch = self.total_test / dataset.image.patch
+        self.total_train_no_patch = self.total_train / dataset.image.patch
 
         logging.info('Train: %s' % self.count_train)
         logging.info('Test: %s' % self.count_test)
@@ -64,12 +68,12 @@ class Fold:
         # self.result = Result(self.count_train, self.count_test, dataset.image.patch, predicts, end_timeit)
 
     def create_df(self, dataset):
-        self.create_df_info(dataset.image.patch)
+        self.create_df_info()
         self.create_df_count_train_test(dataset)
         self.create_df_evaluations()
         self.create_df_predicts(dataset.levels)
-        self.create_df_tok(dataset.image.patch)
-        # self.create_df_true_positive()
+        self.create_df_topk()
+        self.create_df_true_positive(dataset)
 
     def create_df_evaluations(self):
         data = {
@@ -89,16 +93,16 @@ class Fold:
         df = pd.DataFrame(data, index=None, columns=list(data.keys()))
         df['labels'] = df[['labels']].map(lambda row: list(filter(lambda x: x.label.__eq__(row), dataset.levels))[0].specific_epithet)
 
-    def create_df_info(self, patch):
+    def create_df_info(self):
         data = {
             'time': [self.final_time],
-            'total_test': [np.sum(list(self.count_test.values()))],
-            'total_train': [np.sum(list(self.count_train.values()))],
-            'total_test_no_patch': [[np.sum(list(self.count_test.values()))][0]/patch],
-            'total_train_no_patch': [[np.sum(list(self.count_train.values()))][0]/patch],
+            'total_test': [self.total_test],
+            'total_train': [self.total_train],
+            'total_test_no_patch': [self.total_test_no_patch],
+            'total_train_no_patch': [self.total_train_no_patch],
         }
         df = pd.DataFrame(data, index=None, columns=list(data.keys()))
-        print(df)
+        # print(df)
 
     def create_df_predicts(self, levels):
         data = {
@@ -113,24 +117,65 @@ class Fold:
             df = df.map(lambda row: list(filter(lambda x: x.label.__eq__(row), levels))[0].specific_epithet)
 
         df['equals'] = df.apply(lambda row: row[row == row['y_true']].index.tolist(), axis=1)
+        print(df)
 
-    def create_df_a(self, patch, predict):
+    def create_df_a(self, predict):
         data = {
             'k': [topk.k for topk in sorted(predict.topk, key=lambda x: x.k)],
             'topk_accuracy_score': [topk.top_k_accuracy_score for topk in sorted(predict.topk, key=lambda x: x.k)],
-            'count_test': np.repeat([np.sum(list(self.count_test.values()))][0]/patch, len(predict.topk)),
-            'topk_accuracy_score+100': [topk.top_k_accuracy_score / ([np.sum(list(self.count_test.values()))][0]/patch) for topk in sorted(predict.topk, key=lambda x: x.k)],
+            'count_test': np.repeat(self.total_test_no_patch, len(predict.topk)),
+            'topk_accuracy_score+100': [topk.top_k_accuracy_score / self.total_test_no_patch for topk in sorted(predict.topk, key=lambda x: x.k)],
             'rule': [predict.rule] * len(predict.topk)  # equivalent a np.repeat, but works in List[str]
         }
         return pd.DataFrame(data, columns=list(data.keys()))
 
-    def create_df_tok(self, patch):
+    def create_df_topk(self):
         data = {'k': [], 'topk_accuracy_score': [], 'rule': []}
         df = pd.DataFrame(data, columns=list(data.keys()))
         for predict in self.predicts:
-            ddf = self.create_df_a(patch, predict)
+            ddf = self.create_df_a(predict)
             df = pd.concat([df, ddf], axis=0)
-        print(df)
+        # print(df)
 
-    def create_df_true_positive(self):
-        pass
+    def create_df_true_positive(self, dataset):
+        data = {
+            'labels': [],
+            'true_positive': [],
+            'rule': []
+        }
+        df = pd.DataFrame(data, columns=list(data.keys()))
+        for predict in self.predicts:
+            ddf = self.create_df_b(dataset, predict)
+            df = pd.concat([df, ddf], axis=0)
+        # print(df)
+
+    def get_count(self, count: dict, label: int):
+        """
+        Encontra a quantidade de treinos de uma determinada classe.
+        :param count: coleção com todas as quantidades de treinos.
+        :param label: classe que deseja encontrar.
+        :return: quantidade de treinos de uma determinada classe.
+        """
+        for count in list(count.items()):
+            if label == count[0]:
+                return count[1]
+
+    def get_index(self, dataset):
+        """
+        Cria uma lista com os levels (classes), ou seja, nome e a quantidade de treinos e testes, que serão utilizados na matriz de confusão.
+        :param levels: levels (classes) com nome das espécies utilizadas.
+        :param patch: quantidade de divisões da imagem.
+        :return: lista com o nome das classes e a quantidade de treinos de testes.
+        """
+        return [level.specific_epithet + '(%d-%d)'
+                % (int(self.get_count(self.count_train, level.label) / dataset.image.patch),
+                   int(self.get_count(self.count_test, level.label) / dataset.image.patch))
+                for level in sorted(dataset.levels, key=lambda x: x.label)]
+
+    def create_df_b(self, dataset, predict):
+        data = {
+            'labels': self.get_index(dataset),
+            'true_positive': list(np.diag(predict.confusion_matrix)),
+            'rule': [predict.rule] * len(dataset.levels)
+        }
+        return pd.DataFrame(data, columns=list(data.keys()))
