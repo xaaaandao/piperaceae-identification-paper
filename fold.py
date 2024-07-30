@@ -160,21 +160,28 @@ class Fold:
             if label == count[0]:
                 return count[1]
 
-    def get_index(self, dataset):
+    def get_level(self, dataset):
         """
         Cria uma lista com os levels (classes), ou seja, nome e a quantidade de treinos e testes, que serão utilizados na matriz de confusão.
         :param levels: levels (classes) com nome das espécies utilizadas.
         :param patch: quantidade de divisões da imagem.
         :return: lista com o nome das classes e a quantidade de treinos de testes.
         """
-        return [level.specific_epithet + '(%d-%d)'
-                % (int(self.get_count(self.count_train, level.label) / dataset.image.patch),
-                   int(self.get_count(self.count_test, level.label) / dataset.image.patch))
+        return [level.specific_epithet for level in sorted(dataset.levels, key=lambda x: x.label)]
+
+    def get_count_train(self, dataset):
+        return [int(self.get_count(self.count_train, level.label) / dataset.image.patch)
+                for level in sorted(dataset.levels, key=lambda x: x.label)]
+
+    def get_count_test(self, dataset):
+        return [int(self.get_count(self.count_test, level.label) / dataset.image.patch)
                 for level in sorted(dataset.levels, key=lambda x: x.label)]
 
     def create_df_b(self, dataset, predict):
         data = {
-            'labels': self.get_index(dataset),
+            'labels': self.get_level(dataset),
+            'count_train': self.get_count_train(dataset),
+            'count_test': self.get_count_test(dataset),
             'true_positive': list(np.diag(predict.confusion_matrix)),
             'rule': [predict.rule] * len(dataset.levels)
         }
@@ -182,7 +189,7 @@ class Fold:
 
     def create_df_best(self, df_evaluations):
         df_accuracy = df_evaluations.loc[df_evaluations['accuracy'].idxmax()]
-        df_f1 = df_evaluations.loc[df_evaluations['accuracy'].idxmax()]
+        df_f1 = df_evaluations.loc[df_evaluations['f1'].idxmax()]
         data = {'metric': ['accuracy', 'f1'],
                 'value': [df_accuracy['accuracy'], df_f1['f1']],
                 'rule': [df_accuracy['rule'], df_f1['rule']]}
