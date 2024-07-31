@@ -14,7 +14,6 @@ from evaluate import TopK
 
 
 class Result:
-    # n_test, dataset.levels, dataset.image.patch, 'max', y_pred_proba, y_test
     def __init__(self,
                  count_test: int,
                  levels: list,
