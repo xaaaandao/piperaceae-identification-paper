@@ -1,0 +1,2 @@
+"color";"contrast";"fold";"format";"height";"patch";"count_features";"count_samples";"model";"name";"minimum";"count_samples+patch";"width"
+"RGB";1.2;23;"npz";512;3;512;1065;"vgg16";"pr_dataset";20;3195;512

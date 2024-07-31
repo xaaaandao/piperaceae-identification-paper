@@ -38,7 +38,6 @@ def save_best_fold(folds: list, output: pathlib.Path | LiteralString | str):
     logging.info('Saving %s' % filename)
 
 
-
 def save_best_classifier(classifier: Any, output: pathlib.Path | LiteralString | str):
     """
     Salva o melhor classificador encontrado pela função GridSearchCV.
