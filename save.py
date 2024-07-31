@@ -23,9 +23,9 @@ def save_best_fold(folds: list, output: pathlib.Path | LiteralString | str):
             'rule': [],
             'fold': []}
     best = pd.DataFrame(data, columns=list(data.keys()))
-    for f in folds:
-        eval = f.dfs.evals
-        eval['fold'] = f.fold
+    for fold in folds:
+        eval = fold.dataframes['evals']
+        eval['fold'] = fold.fold
         best = pd.concat([best, eval], axis=0)
     best_accuracy = best.loc[best['accuracy'] == best['accuracy'].max()]
     best_f1 = best.loc[best['f1'] == best['f1'].max()]

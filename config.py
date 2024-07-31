@@ -13,7 +13,7 @@ class Config:
         # value used in parameter gridsearch
         self.backend = 'loky'
         self.metrics = ['f1', 'accuracy']
-        self.folds = 2
+        self.folds = 5
         # atributo usado para definir a métrica do gridsearch
         self.cv_metric = 'f1_weighted'
         self.n_jobs = -1

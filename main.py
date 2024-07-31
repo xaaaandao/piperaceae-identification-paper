@@ -153,13 +153,12 @@ def main(config, clf, input, output, pca):
                 fold = Fold(f, idx, x, y)
                 fold.run(clf, dataset)
                 fold.results(dataset)
-                fold.save(output)
+                fold.save(dataset, output)
                 folds.append(fold)
 
-
-            # means = Mean(folds)
-            # means.save(output)
-            # save(clf, config, dataset, folds, output)
+            means = Mean(folds)
+            means.save(output)
+            save(clf, config, dataset, folds, output)
 
 
 if __name__ == '__main__':

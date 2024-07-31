@@ -74,18 +74,20 @@ class Fold:
         self.dataframes = {
             'classification_report': df.classifications(self.predicts),
             'confusion_matrix': df.confusion_matrix(self.count_train, self.count_test, dataset, self.predicts),
-            'confusion_matrix_normalized': df.confusion_matrix_normalized(self.count_train, self.count_test, dataset, self.predicts),
+            'confusion_matrix_normalized': df.confusion_matrix_normalized(self.count_train, self.count_test, dataset,
+                                                                          self.predicts),
             'confusion_matrix_multilabel': df.confusion_matrix_multilabel(self.predicts),
             'count_train_test': df.count_train_test(self.count_train, self.count_test, dataset),
             'evals': df.evals(self.predicts),
-            'infos': df.infos(self.final_time, self.total_test, self.total_train, self.total_test_no_patch, self.total_train_no_patch),
+            'infos': df.infos(self.final_time, self.total_test, self.total_train, self.total_test_no_patch,
+                              self.total_train_no_patch),
             'preds': df.preds(dataset.levels, self.predicts),
             'tops': df.tops(self.predicts, self.total_test_no_patch),
             'true_positive': df.true_positive(self.count_train, self.count_test, dataset, self.predicts)
         }
         self.dataframes.update({'best_evals': df.best_evals(self.dataframes['evals'])})
 
-    def save(self, output):
+    def save(self, dataset, output):
         output = os.path.join(output, 'fold+%d' % self.fold)
         os.makedirs(output, exist_ok=True)
         for k, v in self.dataframes.items():
@@ -93,18 +95,44 @@ class Fold:
                 filename = os.path.join(output, '%s.csv' % k)
                 v.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
                 logging.info('Saved %s' % filename)
-            if isinstance(v, dict):
-                self.save_rules(k, output, v)
+        self.save_classification_report(output)
+        self.save_confusion_matrix(dataset, output)
 
-    def save_rules(self, k, output, v):
-        d = os.path.join(output, k)
-        if 'normalized' in k:
-            d = os.path.join(output, 'confusion_matrix', 'normalized')
-        os.makedirs(d, exist_ok=True)
-        for k2, v2 in v.items():
-            filename = os.path.join(d, '%s+%s.csv' % (k, k2))
-            if 'multilabel' in k:
-                d = os.path.join(output, 'confusion_matrix', 'multilabel', k2[1])
-                os.makedirs(d, exist_ok=True)
-                filename = os.path.join(d, '%s+%s.csv' % (k, k2[0]))
-            v2.to_csv(filename, index=True, header=True, sep=';', quoting=2, encoding='utf-8')
+    def save_confusion_matrix_non_normalized(self, output):
+        output = os.path.join(output, 'confusion_matrix')
+        os.makedirs(output, exist_ok=True)
+        for k, v in self.dataframes['confusion_matrix'].items():
+            filename = os.path.join(output, 'confusion_matrix+%s.csv' % k)
+            v.to_csv(filename, index=True, header=True, sep=';', quoting=2)
+            logging.info('Saving %s' % filename)
+
+    def save_confusion_matrix_normalized(self, output):
+        output = os.path.join(output, 'confusion_matrix', 'normalized')
+        os.makedirs(output, exist_ok=True)
+        for k, v in self.dataframes['confusion_matrix_normalized'].items():
+            filename = os.path.join(output, 'confusion_matrix_normalized+%s.csv' % k)
+            v.to_csv(filename, index=True, header=True, sep=';', quoting=2)
+            logging.info('Saving %s' % filename)
+
+    def save_confusion_matrix_multilabel(self, dataset, output):
+        output = os.path.join(output, 'confusion_matrix', 'multilabel')
+        for k, v in self.dataframes['confusion_matrix_multilabel'].items():
+            d = os.path.join(output, k[1])
+            os.makedirs(d, exist_ok=True)
+            level = list(filter(lambda x: x.label.__eq__(k[0]), dataset.levels))
+            filename = os.path.join(d, 'confusion_matrix_multilabel=%s.csv' % level[0].specific_epithet)
+            v.to_csv(filename, index=True, header=True, sep=';', quoting=2)
+            logging.info('Saving %s' % filename)
+
+    def save_confusion_matrix(self, dataset, output):
+        self.save_confusion_matrix_non_normalized(output)
+        self.save_confusion_matrix_normalized(output)
+        self.save_confusion_matrix_multilabel(dataset, output)
+
+    def save_classification_report(self, output):
+        output = os.path.join(output, 'classification_report')
+        os.makedirs(output, exist_ok=True)
+        for k, v in self.dataframes['classification_report'].items():
+            filename = os.path.join(output, 'classification_report+%s.csv' % k)
+            v.to_csv(filename, index=True, header=True, sep=';', quoting=2)
+            logging.info('Saving %s' % filename)

@@ -1,6 +1,5 @@
 
-—python:S1192"RDefine a constant instead of duplicating this literal '%d/%m/%Y %H:%M:%S' 3 times.(ÉÈş‘8 üıŠ2J$05f240ed-c734-46ef-a033-50861a012e76
-ppython:S1481v"+Remove the unused local variable "results".(ãî8¡üıŠ2J$2f5b8715-c255-4575-ba33-cc3d35cc01f4
-npython:S1481")Remove the unused local variable "means".(åçé	8¡üıŠ2J$c8903b74-c9f0-46c3-9f78-ee310b177835
-python:S3776["TRefactor this function to reduce its Cognitive Complexity from 20 to the 15 allowed.(Íª ûÿÿÿÿ8¡üıŠ2J$ce734c45-2db8-40ef-bf52-687d9bc0e7a3
-˜python:S1226["NIntroduce a new variable or use its initial value before reassigning 'config'.(Íª ûÿÿÿÿ8¢üıŠ2J$31653888-3ff7-4e31-9520-11b0d8a2d73a
+—python:S1192"RDefine a constant instead of duplicating this literal '%d/%m/%Y %H:%M:%S' 3 times.(ÉÈş‘8ºÅ‚Ä2J$4b52624d-f4a7-437a-902a-97b6e0cfcdee
+ppython:S1481v"+Remove the unused local variable "results".(ãî8ÅêƒÄ2J$2b9092c0-72ea-427c-b229-2f2635a5a04f
+python:S3776["TRefactor this function to reduce its Cognitive Complexity from 20 to the 15 allowed.(Íª ûÿÿÿÿ8»Å‚Ä2J$2bb05b19-d7a9-4561-a818-3de50ceaf021
+˜python:S1226["NIntroduce a new variable or use its initial value before reassigning 'config'.(Íª ûÿÿÿÿ8¼Å‚Ä2J$dc83fdbd-3dc1-476e-87d6-2659884c8e8b

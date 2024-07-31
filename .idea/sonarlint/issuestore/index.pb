@@ -30,9 +30,6 @@ P
 :
 
 arrays.pyx,2/1/21f20d1ba15cf913ee7d7c4fdeb1eb17240ae802
-:
-
-predict.py,9/1/91731ca614e5c56e746c690e96c1647309902f9c
 9
 	result.py,b/c/bc83f7151d84b53f50c6bb3593df4d19cd07b65d
 7
@@ -67,40 +64,14 @@ predict.py,9/1/91731ca614e5c56e746c690e96c1647309902f9c
 sql/query.sql,7/a/7a6ea446381559f75845d2ac30dde5a74e64e604
 N
 figures/confusion_matrix.ipynb,c/1/c1f8472965a6759394de94a37e8673f2517584d0
-È
-—output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/mean/means.csv,2/7/27aac3f8ee390ff1b0aab37f032f6e73eb3fc417
-Í
-œoutput/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/mean/means_topk.csv,9/8/98305ff29ef2dcfb1db1947c61172e76e914924b
-É
-˜output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/fold+1/topk.csv,3/f/3f3131fc5ca551762359609d41e4b8132db2196f
-É
-˜output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/fold+2/topk.csv,a/0/a0253048b4e5410b635b83ae93281ee7fa290eb1
-Ð
-Ÿoutput/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/fold+1/evaluations.csv,8/9/89e8e32ff7841eb4a1eca8220ecd96599258f5ee
-Ð
-Ÿoutput/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/fold+2/evaluations.csv,d/e/de3abb84da12f57785193065ead32c0a900b9970
 8
 arrays.c,9/b/9b34a8b5d7486dc18b2386307a4985e788c1a17d
-<
-test_mean.py,a/a/aa3ec46a005f1f4ff59a7a339b00b965d2209416
->
-test_result.py,8/9/8948a0ae9edff5a97a9acd5bdac8995f02928581
-H
-test/dataset/dataset.csv,8/d/8deb421b5f823aaa1c75c3084c47593096db0067
 F
 test/test_cython.ipynb,a/4/a4f9c605428a7102ce807ef58125bbd7f84b815e
->
-test/result.py,a/1/a1e60cb8a2336f028e60722a555de761cd16f2e4
 Ò
 ¡output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/fold+1/true_positive.csv,2/2/22cc95e7834ca642979c1f334e5bf5f9a720d449
-Í
-œoutput/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/fold+1/predicts.csv,e/a/eac2d81bcdbec7752e225400c6865fd9023a43bc
-Ñ
- output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/fold+1/info_results.csv,b/2/b2c19a09faf77b607f81dae02f9402f4a23bd126
 Õ
 ¤output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/fold+1/count_train_test.csv,8/c/8cdf307e8bbf2851658c790ab4bef42bf16d457a
-Ï
-žoutput/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/fold+1/best+evals.csv,9/c/9c1790c3cc57650855a28abdcac016166841b187
 T
 $output/a/fold+1/count_train_test.csv,9/a/9a1f34678d821d99e2aa56a03b67753ab061d74a
 L
@@ -123,3 +94,21 @@ G
 output/a/mean/means.csv,e/5/e51f242a569d431655781e4624439c5627434642
 O
 output/a/fold+2/evaluations.csv,7/a/7a8e8000d40a187e864336a835aeebbdefbf223f
+5
+df.py,c/4/c47b3c322eb6388dbf1020d4a1b29523be666487
+Ï
+žoutput/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/fold+1/best_evals.csv,0/d/0dc4286fba1d36a79fd5738a4ccb51abdd6a0c85
+È
+—output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/mean/means.csv,2/7/27aac3f8ee390ff1b0aab37f032f6e73eb3fc417
+Ê
+™output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/fold+1/evals.csv,1/9/1935e99950a75a3ddb7bb7293bc8f6b905f49143
+Ê
+™output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/fold+2/evals.csv,a/3/a3358c0d55ad8046297fd453496c912348b2e2a4
+É
+˜output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/fold+2/tops.csv,6/c/6c1da6e60a50306fe6d8870447899e4419d7db9e
+Ç
+–output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/mean/tops.csv,5/c/5c8075ebfbce3230555c9e7df14b2d18a6305f91
+É
+˜output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/fold+1/tops.csv,1/3/13164d5abb2cd3321a3b3e25cb7828c8da457418
+Ì
+›output/ft=512+sam=1065+fmt=npz+clr=RGB+contrast=1.20+height=512+width=512+pt=3+dt=pr_dataset+min=20+mod=vgg16+clf=DecisionTreeClassifier/best/best_fold.csv,8/9/89ada64849643312bce9f4e9d6507cb45db2aae2

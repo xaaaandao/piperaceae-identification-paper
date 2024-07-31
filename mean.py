@@ -1,6 +1,7 @@
 import csv
 import itertools
 import logging
+import os
 
 import numpy as np
 import pandas as pd
@@ -12,71 +13,69 @@ from evaluate import TopK
 
 class Mean:
     def __init__(self, folds: list):
-        self.dfs = [f.dataframes for f in folds]
-        self.c = self.means()
-        self.best()
-        self.mean_top = self.top()
-        self.true_positive()
+        self.folds = folds
+        self.dataframes = {
+            'means': self.means(),
+            'tops': self.top(),
+            'true_positive': self.true_positive(),
+        }
+        self.dataframes.update({'best': self.best(self.dataframes['means'])})
+
+    def mean_std(self, column, df):
+        mean = df.groupby(column).mean().reset_index()
+        std = df.groupby(column).std().reset_index()
+        return mean, std
 
     def means(self):
-        evals = pd.concat(df['evaluations'] for df in self.dfs)
-        a = evals.groupby('rule').mean().reset_index()
-        b = evals.groupby('rule').std().reset_index()
-        a.rename(columns={'accuracy': 'mean_accuracy', 'f1': 'mean_f1'}, inplace=True)
-        b.rename(columns={'accuracy': 'std_accuracy', 'f1': 'std_f1'}, inplace=True)
-        return a.merge(b, how='inner', on='rule')
+        evals = pd.concat(fold.dataframes['evals'] for fold in self.folds)
+        mean, std = self.mean_std('rule', evals)
+        mean.rename(columns={'accuracy': 'mean_accuracy', 'f1': 'mean_f1'}, inplace=True)
+        std.rename(columns={'accuracy': 'std_accuracy', 'f1': 'std_f1'}, inplace=True)
+        return mean.merge(std, how='inner', on='rule')
 
-    def best(self):
-        df_accuracy = self.c.loc[self.c['mean_accuracy'].idxmax()]
-        df_f1 = self.c.loc[self.c['mean_f1'].idxmax()]
+    def best(self, means):
+        df_accuracy = means.loc[means['mean_accuracy'].idxmax()]
+        df_f1 = means.loc[means['mean_f1'].idxmax()]
         data = {'metric': ['mean_accuracy', 'mean_f1', 'std_accuracy', 'std_f1'],
                 'value': [df_accuracy['mean_accuracy'], df_f1['mean_f1'], df_accuracy['std_accuracy'], df_f1['std_f1']],
                 'rule': [df_accuracy['rule'], df_f1['rule'], df_accuracy['rule'], df_f1['rule']]}
-        a= pd.DataFrame(data, columns=list(data.keys()))
-        print(a)
+        return pd.DataFrame(data, columns=list(data.keys()))
+
+    def mean_std_columns(self, column, columns, df):
+        mean = df.groupby(columns)[column].mean().reset_index()
+        std = df.groupby(columns)[column].std().reset_index()
+        mean.rename(columns={column: 'mean_%s' % column}, inplace=True)
+        std.rename(columns={column: 'std_%s' % column}, inplace=True)
+        return mean, std
 
     def top(self):
-        evals = pd.concat(df['topk'] for df in self.dfs)
-        a = evals.groupby(['k', 'rule'])['topk_accuracy_score'].mean().reset_index()
-        b = evals.groupby(['k', 'rule'])['topk_accuracy_score'].std().reset_index()
-        c = evals.groupby(['k', 'rule'])['count_test'].mean().reset_index()
-        d = evals.groupby(['k', 'rule'])['count_test'].std().reset_index()
+        tops = pd.concat(fold.dataframes['tops'] for fold in self.folds)
+        mean_top, std_top = self.mean_std_columns('topk_accuracy_score', ['k', 'rule'], tops)
+        mean_count_test, std_count_test = self.mean_std_columns('count_test', ['k', 'rule'], tops)
 
-        a.rename(columns={'topk_accuracy_score': 'mean_topk_accuracy_score'}, inplace=True)
-        b.rename(columns={'topk_accuracy_score': 'std_topk_accuracy_score'}, inplace=True)
-        c.rename(columns={'count_test': 'mean_count_test'}, inplace=True)
-        d.rename(columns={'count_test': 'std_count_test'}, inplace=True)
-        e = a.merge(b, how='inner', on=['rule', 'k'])
-        f = c.merge(d, how='inner', on=['rule', 'k'])
-        g = e.merge(f, how='inner', on=['rule', 'k'])
-        print(g)
-        g['mean_topk_accuracy_score+100'] = (g['mean_topk_accuracy_score']) / g['mean_count_test']
-        g.to_csv('a.csv', sep=';', quoting=2)
-        return g
-        # break
+        top = mean_top.merge(std_top, how='inner', on=['rule', 'k'])
+        count_test = mean_count_test.merge(std_count_test, how='inner', on=['rule', 'k'])
+        top_count_test = top.merge(count_test, how='inner', on=['rule', 'k'])
+        top_count_test['mean_topk_accuracy_score+100'] = top_count_test['mean_topk_accuracy_score'] / top_count_test[
+            'mean_count_test']
+        return top_count_test
 
     def true_positive(self):
-        if any('true_positive' not in df for df in self.dfs):
-            return None
+        true_positive = pd.concat(fold.dataframes['true_positive'] for fold in self.folds)
+        mean_tps, std_tps = self.mean_std_columns('true_positive', ['rule', 'labels'], true_positive)
+        mean_count_train, std_count_train = self.mean_std_columns('count_train', ['rule', 'labels'], true_positive)
+        mean_count_test, std_count_test = self.mean_std_columns('count_test', ['rule', 'labels'], true_positive)
 
-        evals = pd.concat(df['true_positive'] for df in self.dfs)
-        a = evals.groupby(['rule', 'labels'])['true_positive'].mean().reset_index()
-        b = evals.groupby(['rule', 'labels'])['true_positive'].std().reset_index()
-        c = evals.groupby(['rule', 'labels'])['count_train'].mean().reset_index()
-        d = evals.groupby(['rule', 'labels'])['count_train'].std().reset_index()
-        e = evals.groupby(['rule', 'labels'])['count_test'].mean().reset_index()
-        f = evals.groupby(['rule', 'labels'])['count_test'].std().reset_index()
-        a.rename(columns={'true_positive': 'mean_true_positive'}, inplace=True)
-        b.rename(columns={'true_positive': 'std_true_positive'}, inplace=True)
-        c.rename(columns={'count_train': 'mean_count_train'}, inplace=True)
-        d.rename(columns={'count_train': 'std_count_train'}, inplace=True)
-        e.rename(columns={'count_test': 'mean_count_test'}, inplace=True)
-        f.rename(columns={'count_test': 'std_count_test'}, inplace=True)
-        g = a.merge(b, how='inner', on=['rule', 'labels'])
-        h = c.merge(d, how='inner', on=['rule', 'labels'])
-        i = e.merge(f, how='inner', on=['rule', 'labels'])
-        j = g.merge(h, how='inner', on=['rule', 'labels'])
-        k = i.merge(j, how='inner', on=['rule', 'labels'])
-        print(k)
-        k.to_csv('d.csv', sep=';', quoting=2)
-        # break
+        tps = mean_tps.merge(std_tps, how='inner', on=['rule', 'labels'])
+        count_train = mean_count_train.merge(std_count_train, how='inner', on=['rule', 'labels'])
+        count_test = mean_count_test.merge(std_count_test, how='inner', on=['rule', 'labels'])
+        tps_count_train = tps.merge(count_train, how='inner', on=['rule', 'labels'])
+        tps_count_train_count_test = tps_count_train.merge(count_test, how='inner', on=['rule', 'labels'])
+        return tps_count_train_count_test
+
+    def save(self, output):
+        output = os.path.join(output, 'mean')
+        os.makedirs(output, exist_ok=True)
+        for k, v in self.dataframes.items():
+            filename = os.path.join(output, 'mean+%s.csv' % k)
+            v.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
