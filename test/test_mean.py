@@ -6,10 +6,7 @@ import pandas as pd
 
 from dataset import Dataset
 from fold import Fold
-from image import Image
-from level import Level
 from mean import Mean
-from result import Result
 
 
 class TestMean(TestCase):
@@ -74,7 +71,7 @@ class TestMean(TestCase):
 
     def setUp(self):
         super().setUp()
-        self.dataset = Dataset('./files/')
+        self.dataset = Dataset('../files/')
         self.dataset.load()
 
     def test_mean_sum(self):
@@ -112,6 +109,7 @@ class TestMean(TestCase):
         self.assertEqual(df.loc[df['rule'] == 'sum', 'mean_count_test'].all(), 1)
         self.assertEqual(df.loc[df['rule'] == 'sum', 'std_topk_accuracy_score'].all(), 0)
         self.assertEqual(df.loc[df['rule'] == 'sum', 'std_count_test'].all(), 0)
+        self.assertEqual(len(df.loc[df['k'] == 3]), 3)
 
     def test_tops_mult(self):
         folds = self.create_result('mult')
@@ -121,6 +119,7 @@ class TestMean(TestCase):
         self.assertEqual(df.loc[df['rule'] == 'mult', 'mean_count_test'].all(), 1)
         self.assertEqual(df.loc[df['rule'] == 'mult', 'std_count_test'].all(), 0)
         self.assertEqual(df.loc[df['rule'] == 'mult', 'std_count_test'].all(), 0)
+        self.assertEqual(len(df.loc[df['k'] == 3]), 3)
 
     def test_tops_max(self):
         folds = self.create_result('max')
@@ -130,6 +129,7 @@ class TestMean(TestCase):
         self.assertEqual(df.loc[df['rule'] == 'max', 'mean_count_test'].all(), 1)
         self.assertEqual(df.loc[df['rule'] == 'max', 'std_topk_accuracy_score'].all(), 0)
         self.assertEqual(df.loc[df['rule'] == 'max', 'std_count_test'].all(), 0)
+        self.assertEqual(len(df.loc[df['k'] == 3]), 3)
 
     def test_tps_max(self):
         folds = self.create_result('max')
