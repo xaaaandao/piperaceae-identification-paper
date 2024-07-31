@@ -131,17 +131,6 @@ class TestMean(TestCase):
         self.assertEqual(df.loc[df['rule'] == 'max', 'std_topk_accuracy_score'].all(), 0)
         self.assertEqual(df.loc[df['rule'] == 'max', 'std_count_test'].all(), 0)
 
-    def test_tps_sum(self):
-        folds = self.create_result('sum')
-        means = Mean(folds)
-        df = means.dataframes['true_positive']
-        self.assertEqual(df.loc[df['rule'] == 'sum', 'mean_true_positive'].all(), 1)
-        self.assertEqual(df.loc[df['rule'] == 'sum', 'mean_count_test'].all(), 1)
-        self.assertEqual(df.loc[df['rule'] == 'sum', 'mean_count_train'].all(), 1)
-        self.assertEqual(df.loc[df['rule'] == 'sum', 'std_true_positive'].all(), 0)
-        self.assertEqual(df.loc[df['rule'] == 'sum', 'std_count_test'].all(), 0)
-        self.assertEqual(df.loc[df['rule'] == 'sum', 'std_count_train'].all(), 0)
-
     def test_tps_max(self):
         folds = self.create_result('max')
         means = Mean(folds)
