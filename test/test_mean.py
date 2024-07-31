@@ -82,6 +82,7 @@ class TestMean(TestCase):
         self.assertEqual(df.loc[df['rule'] == 'sum']['mean_f1'].values[0], 1)
         self.assertEqual(df.loc[df['rule'] == 'sum']['std_accuracy'].values[0], 0)
         self.assertEqual(df.loc[df['rule'] == 'sum']['std_f1'].values[0], 0)
+        self.assertEqual(len(df['rule'].unique()), 3)
 
     def test_mean_max(self):
         folds = self.create_result('max')
@@ -91,6 +92,7 @@ class TestMean(TestCase):
         self.assertEqual(df.loc[df['rule'] == 'max']['mean_f1'].values[0], 1)
         self.assertEqual(df.loc[df['rule'] == 'max']['std_accuracy'].values[0], 0)
         self.assertEqual(df.loc[df['rule'] == 'max']['std_f1'].values[0], 0)
+        self.assertEqual(len(df['rule'].unique()), 3)
 
     def test_mean_mult(self):
         folds = self.create_result('mult')
@@ -100,6 +102,7 @@ class TestMean(TestCase):
         self.assertEqual(df.loc[df['rule'] == 'mult']['mean_f1'].values[0], 1)
         self.assertEqual(df.loc[df['rule'] == 'mult']['std_accuracy'].values[0], 0)
         self.assertEqual(df.loc[df['rule'] == 'mult']['std_f1'].values[0], 0)
+        self.assertEqual(len(df['rule'].unique()), 3)
 
     def test_tops_sum(self):
         folds = self.create_result('sum')
@@ -110,6 +113,7 @@ class TestMean(TestCase):
         self.assertEqual(df.loc[df['rule'] == 'sum', 'std_topk_accuracy_score'].all(), 0)
         self.assertEqual(df.loc[df['rule'] == 'sum', 'std_count_test'].all(), 0)
         self.assertEqual(len(df.loc[df['k'] == 3]), 3)
+        self.assertEqual(len(df['rule'].unique()), 3)
 
     def test_tops_mult(self):
         folds = self.create_result('mult')
@@ -120,6 +124,7 @@ class TestMean(TestCase):
         self.assertEqual(df.loc[df['rule'] == 'mult', 'std_count_test'].all(), 0)
         self.assertEqual(df.loc[df['rule'] == 'mult', 'std_count_test'].all(), 0)
         self.assertEqual(len(df.loc[df['k'] == 3]), 3)
+        self.assertEqual(len(df['rule'].unique()), 3)
 
     def test_tops_max(self):
         folds = self.create_result('max')
@@ -130,6 +135,7 @@ class TestMean(TestCase):
         self.assertEqual(df.loc[df['rule'] == 'max', 'std_topk_accuracy_score'].all(), 0)
         self.assertEqual(df.loc[df['rule'] == 'max', 'std_count_test'].all(), 0)
         self.assertEqual(len(df.loc[df['k'] == 3]), 3)
+        self.assertEqual(len(df['rule'].unique()), 3)
 
     def test_tps_max(self):
         folds = self.create_result('max')
@@ -141,6 +147,7 @@ class TestMean(TestCase):
         self.assertEqual(df.loc[df['rule'] == 'max', 'std_true_positive'].all(), 0)
         self.assertEqual(df.loc[df['rule'] == 'max', 'std_count_test'].all(), 0)
         self.assertEqual(df.loc[df['rule'] == 'max', 'std_count_train'].all(), 0)
+        self.assertEqual(len(df['rule'].unique()), 3)
 
     def test_tps_max(self):
         folds = self.create_result('mult')
@@ -152,6 +159,7 @@ class TestMean(TestCase):
         self.assertEqual(df.loc[df['rule'] == 'mult', 'std_true_positive'].all(), 0)
         self.assertEqual(df.loc[df['rule'] == 'mult', 'std_count_test'].all(), 0)
         self.assertEqual(df.loc[df['rule'] == 'mult', 'std_count_train'].all(), 0)
+        self.assertEqual(len(df['rule'].unique()), 3)
 
     def test_tps_sum(self):
         folds = self.create_result('sum')
@@ -163,3 +171,4 @@ class TestMean(TestCase):
         self.assertEqual(df.loc[df['rule'] == 'sum', 'std_true_positive'].all(), 0)
         self.assertEqual(df.loc[df['rule'] == 'sum', 'std_count_test'].all(), 0)
         self.assertEqual(df.loc[df['rule'] == 'mult', 'std_count_train'].all(), 0)
+        self.assertEqual(len(df['rule'].unique()), 3)
