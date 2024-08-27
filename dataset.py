@@ -112,7 +112,7 @@ class Dataset:
         :param df: DataFrame com as informações do dataset.
         """
         for k in self.__dict__.keys():
-            if 'region' in df['name']:
+            if 'region' in df['name'].values[0]:
                 setattr(self, 'region', df['regions'].values[0])
             if k in df.columns and 'input' not in k:
                 setattr(self, k, df[k].values[0])
