@@ -9,7 +9,8 @@ from sql.models import F1, Accuracy, DatasetF1, DatasetAccuracy, TopK, DatasetTo
 
 
 def loadv2(session):
-    for path in pathlib.Path('/media/xandao/52A491DD2185B752/mestrado/v2/results/').rglob('*ft=*'):
+    for path in pathlib.Path('/home/xandao/Imagens/pr').rglob('*ft=*'):
+        print(path)
         if len(os.listdir(path)) > 0:
             classifier, dataset = insert_dataset(path, session)
             insert_means(classifier, dataset, path, session)
@@ -23,13 +24,16 @@ def insert_means(classifier: str, dataset: Dataset, path: pathlib.Path, session)
     :param path: caminho do arquivo CSV.
     :return: nada.
     """
-    filename = os.path.join(path, 'mean', 'means.csv')
+    filename = os.path.join(path, 'mean', 'mean+means.csv')
     df = pd.read_csv(filename, sep=';', index_col=False, header=0)
     dict_cols = {j: i for i, j in enumerate(df.columns)}
+    print(dict_cols)
     for row in df.values:
-        if 'f1' in row[dict_cols['metric']]:
+        print(row[dict_cols['mean_f1']])
+        print('mean_f1' in dict_cols)
+        if 'mean_f1' in dict_cols:
             load_f1(classifier, dataset, dict_cols, row, session)
-        if 'accuracy' in row[dict_cols['metric']]:
+        if 'mean_accuracy' in dict_cols:
             load_accuracy(classifier, dataset, dict_cols, row, session)
         session.commit()
 
@@ -48,39 +52,34 @@ def load_topk(classifier: str, dataset: Dataset, path: pathlib.Path, session):
     if exists_metric(classifier, dataset, session, DatasetTopK) > 0:
         return
 
-    filename = os.path.join(path, 'mean', 'means_topk.csv')
+    filename = os.path.join(path, 'mean', 'mean+tops.csv')
     df = pd.read_csv(filename, sep=';', index_col=False, header=0)
     dict_cols = {j: i for i, j in enumerate(df.columns)}
 
     for row in df.values:
         topk = TopK(k=row[dict_cols['k']],
                     rule=row[dict_cols['rule']],
-                    mean=row[dict_cols['mean']],
-                    std=row[dict_cols['std']],
-                    percent=row[dict_cols['mean+100']])
+                    mean=row[dict_cols['mean_topk_accuracy_score']],
+                    std=row[dict_cols['std_topk_accuracy_score']],
+                    percent=row[dict_cols['mean_topk_accuracy_score+100']])
         insert_topk(classifier, dataset, session, topk)
 
 
-
-
-def load_accuracy(classifier:str, dataset:Dataset, dict_cols:dict, row, session):
-
+def load_accuracy(classifier: str, dataset: Dataset, dict_cols: dict, row, session):
     if exists_metric(classifier, dataset, session, DatasetAccuracy) > 0:
         return
 
     accuracy = Accuracy(rule=row[dict_cols['rule']],
-                        mean=row[dict_cols['mean']],
-                        std=row[dict_cols['std']])
+                        mean=row[dict_cols['mean_accuracy']],
+                        std=row[dict_cols['std_accuracy']])
     insert_accuracy(accuracy, classifier, dataset, session)
 
 
-def load_f1(classifier:str, dataset:Dataset, dict_cols:dict, row, session):
-
+def load_f1(classifier: str, dataset: Dataset, dict_cols: dict, row, session):
     if exists_metric(classifier, dataset, session, DatasetF1) > 0:
         return
 
-    f1 = F1(mean=row[dict_cols['mean']],
-            std=row[dict_cols['std']],
-            rule=row[dict_cols['rule']])
+    f1 = F1(rule=row[dict_cols['rule']],
+            mean=row[dict_cols['mean_f1']],
+            std=row[dict_cols['std_f1']])
     insert_f1(classifier, dataset, f1, session)
-
