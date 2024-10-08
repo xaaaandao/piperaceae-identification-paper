@@ -9,7 +9,7 @@ from sql.models import F1, Accuracy, DatasetF1, DatasetAccuracy, TopK, DatasetTo
 
 
 def loadv2(session):
-    for path in pathlib.Path('/home/xandao/Imagens/pr').rglob('*ft=*'):
+    for path in pathlib.Path('/media/xandao/Novo volume/results/br').rglob('*ft=*'):
         print(path)
         if len(os.listdir(path)) > 0:
             classifier, dataset = insert_dataset(path, session)
