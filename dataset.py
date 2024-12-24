@@ -4,6 +4,7 @@ import logging
 import os
 import pathlib
 from typing import LiteralString
+from unittest import case
 
 import numpy as np
 import pandas as pd
@@ -117,6 +118,7 @@ class Dataset:
             if k in df.columns and 'input' not in k:
                 setattr(self, k, df[k].values[0])
 
+
     def split_folds(self, config: Config, y: np.ndarray):
         """
         Essa função gera os indíces de treino e de teste de cada fold, porém eles só são gerados se for passado as features e as classes que essas features pertencem. Essa função considera a quantidade features originais.
@@ -166,7 +168,12 @@ class Dataset:
 
     def load_features(self):
         # TODO add quando é txt
-        return self.load_npz() if 'npz' in self.format else None
+        # return self.load_npz() if 'npz' in self.format else self.
+        match self.format:
+            case 'npz':
+                return self.load_npz()
+            case 'csv':
+                return self.load_csv()
 
     def load_npz(self):
         """
@@ -224,3 +231,26 @@ class Dataset:
         df.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
 
         self.image.save(output)
+
+    def load_csv(self):
+        dfs = []
+        fold = 0
+        y = []
+
+        for p in sorted(pathlib.Path(self.input).rglob('*.csv')):
+            if 'dataset' not in p.stem and 'samples' not in p.stem:
+                fold = p.stem
+                fold = int(fold.replace('f', ''))
+                df = pd.read_csv(p)
+                d = df.iloc[0:, 1:]
+                dfs.append(d)
+                y.append([fold] * d.shape[0])
+
+
+        concatenated_df = pd.concat(dfs, axis=0)
+        X = concatenated_df.to_numpy()
+        Y = np.array(list(itertools.chain(*y))).astype(np.int16)
+        return X, Y
+
+
+
