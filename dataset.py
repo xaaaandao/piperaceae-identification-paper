@@ -241,7 +241,7 @@ class Dataset:
             if 'dataset' not in p.stem and 'samples' not in p.stem:
                 fold = p.stem
                 fold = int(fold.replace('f', ''))
-                df = pd.read_csv(p)
+                df = pd.read_csv(p, sep=',', escapechar='\n')
                 d = df.iloc[0:, 1:]
                 dfs.append(d)
                 y.append([fold] * d.shape[0])

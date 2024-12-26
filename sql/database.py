@@ -12,8 +12,8 @@ from sql.models import Dataset
 
 def connect(echo: bool = True,
             host: str = 'localhost',
-            user: str = os.environ['PGUSER'],
-            password: str = os.environ['PGPWD'],
+            user: str = 'xandao',
+            password: str = 'madu',
             port: str = '5432',
             database: str = 'herbario'):
     """
