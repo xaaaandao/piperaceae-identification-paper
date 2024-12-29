@@ -255,7 +255,10 @@ class Dataset:
         return X, Y
 
     def load_txt(self):
-        dados = np.loadtxt(os.path.join(self.input, 'surf.txt'))
+        if os.path.exists(os.path.join(self.input, 'surf.txt')):
+            dados = np.loadtxt(os.path.join(self.input, 'surf.txt'))
+        if os.path.exists(os.path.join(self.input, 'lbp.txt')):
+            dados = np.loadtxt(os.path.join(self.input, 'lbp.txt'))
         n_amostras, n_features = dados.shape
         X = dados[0:, 0:n_features - 1]
         Y = dados[:, n_features - 1].astype(np.int16)
