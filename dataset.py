@@ -174,6 +174,8 @@ class Dataset:
                 return self.load_npz()
             case 'csv':
                 return self.load_csv()
+            case 'txt':
+                return self.load_txt()
 
     def load_npz(self):
         """
@@ -250,6 +252,13 @@ class Dataset:
         concatenated_df = pd.concat(dfs, axis=0)
         X = concatenated_df.to_numpy()
         Y = np.array(list(itertools.chain(*y))).astype(np.int16)
+        return X, Y
+
+    def load_txt(self):
+        dados = np.loadtxt(os.path.join(self.input, 'surf.txt'))
+        n_amostras, n_features = dados.shape
+        X = dados[0:, 0:n_features - 1]
+        Y = dados[:, n_features - 1].astype(np.int16)
         return X, Y
 
 

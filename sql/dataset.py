@@ -30,6 +30,8 @@ def insert_dataset(path: pathlib.Path | LiteralString | str, session)->(str, Dat
 
     if not os.path.exists(filename):
         print('%s invalid' % filename)
+        return
+
     df = pd.read_csv(filename, sep=';', index_col=False, header=0, na_filter=False)
     df.replace(to_replace='None', value=np.nan, inplace=True)
     values = df.to_dict('records')[0]

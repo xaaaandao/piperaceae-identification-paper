@@ -111,7 +111,8 @@ def main(config, clf, input, output, pca):
 
     if np.isnan(x).any():
         logging.error('x contains NaN values')
-        raise ValueError
+        # raise ValueError
+        return
 
     xs = apply_pca(config, dataset, model.features, pca, x)
 
