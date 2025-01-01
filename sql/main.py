@@ -12,7 +12,7 @@ def main():
     sqlite3.register_adapter(np.int64, lambda val: int(val))
     sqlite3.register_adapter(np.float64, lambda val: float(val))
 
-    engine, session = connect(database='herbario_resultados')
+    engine, session = connect(database='herbario2024resultados')
     base = get_base()
     base.metadata.create_all(engine)
 
