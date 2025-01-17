@@ -1,7 +1,7 @@
 # piperaceae-identification-paper
 
 These two other repositories are related:
-- [piperaceae-segmentation](): contains the code used to remove background in the exsiccate.
+- [piperaceae-segmentation](https://github.com/xaaaandao/piperaceae-segmentation/tree/multimedia): contains the code used to remove background in the exsiccate.
 - [piperaceae-features](https://github.com/xaaaandao/piperaceae-features/tree/multimedia): contains the code used to extract features from images.
 
 ---
