@@ -245,6 +245,9 @@ class Dataset:
                 fold = int(fold.replace('f', ''))
                 df = pd.read_csv(p, sep=',', escapechar='\n')
                 d = df.iloc[0:, 1:]
+                print(d.shape)
+                import sys
+                sys.exit(1)
                 dfs.append(d)
                 y.append([fold] * d.shape[0])
 

@@ -9,7 +9,7 @@ from sql.models import F1, Accuracy, DatasetF1, DatasetAccuracy, TopK, DatasetTo
 
 
 def loadv2(session):
-    for path in pathlib.Path('/mnt/eec07521-c36a-4d2b-9047-0110e7749eae/dataset/resultados/new').rglob('*ft=*'):
+    for path in pathlib.Path('/mnt/eec07521-c36a-4d2b-9047-0110e7749eae/dataset/resultados').rglob('*ft=*'):
         if len(os.listdir(path)) > 0:
             classifier, dataset = insert_dataset(path, session)
             insert_means(classifier, dataset, path, session)
