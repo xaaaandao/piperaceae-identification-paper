@@ -77,7 +77,32 @@ This code creates folders based on the number of folds and two folders (`mean` a
   - `topk.csv`: count of hits to k = 3 to k = n-1, where n is a count of classes;
   - `true_positive.csv`: count of true positives for each class.
 
-In each zip available are the exsiccata used in three dimensions (256 x 256, 400 x 400, 512 x 512), with three folders for each size.
+In each zip available are the exsiccata used in three dimensions (256 × 256, 400 × 400, 512 × 512), with three folders for each size.
 jpeg: the exsiccate resized.
 mask: the mask predicted for U-Net.
 segmented: image without background.
+
+---
+
+## Results
+
+Mean F1-Score, using the combination of MLP with VGG16 and ViT on 512×512 pixels RGB images - Brazil Dataset
+| # Minimum samples | Species/classes | VGG16 | ViT  |
+|-------------------|-----------------|-------|------|
+|         5         |       236       | 0.38  | 0.37 |
+|         10        |       160       | 0.41  | 0.40 |
+|         20        |       106       | 0.41  | 0.45 |
+
+Top-3 (%), using the combination of MLP with VGG16 and with ViT on 512×512 pixels RGB images - Brazil Dataset
+| # Minimum samples | Species/classes | VGG16 | ViT   |
+|-------------------|-----------------|-------|-------|
+|         5         |       236       | 61.18 | 63.60 |
+|         10        |       160       | 63.83 | 67.24 |
+|         20        |       106       | 69.01 | 71.32 |
+
+Top-5 (%), using the combination of MLP with VGG16 and with ViT on 512×512 pixels RGB images - Brazil Dataset
+| # Minimum samples | Species/classes | VGG16 | ViT   |
+|-------------------|-----------------|-------|-------|
+|         5         |       236       | 69.31 | 72.17 |
+|         10        |       160       | 72.43 | 75.82 |
+|         20        |       106       | 78.05 | 80.60 |
