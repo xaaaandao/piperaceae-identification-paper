@@ -1,119 +1,132 @@
-import dataclasses
-import numpy
-import sklearn.metrics
-
-from classifier import Classifier
+import collections
+import numpy as np
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score, top_k_accuracy_score, \
+    multilabel_confusion_matrix
 
 
 def get_index_max_value(y):
-    index = numpy.unravel_index(numpy.argmax(y, axis=None), y.shape)  # index return a tuple
+    index = np.unravel_index(np.argmax(y, axis=None), y.shape)  # index return a tuple
     return int(index[1])
 
 
-def max_rule(n_patch, y_pred):
-    new_y_pred = numpy.empty(shape=(0,))
+def max_rule(n_labels, n_patch, y_pred):
+    new_y_pred = np.empty(shape=(0,))
+    new_y_pred_prob = np.empty(shape=(0, n_labels))
     for i, j in next_sequence(0, y_pred.shape[0], n_patch):
-        new_y_pred = numpy.append(new_y_pred, get_index_max_value(y_pred[i:j]) + 1)
-    return new_y_pred
+        new_y_pred = np.append(new_y_pred, get_index_max_value(y_pred[i:j]) + 1)
+        new_y_pred_prob = np.vstack((new_y_pred_prob, np.amax(y_pred[i:j], axis=0)))
+    return new_y_pred_prob, new_y_pred
 
 
 def next_sequence(start, end, step):
     for i in range(start, end, step):
-        yield i, i+step
+        yield i, i + step
 
 
 def y_test_with_patch(n_patch, y_test):
-    new_y_test = numpy.empty(shape=(0,))
-    for i, j in next_sequence(0, y_test.shape[0], n_patch):
-        new_y_test = numpy.append(new_y_test, y_test[i])
-    return new_y_test
+    new_y_test = np.empty(shape=(0,))
+    # for i, j in next_sequence(0, y_test.shape[0], n_patch):
+    #     new_y_test = np.append(new_y_test, y_test[i])
+    # return new_y_test
+    return np.append(new_y_test, [y_test[i] for i, j in next_sequence(0, y_test.shape[0], n_patch)])
 
 
-def prod_all_prob(cfg, n_patch, y_pred):
-    new_y_pred = numpy.empty(shape=(0,))
-    new_y_pred_prob_prod = numpy.empty(shape=(0, cfg["n_labels"]))
+def prod_all_prob(n_labels, n_patch, y_pred):
+    new_y_pred = np.empty(shape=(0,))
+    new_y_pred_prob_prod = np.empty(shape=(0, n_labels))
     for i, j in next_sequence(0, y_pred.shape[0], n_patch):
-        new_y_pred = numpy.append(new_y_pred, numpy.argmax(y_pred[i:j].prod(axis=0))+1)
-        new_y_pred_prob_prod = numpy.vstack((new_y_pred_prob_prod, y_pred[i:j].prod(axis=0)))
+        new_y_pred = np.append(new_y_pred, np.argmax(y_pred[i:j].prod(axis=0)) + 1)
+        new_y_pred_prob_prod = np.vstack((new_y_pred_prob_prod, y_pred[i:j].prod(axis=0)))
     return new_y_pred_prob_prod, new_y_pred
 
 
-def sum_all_prob(cfg, n_patch, y_pred):
-    new_y_pred = numpy.empty(shape=(0,))
-    new_y_pred_prob_sum = numpy.empty(shape=(0, cfg["n_labels"]))
+def sum_all_prob(n_labels, n_patch, y_pred):
+    new_y_pred = np.empty(shape=(0,))
+    new_y_pred_prob_sum = np.empty(shape=(0, n_labels))
     for i, j in next_sequence(0, y_pred.shape[0], n_patch):
-        new_y_pred = numpy.append(new_y_pred, numpy.argmax(y_pred[i:j].sum(axis=0))+1)
-        new_y_pred_prob_sum = numpy.vstack((new_y_pred_prob_sum, y_pred[i:j].sum(axis=0)))
+        new_y_pred = np.append(new_y_pred, np.argmax(y_pred[i:j].sum(axis=0)) + 1)
+        new_y_pred_prob_sum = np.vstack((new_y_pred_prob_sum, y_pred[i:j].sum(axis=0)))
     return new_y_pred_prob_sum, new_y_pred
 
 
-def calculate_test(cfg, classifier, fold, y_pred, y_test, n_patch=1):
+def calculate_test(fold, labels, y_pred, y_test, n_patch=1):
     if n_patch > 1:
         y_test = y_test_with_patch(n_patch, y_test)
-    y_pred_max = max_rule(n_patch, y_pred)
-    y_pred_prob_prod, y_pred_prod = prod_all_prob(cfg, n_patch, y_pred)
-    y_pred_prob_sum, y_pred_sum = sum_all_prob(cfg, n_patch, y_pred)
-    return Result(classifier, fold, "max", y_pred, y_pred_max, y_test),\
-           Result(classifier, fold, "prod", y_pred_prob_prod, y_pred_prod, y_test),\
-           Result(classifier, fold, "sum", y_pred_prob_sum, y_pred_sum, y_test)
+    y_pred_prob_max, y_pred_max = max_rule(len(labels), n_patch, y_pred)
+    y_pred_prob_prod, y_pred_prod = prod_all_prob(len(labels), n_patch, y_pred)
+    y_pred_prob_sum, y_pred_sum = sum_all_prob(len(labels), n_patch, y_pred)
+    return create_result(fold, labels, 'max', y_pred_prob_max, y_pred_max, y_test), create_result(fold, labels, 'prod', y_pred_prob_prod, y_pred_prod, y_test), create_result(fold, labels, 'sum', y_pred_prob_sum, y_pred_sum, y_test)
 
 
-def convert_prob_to_label(y_pred):
-    y = numpy.empty(shape=(0,))
-    for k, j in enumerate(y_pred):
-        y = numpy.insert(y, k, [numpy.argmax(j) + 1])
-    return y
+def create_result(fold, labels, rule, y_pred_prob, y_pred, y_true):
+    accuracy = accuracy_score(y_pred=y_pred, y_true=y_true)
+
+    cm = confusion_matrix(y_pred=y_pred, y_true=y_true)
+    cm_normalized = confusion_matrix(y_pred=y_pred, y_true=y_true, normalize='true')
+    cm_multilabel = multilabel_confusion_matrix(y_pred=y_pred, y_true=y_true)
+
+    f1 = 0
+    if min(get_n_samples_per_label(y_true)) != max(get_n_samples_per_label(y_true)):
+        f1 = f1_score(y_pred=y_pred, y_true=y_true, average='weighted')
+
+    list_top_k_accuracy = []
+    if len(labels) > 2:
+        list_top_k_accuracy = get_list_top_k_accuracy(len(labels), y_pred_prob, y_true)
+
+    cr = classification_report(y_pred=y_pred, y_true=y_true, labels=np.arange(1, len(labels) + 1), zero_division=0, output_dict=True)
+    return {
+        'fold': fold,
+        'rule': rule,
+        'y_pred_prob': y_pred_prob,
+        'y_pred': y_pred,
+        'y_true': y_true,
+        'accuracy': accuracy,
+        'f1_score': f1,
+        'top_k': list_top_k_accuracy,
+        'max_top_k': get_max_top_k(list_top_k_accuracy),
+        'min_top_k': get_min_top_k(list_top_k_accuracy),
+        'confusion_matrix': cm,
+        'confusion_matrix_normalized': cm_normalized,
+        'confusion_matrix_multilabel': cm_multilabel,
+        'classification_report': cr,
+    }
 
 
-def sum_all_results(list_result):
-    list_result_per_sum = get_result_per_attribute_and_value("rule", list_result, "sum")
-    result = getattr(list_result_per_sum[0], "y_pred_prob")
-    for l in list_result_per_sum[1:]:
-        result = result + getattr(l, "y_pred_prob")
-    return result
+def get_list_top_k_accuracy(n_labels, y_pred_prob, y_true):
+    return [{'k': k,
+             'top_k_accuracy': top_k_accuracy_score(y_true=y_true, y_score=y_pred_prob, normalize=False,
+                                                    k=k, labels=np.arange(1, n_labels + 1))}
+            for k in range(3, n_labels)]
 
 
-def prod_all_results(list_result):
-    list_result_per_prod = get_result_per_attribute_and_value("rule", list_result, "prod")
-    result = getattr(list_result_per_prod[0], "y_pred_prob")
-    for l in list_result_per_prod[1:]:
-        result = result * getattr(l, "y_pred_prob")
-    return result
+def get_n_samples_per_label(y):
+    return list(collections.Counter(y).values())
 
 
-def max_all_results(list_result):
-    list_result_per_max = get_result_per_attribute_and_value("rule", list_result, "max")
-    result = getattr(list_result_per_max[0], "y_pred")
-    for y_pred in list_result_per_max[1:]:
-        for row, current_y_pred in enumerate(result):
-            result[row] = get_max_row_values(current_y_pred, row, getattr(y_pred, "y_pred"))
-    return result
+def get_max_top_k(list_top_k_accuracy):
+    if len(list_top_k_accuracy) > 0:
+        max_top_k = max(list_top_k_accuracy, key=lambda x: x['top_k_accuracy'])
+        return max_top_k['top_k_accuracy']
+    return 0
 
 
-def get_max_row_values(current_y_pred, row, y_pred):
-    return current_y_pred if numpy.all(current_y_pred > y_pred[row]) else y_pred[row]
+def get_min_top_k(list_top_k_accuracy):
+    if len(list_top_k_accuracy) > 0:
+        min_top_k = min(list_top_k_accuracy, key=lambda x: x['top_k_accuracy'])
+        return min_top_k['top_k_accuracy']
+    return 0
 
 
-def get_result_per_attribute_and_value(attribute, list_result_fold, value):
-    return list(filter(lambda l: getattr(l, attribute) == value, list_result_fold))
+def insert_result_fold_and_time(end_time_train_valid, fold, list_result_fold, list_time, result_max_rule, result_prod_rule, result_sum_rule, start_time_train_valid, time_find_best_params):
+    list_result_fold.append(result_max_rule)
+    list_result_fold.append(result_prod_rule)
+    list_result_fold.append(result_sum_rule)
+    list_time.append({
+        'fold': fold,
+        'time_train_valid': end_time_train_valid - start_time_train_valid,
+        'time_search_best_params': time_find_best_params
+    })
 
 
-@dataclasses.dataclass
-class Result:
-    accuracy: float = dataclasses.field(init=False)
-    classifier: Classifier
-    confusion_matrix: None = dataclasses.field(init=False)
-    fold: int
-    rule: str
-    y_pred_prob: None
-    y_pred: None
-    y_true: None
-
-    def __post_init__(self):
-        self.accuracy = sklearn.metrics.accuracy_score(y_pred=self.y_pred, y_true=self.y_true)
-        self.confusion_matrix = sklearn.metrics.confusion_matrix(y_pred=self.y_pred, y_true=self.y_true)
-
-
-def add_all_result(list_result_fold, list_result):
-    for result in list_result:
-        list_result_fold.append(result)
+def get_result(data, fold, labels, y_pred, y_test, handcraft=False):
+    return calculate_test(fold, labels, y_pred, y_test) if handcraft else calculate_test(fold, labels, y_pred, y_test, n_patch=int(data['n_patch']))
