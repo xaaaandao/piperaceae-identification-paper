@@ -56,16 +56,23 @@ class Fold:
         self.total_train = 0
         self.total_test_no_patch = 0
         self.total_train_no_patch = 0
+        self.x_aug = list()
         self.x_test = list()
         self.x_train = list()
+        self.y_aug = list()
         self.y_pred_proba = list()
         self.y_test = list()
         self.y_train = list()
 
     def run(self, backend, classifier, **kwargs):
+        self.get_train_data_augmentation()
+
         self.best_classifier = GridSearchCV(classifier, hyper[classifier.__class__.__name__], **kwargs)
 
         with joblib.parallel_backend(backend, n_jobs=kwargs["n_jobs"]):
+            # if self.dataset.x_augmented.shape[0] > 0:
+                # self.dataset.x = np.concatenate((self.dataset.x, self.dataset.x_augmented), axis=0)
+                # print(self.dataset.x.shape)
             self.best_classifier.fit(self.dataset.x, self.dataset.y)
 
         if isinstance(self.best_classifier.best_estimator_, SVC):
@@ -88,7 +95,9 @@ class Fold:
         logging.info("Total train: %s" % self.total_train_no_patch)
         logging.info("Total test: %s" % self.total_test_no_patch)
 
-        self.a()
+        if self.x_aug.shape[0] > 0:
+            self.x_train = np.concatenate((self.x_train, self.x_aug), axis=0)
+            self.y_train = np.concatenate((self.y_train, self.y_train), axis=0)
 
         self.best_classifier.best_estimator_.fit(self.x_train, self.y_train)
         self.y_pred_proba = self.best_classifier.best_estimator_.predict_proba(self.x_test)
@@ -207,21 +216,14 @@ class Fold:
         df = pd.DataFrame(data)
         df.to_csv(filename, sep=";", quoting=2, index=False)
 
-    def a(self):
+    def get_train_data_augmentation(self):
         if self.dataset.x_augmented.shape[0] > 0:
             select_files = self.dataset.filenames[self.idx_train]
-            print(collections.Counter(select_files))
-            print(len(select_files), len(self.idx_train))
-            print(len(np.unique(select_files)))
-            # print(self.dataset.x_augmented.shape)
-            # b = self.dataset.x_augmented[np.isin(self.dataset.x_augmented[:, -1], select_files)]
-            # print(b.shape)
-            # t = 0
-            # for sf in select_files:
-            #     c = self.dataset.x_augmented[np.isin(self.dataset.x_augmented[:, -1], sf)]
-            #     print(sf, c.shape)
-            #     t = t + c.shape[0]
-            # print(t)
-            import sys
-            sys.exit()
-
+            features = [self.dataset.x_augmented[self.dataset.x_augmented[:, -1] == sf] for sf in select_files]
+            features = np.vstack(features)
+            self.x_aug = features[:, :-2]
+            self.x_aug = self.x_aug.astype(float)
+            self.y_aug = features[:, -2]
+            self.y_aug = self.y_aug.astype(float).astype(np.int16)
+            logging.info("x_augmented shape: %s" % str(self.x_aug.shape))
+            logging.info("y_augmented shape: %s" % str(self.y_aug.shape))

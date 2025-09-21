@@ -114,4 +114,3 @@ class Dataset:
         if os.path.exists(self.data_aug):
             features = [np.load(p) for p in pathlib.Path(self.data_aug).rglob("*.npy")]
             self.x_augmented = np.vstack(features)
-
