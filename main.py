@@ -19,17 +19,18 @@ classifiers = ["DecisionTreeClassifier", "RandomForestClassifier", "KNeighborsCl
 
 @click.command()
 @click.option("-c", "--clf", type=str, required=True, default="DecisionTreeClassifier")
+@click.option("-d", "--data_aug", required=False)
 @click.option("-i", "--input_dir", required=True)
 @click.option("-o", "--output", required=False, default="output")
 @click.option("-p", "--pca", is_flag=True, default=False)
-def main(clf, input_dir, output, pca):
+def main(clf, data_aug, input_dir, output, pca):
     if not os.path.exists(input_dir):
         raise SystemExit("input %s not found" % input_dir)
 
     if clf not in classifiers:
         raise SystemExit("classifier %s not found" % clf)
 
-    dataset = Dataset(input_dir)
+    dataset = Dataset(data_aug, input_dir)
     dataset.print()
     dataset.load_features()
 

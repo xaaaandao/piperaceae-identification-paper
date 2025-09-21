@@ -122,7 +122,8 @@ class Result:
 
         filename = os.path.join(output_dir, "fold-%d-classification_report-%s.csv" % (fold, self.rule))
         df = pd.DataFrame(self.classification_report)
-        df.to_csv(filename, sep=";", quoting=2, index=False, encoding="utf-8")
+        df = df.transpose()
+        df.to_csv(filename, sep=";", quoting=2, index=True, header=True, encoding="utf-8")
         logging.info("saving %s" % filename)
 
     def save_confusion_matrix_normalized(self, fold, levels, output):
@@ -187,7 +188,7 @@ class Result:
     def save_tp(self, count_test, fold, output, patch, total_test_no_patch):
         output_dir = os.path.join(output, "true_positive")
         os.makedirs(output_dir, exist_ok=True)
-        print(np.sum(list(count_test.values())), dict(sorted(count_test.items())))
+
         data = {
             "label": [l.label for l in self.levels],
             "specific_epithet": [l.specific_epithet for l in self.levels],

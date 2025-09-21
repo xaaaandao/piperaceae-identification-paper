@@ -1,4 +1,5 @@
 import collections
+import functools
 import itertools
 import logging
 import os
@@ -72,7 +73,7 @@ class Experiment:
         self.save_best(output)
         self.save_experiement(output)
         self.save_folds(folds, output)
-        self.save_mean(output)
+        self.save_mean(folds, output)
 
     def save_folds(self, folds, output):
         for f in folds:
@@ -80,13 +81,13 @@ class Experiment:
             os.makedirs(output_dir, exist_ok=True)
             f.save(output_dir)
 
-    def save_mean(self, output):
+    def save_mean(self, folds, output):
         output_dir = os.path.join(output, "mean")
         os.makedirs(output_dir, exist_ok=True)
 
         self.save_mean_f1_accuracy(output_dir)
-        self.save_mean_topk(output_dir)
-        self.save_mean_tp(output_dir)
+        self.save_mean_topk(folds, output_dir)
+        self.save_mean_true_positive(folds, output_dir)
 
     def save_mean_f1_accuracy(self, output):
         filename = os.path.join(output, "means.csv")
@@ -118,8 +119,10 @@ class Experiment:
         data = {
             "best_fold_f1": [self.best_fold_f1.best_f1.f1],
             "best_fold_f1_rule": [self.best_fold_f1.best_f1.rule],
+            "best_fold_f1_fold": [self.best_fold_f1.fold],
             "best_fold_accuracy": [self.best_fold_accuracy.best_accuracy.accuracy],
             "best_fold_accuracy_rule": [self.best_fold_accuracy.best_accuracy.rule],
+            "best_fold_accuracy_fold": [self.best_fold_accuracy.fold],
         }
         save_csv_transpose(data, filename)
 
@@ -129,6 +132,7 @@ class Experiment:
             "backend": [self.backend],
             "classifier": [self.classifier.__class__.__name__],
             "cv_metric": [self.cv_metric],
+            "data_aug": [self.dataset.data_aug],
             "folds": [self.folds],
             "input": [self.dataset.input_dir],
             "model": [self.dataset.model],
@@ -142,9 +146,10 @@ class Experiment:
         }
         save_csv_transpose(data, filename)
 
-    def save_mean_topk(self, output):
+    def save_mean_topk(self, folds, output):
         output_dir = os.path.join(output, "topk")
         os.makedirs(output_dir, exist_ok=True)
+        mean_test = [f.total_test_no_patch for f in folds]
 
         for rule in ["sum", "max", "mult"]:
             filename = os.path.join(output_dir , "means+topk+%s.csv" % rule)
@@ -153,26 +158,30 @@ class Experiment:
             data = {
                 "k": [t.k for t in topks],
                 "top_k_accuracy_score": [t.mean for t in topks],
-                "top_k_accuracy_score_std": [t.std for t in topks]
+                "top_k_accuracy_score_std": [t.std for t in topks],
+                "mean_test": np.mean(mean_test),
             }
             df = pd.DataFrame(data)
-            df.to_csv(filename, index=False)
+            df.to_csv(filename, sep=";", quoting=2, index=False, encoding="utf-8")
             logging.info("saving %s" % filename)
 
-    def save_mean_tp(self, output):
-        output_dir = os.path.join(output, "tp")
+    def save_mean_true_positive(self, folds, output):
+        output_dir = os.path.join(output, "true_positive")
         os.makedirs(output_dir, exist_ok=True)
+        tests = [f.count_test for f in folds]
+        count_test = dict(functools.reduce(lambda x, y: collections.Counter(x) + collections.Counter(y), tests))
 
         for rule in ["sum", "max", "mult"]:
-            filename = os.path.join(output_dir , "means+tp+%s.csv" % rule)
+            filename = os.path.join(output_dir , "means+true_positive+%s.csv" % rule)
             tps = [m.true_positives for m in self.means if m.rule == rule]
             tps = list(itertools.chain(*tps))
             data = {
                 "label": [t.label for t in tps],
                 "specific_epithet": [t.specific_epithet for t in tps],
                 "true_positive": [t.mean for t in tps],
-                "true_positive_std": [t.std for t in tps]
+                "true_positive_std": [t.std for t in tps],
+                "mean_test": [(count_test[t.label] / self.dataset.patch) / len(tests) for t in tps],
             }
             df = pd.DataFrame(data)
-            df.to_csv(filename, index=False)
+            df.to_csv(filename, sep=";", quoting=2, index=False, encoding="utf-8")
             logging.info("saving %s" % filename)

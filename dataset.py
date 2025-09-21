@@ -13,7 +13,9 @@ from sample import Sample
 
 @dataclasses.dataclass(init=False)
 class Dataset:
+    data_aug: str
     height: int
+    input_dir: str
     input_dir: str
     levels: list
     model: str
@@ -27,7 +29,8 @@ class Dataset:
     x: Any
     y: Any
 
-    def __init__(self, input_dir):
+    def __init__(self, data_aug, input_dir):
+        self.data_aug = data_aug
         self.input_dir = input_dir
         if os.path.exists(os.path.join(self.input_dir, "dataset.csv")):
             self.load_csv()
@@ -55,6 +58,7 @@ class Dataset:
         self.width = int(float(df["width"].values[0]))
 
     def csv_file_is_empty(self):
+        self.data_aug = None
         self.height = None
         self.model = None
         self.n_features = None

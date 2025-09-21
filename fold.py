@@ -100,6 +100,7 @@ class Fold:
 
     def save(self, output):
         self.save_best(output)
+        self.save_count(output)
         self.save_fold(output)
         self.save_idx(output)
         self.save_results(output)
@@ -188,4 +189,16 @@ class Fold:
         filename = os.path.join(output_dir, "fold-%d-idx_test.npy" % self.fold)
         np.save(filename, self.idx_test)
         logging.info("saving %s" % filename)
+
+    def save_count(self, output):
+        filename = os.path.join(output, "fold-%d-count.csv" % self.fold)
+        data = []
+        for l in self.dataset.levels:
+            data.append({"label": l.label,
+                         "specific_epithet": l.specific_epithet,
+                         "count_train": self.count_train[l.label] / self.dataset.patch,
+                         "count_test": self.count_test[l.label] / self.dataset.patch,
+            })
+        df = pd.DataFrame(data)
+        df.to_csv(filename, sep=";", quoting=2, index=False)
 
