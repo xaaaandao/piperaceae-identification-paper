@@ -15,7 +15,7 @@ from sample import Sample
 class Dataset:
     data_aug: str
     height: int
-    input_dir: str
+    filename: list
     input_dir: str
     levels: list
     model: str
@@ -27,6 +27,7 @@ class Dataset:
     samples: list
     width: int
     x: Any
+    x_augmented: Any
     y: Any
 
     def __init__(self, data_aug, input_dir):
@@ -82,6 +83,8 @@ class Dataset:
         features = np.vstack(features)
         self.x = features[:, :-2]
         self.y = features[:, -2]
+        self.filenames = features[:, -1]
+
         self.x = self.x.astype(float)
         self.y = self.y.astype(float).astype(np.int16)
         logging.info("x.shape: %s" % str(self.x.shape))
@@ -89,6 +92,8 @@ class Dataset:
 
         if len(self.levels) == 0:
             self.levels = [Level(idx, "Espécie %d" % idx) for idx in range(np.min(self.y), np.max(self.y) + 1)]
+            
+        self.load_data_augmentation()
 
     def load_samples(self, path):
         filename = os.path.join(path, "samples.csv")
@@ -104,3 +109,9 @@ class Dataset:
         dfs = df[["fold", "specific_epithet"]].drop_duplicates()
         self.levels = [Level(row["fold"], row["specific_epithet"]) for idx, row in dfs.iterrows()]
         self.samples = [Sample(row["filename"], get_level_by_name(self.levels, row["specific_epithet"])) for idx, row in df.iterrows()]
+
+    def load_data_augmentation(self):
+        if os.path.exists(self.data_aug):
+            features = [np.load(p) for p in pathlib.Path(self.data_aug).rglob("*.npy")]
+            self.x_augmented = np.vstack(features)
+

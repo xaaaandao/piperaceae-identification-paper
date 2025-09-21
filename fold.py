@@ -85,6 +85,11 @@ class Fold:
         logging.info("Train: %s" % self.count_train)
         logging.info("Test: %s" % self.count_test)
 
+        logging.info("Total train: %s" % self.total_train_no_patch)
+        logging.info("Total test: %s" % self.total_test_no_patch)
+
+        self.a()
+
         self.best_classifier.best_estimator_.fit(self.x_train, self.y_train)
         self.y_pred_proba = self.best_classifier.best_estimator_.predict_proba(self.x_test)
 
@@ -201,4 +206,22 @@ class Fold:
             })
         df = pd.DataFrame(data)
         df.to_csv(filename, sep=";", quoting=2, index=False)
+
+    def a(self):
+        if self.dataset.x_augmented.shape[0] > 0:
+            select_files = self.dataset.filenames[self.idx_train]
+            print(collections.Counter(select_files))
+            print(len(select_files), len(self.idx_train))
+            print(len(np.unique(select_files)))
+            # print(self.dataset.x_augmented.shape)
+            # b = self.dataset.x_augmented[np.isin(self.dataset.x_augmented[:, -1], select_files)]
+            # print(b.shape)
+            # t = 0
+            # for sf in select_files:
+            #     c = self.dataset.x_augmented[np.isin(self.dataset.x_augmented[:, -1], sf)]
+            #     print(sf, c.shape)
+            #     t = t + c.shape[0]
+            # print(t)
+            import sys
+            sys.exit()
 
