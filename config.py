@@ -11,11 +11,11 @@ class Config:
 
     def __init__(self):
         # value used in parameter gridsearch
-        self.backend = 'loky'
-        self.metrics = ['f1', 'accuracy']
+        self.backend = "loky"
+        self.metrics = ["f1", "accuracy"]
         self.folds = 5
         # atributo usado para definir a métrica do gridsearch
-        self.cv_metric = 'f1_weighted'
+        self.cv_metric = "f1_weighted"
         self.n_jobs = -1
         self.seed = 1234
         self.verbose = 42
@@ -26,7 +26,7 @@ class Config:
         :return: None
         """
         for k, v in self.__dict__.items():
-            logging.info(f'{k} = {v}')
+            logging.info("%s: %s" % (k, v))
 
     def save(self, output: pathlib.Path | LiteralString | str) -> None:
         """

@@ -7,24 +7,19 @@ from sklearn.tree import DecisionTreeClassifier
 from config import Config
 
 
-def get_classifiers() -> list:
-    """
-    Lista com os nomes dos classificadores disponíveis.
-    :return: list, com os nomes dos classificadores disponíveis.
-    """
-    return ['DecisionTreeClassifier', 'RandomForestClassifier', 'KNeighborsClassifier', 'MLPClassifier', 'SVC']
-
-
-def select_classifiers(config: Config, selected: list) -> list:
+def get_classifier(classifier, n_jobs, seed, verbose):
     """
     Retorna uma lista de objetos dos classificadores selecionados.
     :return: list, retorna uma lista com os classificadores (objetos) selecionados.
     """
     classifiers = [
-        DecisionTreeClassifier(random_state=config.seed),
-        KNeighborsClassifier(n_jobs=config.n_jobs),
-        MLPClassifier(random_state=config.seed),
-        RandomForestClassifier(random_state=config.seed, n_jobs=config.n_jobs, verbose=config.verbose, max_depth=10),
-        SVC(random_state=config.seed, verbose=config.verbose, cache_size=2000, C=0.001)
+        DecisionTreeClassifier(random_state=seed),
+        KNeighborsClassifier(n_jobs=n_jobs),
+        MLPClassifier(random_state=seed),
+        RandomForestClassifier(random_state=seed, n_jobs=n_jobs, verbose=verbose, max_depth=10),
+        SVC(random_state=seed, verbose=verbose, cache_size=2000, C=0.001)
     ]
-    return [c for cs in selected for c in classifiers if cs == c.__class__.__name__]
+    for c in classifiers:
+        if classifier == c.__class__.__name__:
+            return c
+    raise ValueError("classifier %s not found" % classifier)

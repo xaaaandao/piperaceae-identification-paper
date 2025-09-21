@@ -1,139 +1,191 @@
 import collections
-import csv
-import itertools
 import logging
 import os
-import pathlib
-import sys
-import timeit
-from typing import Any, LiteralString
 
+import joblib
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import GridSearchCV
+from sklearn.svm import SVC
 
-import df
 from arrays import split_dataset
-from dataset import Dataset
 from result import Result
+from save import save_csv_transpose
 
 
-# from test.result import Result
-
+hyper = {
+    'DecisionTreeClassifier': {
+        'criterion': ['gini', 'entropy'],
+        'splitter': ['best', 'random'],
+        'max_depth': [10, 100, 1000]
+    },
+    'KNeighborsClassifier': {
+        'n_neighbors': [2, 4, 6, 8, 10],
+        'weights': ['uniform', 'distance'],
+        'metric': ['euclidean', 'manhattan']
+    },
+    'MLPClassifier': {
+        'activation': ['identity', 'logistic', 'tanh', 'relu'],
+        'solver': ['adam', 'sgd'],
+        'learning_rate_init': [0.01, 0.001, 0.0001],
+        'momentum': [0.9, 0.4, 0.1]
+    },
+    'RandomForestClassifier': {
+        'n_estimators': [200, 400, 600],
+        'max_features': ['sqrt', 'log2'],
+        'criterion': ['gini', 'entropy']
+    },
+    'SVC': {
+        'kernel': ['linear', 'poly', 'rbf', 'sigmoid']
+    }
+}
 
 class Fold:
-    def __init__(self, fold: int, idx: Any, x: np.ndarray, y: np.ndarray):
-        self.fold = fold
-        if idx and len(idx) > 0:
-            self.idx_train = idx[0]
-            self.idx_test = idx[1]
-        self.x = x
-        self.y = y
+    def __init__(self, dataset, fold, idx_train, idx_test):
+        self.best_f1 = None
+        self.best_accuracy = None
+        self.best_classifier = None
         self.count_train = None
         self.count_test = None
-        self.dataframes = None
-        self.final_time = None
-        self.total_test = None
-        self.total_train = None
-        self.total_test_no_patch = None
-        self.total_train_no_patch = None
-        self.predicts = None
+        self.dataset = dataset
+        self.fold = fold
+        self.idx_train = idx_train
+        self.idx_test = idx_test
+        self.results = list()
+        self.total_test = 0
+        self.total_train = 0
+        self.total_test_no_patch = 0
+        self.total_train_no_patch = 0
+        self.x_test = list()
+        self.x_train = list()
+        self.y_pred_proba = list()
+        self.y_test = list()
+        self.y_train = list()
 
-    def run(self, classifier: Any, dataset: Dataset):
-        """
-        Separa o dataset (treino e teste), usa o classificador para treinar e predizer.
-        Com a predição é aplicado a regra da soma, multiplicação e máximo.
-        Por fim, é feito gerado as métricas.
-        :param classifier: classificador com os melhores hiperparâmetros.
-        :param dataset: classe com as informações do dataset.
-        """
-        x_train, y_train = split_dataset(self.idx_train, dataset.count_features, dataset.image.patch, self.x, self.y)
-        x_test, y_test = split_dataset(self.idx_test, dataset.count_features, dataset.image.patch, self.x, self.y)
+    def run(self, backend, classifier, **kwargs):
+        self.best_classifier = GridSearchCV(classifier, hyper[classifier.__class__.__name__], **kwargs)
 
-        self.count_train = collections.Counter(y_train)
-        self.count_test = collections.Counter(y_test)
+        with joblib.parallel_backend(backend, n_jobs=kwargs["n_jobs"]):
+            self.best_classifier.fit(self.dataset.x, self.dataset.y)
+
+        if isinstance(self.best_classifier.best_estimator_, SVC):
+            params = dict(probability=True)
+            self.best_classifier.best_estimator_.set_params(**params)
+
+        self.x_train, self.y_train = split_dataset(self.idx_train, self.dataset.n_features, self.dataset.patch, self.dataset.x, self.dataset.y)
+        self.x_test, self.y_test = split_dataset(self.idx_test, self.dataset.n_features, self.dataset.patch, self.dataset.x, self.dataset.y)
+
+        self.count_train = collections.Counter(self.y_train)
+        self.count_test = collections.Counter(self.y_test)
         self.total_test = np.sum(list(self.count_test.values()))
         self.total_train = np.sum(list(self.count_train.values()))
-        self.total_test_no_patch = self.total_test / dataset.image.patch
-        self.total_train_no_patch = self.total_train / dataset.image.patch
+        self.total_test_no_patch = self.total_test / self.dataset.patch
+        self.total_train_no_patch = self.total_train / self.dataset.patch
 
-        logging.info('Train: %s' % self.count_train)
-        logging.info('Test: %s' % self.count_test)
+        logging.info("Train: %s" % self.count_train)
+        logging.info("Test: %s" % self.count_test)
 
-        start_timeit = timeit.default_timer()
+        self.best_classifier.best_estimator_.fit(self.x_train, self.y_train)
+        self.y_pred_proba = self.best_classifier.best_estimator_.predict_proba(self.x_test)
 
-        classifier.best_estimator_.fit(x_train, y_train)
-        y_pred_proba = classifier.best_estimator_.predict_proba(x_test)
-        self.final_time = timeit.default_timer() - start_timeit
+        self.results = [Result(self.dataset, rule, self.y_pred_proba, self.y_test) for rule in ["sum", "max", "mult"]]
+        for result in self.results:
+            n_test, n_labels = self.y_pred_proba.shape
+            result.evaluate(n_test, n_labels)
 
-        n_test, n_labels = y_pred_proba.shape
+        self.best_f1 = max(self.results, key=lambda x: x.f1)
+        self.best_accuracy = max(self.results, key=lambda x: x.accuracy)
+        logging.info("Best result F1: %s Rule: %s" % (str(self.best_f1.f1), self.best_f1.rule))
+        logging.info("Best result accuracy: %s Rule: %s" % (str(self.best_accuracy.accuracy), self.best_f1.rule))
 
-        self.predicts = [Result(n_test, dataset.levels, dataset.image.patch, 'max', y_pred_proba, y_test),
-                         Result(n_test, dataset.levels, dataset.image.patch, 'mult', y_pred_proba, y_test),
-                         Result(n_test, dataset.levels, dataset.image.patch, 'sum', y_pred_proba, y_test)]
+    def save(self, output):
+        self.save_best(output)
+        self.save_fold(output)
+        self.save_idx(output)
+        self.save_results(output)
 
-    def results(self, dataset):
-        self.dataframes = {
-            'classification_report': df.classifications(self.predicts),
-            'confusion_matrix': df.confusion_matrix(self.count_train, self.count_test, dataset, self.predicts),
-            'confusion_matrix_normalized': df.confusion_matrix_normalized(self.count_train, self.count_test, dataset,
-                                                                          self.predicts),
-            'confusion_matrix_multilabel': df.confusion_matrix_multilabel(self.predicts),
-            'count_train_test': df.count_train_test(self.count_train, self.count_test, dataset),
-            'evals': df.evals(self.predicts),
-            'infos': df.infos(self.final_time, self.total_test, self.total_train, self.total_test_no_patch,
-                              self.total_train_no_patch),
-            'preds': df.preds(dataset.levels, self.predicts),
-            'tops': df.tops(self.predicts, self.total_test_no_patch),
-            'true_positive': df.true_positive(self.count_train, self.count_test, dataset, self.predicts)
+    def save_best(self, output):
+        output_dir = os.path.join(output, "best")
+        os.makedirs(output_dir, exist_ok=True)
+
+        self.save_best_classifier(output_dir)
+        self.save_best_results(output_dir)
+
+    def save_best_classifier(self, output):
+        self.save_best_classifier_cv_results(output)
+        self.save_best_classifier_pkl(output)
+
+    def save_best_classifier_pkl(self, output):
+        filename = os.path.join(output, "fold-%d-best_classifier.pkl" % self.fold)
+        logging.info("saving %s" % filename)
+
+        try:
+            with open(filename, "wb") as file:
+                joblib.dump(self.best_classifier, file, compress=3)
+            file.close()
+        except FileExistsError:
+            logging.warning("problems in save model (%s)" % filename)
+
+    def save_best_classifier_cv_results(self, output):
+        filename = os.path.join(output, "fold-%d-best_classifier.csv" % self.fold)
+
+        df = pd.DataFrame(self.best_classifier.cv_results_)
+        df.to_csv(filename, index=False, header=True, sep=";", quoting=2, encoding="utf-8")
+        logging.info("saving %s" % filename)
+
+    def save_best_results(self, output):
+        filename = os.path.join(output, "fold-%d-best_results.csv" % self.fold)
+        data = {
+            "best_f1": [self.best_f1.f1],
+            "best_f1_rule": [self.best_f1.rule],
+            "best_accuracy": [self.best_accuracy.accuracy],
+            "best_accuracy_rule": [self.best_accuracy.rule]
         }
-        self.dataframes.update({'best_evals': df.best_evals(self.dataframes['evals'])})
+        save_csv_transpose(data, filename)
 
-    def save(self, dataset, output):
-        output = os.path.join(output, 'fold+%d' % self.fold)
-        os.makedirs(output, exist_ok=True)
-        for k, v in self.dataframes.items():
-            if isinstance(v, pd.DataFrame):
-                filename = os.path.join(output, '%s.csv' % k)
-                v.to_csv(filename, index=False, header=True, sep=';', quoting=2, encoding='utf-8')
-                logging.info('Saved %s' % filename)
-        self.save_classification_report(output)
-        self.save_confusion_matrix(dataset, output)
+    def save_results(self, output):
+        output_dir = os.path.join(output, "results")
+        os.makedirs(output_dir, exist_ok=True)
 
-    def save_confusion_matrix_non_normalized(self, output):
-        output = os.path.join(output, 'confusion_matrix')
-        os.makedirs(output, exist_ok=True)
-        for k, v in self.dataframes['confusion_matrix'].items():
-            filename = os.path.join(output, 'confusion_matrix+%s.csv' % k)
-            v.to_csv(filename, index=True, header=True, sep=';', quoting=2)
-            logging.info('Saving %s' % filename)
+        filename = os.path.join(output_dir, "fold-%d-results.csv" % (self.fold))
+        df = pd.DataFrame([result.to_dict() for result in self.results])
+        df.to_csv(filename, sep=";", quoting=2, index=False, header=True)
+        logging.info("saving %s" % filename)
 
-    def save_confusion_matrix_normalized(self, output):
-        output = os.path.join(output, 'confusion_matrix', 'normalized')
-        os.makedirs(output, exist_ok=True)
-        for k, v in self.dataframes['confusion_matrix_normalized'].items():
-            filename = os.path.join(output, 'confusion_matrix_normalized+%s.csv' % k)
-            v.to_csv(filename, index=True, header=True, sep=';', quoting=2)
-            logging.info('Saving %s' % filename)
+        for result in self.results:
+            output_dir = os.path.join(output, "results", result.rule)
+            os.makedirs(output_dir, exist_ok=True)
 
-    def save_confusion_matrix_multilabel(self, dataset, output):
-        output = os.path.join(output, 'confusion_matrix', 'multilabel')
-        for k, v in self.dataframes['confusion_matrix_multilabel'].items():
-            d = os.path.join(output, k[1])
-            os.makedirs(d, exist_ok=True)
-            level = list(filter(lambda x: x.label.__eq__(k[0]), dataset.levels))
-            filename = os.path.join(d, 'confusion_matrix_multilabel=%s.csv' % level[0].specific_epithet)
-            v.to_csv(filename, index=True, header=True, sep=';', quoting=2)
-            logging.info('Saving %s' % filename)
+            result.save_predictions(self.fold, output_dir)
+            result.save_confusion_matrix(self.fold, output_dir)
+            result.save_classification_report(self.fold, output_dir)
+            result.save_topk(self.fold, output_dir, self.total_test_no_patch)
+            result.save_tp(self.count_test, self.fold, output_dir, self.dataset.patch, self.total_test_no_patch)
 
-    def save_confusion_matrix(self, dataset, output):
-        self.save_confusion_matrix_non_normalized(output)
-        self.save_confusion_matrix_normalized(output)
-        self.save_confusion_matrix_multilabel(dataset, output)
+    def save_fold(self, output):
+        filename = os.path.join(output, "fold-%d.csv" % self.fold)
+        data = {
+            "total_test": [self.total_test],
+            "total_train": [self.total_train],
+            "total_test_no_patch": [self.total_test_no_patch],
+            "total_train_no_patch": [self.total_train_no_patch],
+        }
+        save_csv_transpose(data, filename)
 
-    def save_classification_report(self, output):
-        output = os.path.join(output, 'classification_report')
-        os.makedirs(output, exist_ok=True)
-        for k, v in self.dataframes['classification_report'].items():
-            filename = os.path.join(output, 'classification_report+%s.csv' % k)
-            v.to_csv(filename, index=True, header=True, sep=';', quoting=2)
-            logging.info('Saving %s' % filename)
+    def save_idx(self, output):
+        output_dir = os.path.join(output, "idx")
+        os.makedirs(output_dir, exist_ok=True)
+
+        self.save_idx_train(output_dir)
+        self.save_idx_test(output_dir)
+
+    def save_idx_train(self, output: str):
+        filename = os.path.join(output, "fold-%d-idx_train.npy" % self.fold)
+        np.save(filename, self.idx_train)
+        logging.info("saving %s" % filename)
+
+    def save_idx_test(self, output_dir: str):
+        filename = os.path.join(output_dir, "fold-%d-idx_test.npy" % self.fold)
+        np.save(filename, self.idx_test)
+        logging.info("saving %s" % filename)
+
