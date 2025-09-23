@@ -6,6 +6,7 @@ import joblib
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import GridSearchCV
+from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
 from arrays import split_dataset
@@ -65,18 +66,18 @@ class Fold:
         self.y_train = list()
 
     def run(self, backend, classifier, **kwargs):
-        self.get_train_data_augmentation()
-        self.best_classifier = GridSearchCV(classifier, hyper[classifier.__class__.__name__], **kwargs)
-
-        with joblib.parallel_backend(backend, n_jobs=kwargs["n_jobs"]):
-            self.best_classifier.fit(self.dataset.x, self.dataset.y)
-
-        if isinstance(self.best_classifier.best_estimator_, SVC):
-            params = dict(probability=True)
-            self.best_classifier.best_estimator_.set_params(**params)
-
         self.x_train, self.y_train = split_dataset(self.idx_train, self.dataset.n_features, self.dataset.patch, self.dataset.x, self.dataset.y)
         self.x_test, self.y_test = split_dataset(self.idx_test, self.dataset.n_features, self.dataset.patch, self.dataset.x, self.dataset.y)
+
+        self.get_train_data_augmentation()
+
+        if self.x_aug.shape[0] > 0:
+            self.x_train = np.concatenate((self.x_train, self.x_aug), axis=0)
+            self.y_train = np.concatenate((self.y_train, self.y_aug), axis=0)
+
+        scaler = StandardScaler()
+        self.x_train = scaler.fit_transform(self.x_train)
+        self.x_test = scaler.fit_transform(self.x_test)
 
         self.count_train = collections.Counter(self.y_train)
         self.count_test = collections.Counter(self.y_test)
@@ -87,13 +88,17 @@ class Fold:
 
         logging.info("Train: %s" % self.count_train)
         logging.info("Test: %s" % self.count_test)
-
         logging.info("Total train: %s" % self.total_train_no_patch)
         logging.info("Total test: %s" % self.total_test_no_patch)
 
-        if self.x_aug.shape[0] > 0:
-            self.x_train = np.concatenate((self.x_train, self.x_aug), axis=0)
-            self.y_train = np.concatenate((self.y_train, self.y_train), axis=0)
+        self.best_classifier = GridSearchCV(classifier, hyper[classifier.__class__.__name__], **kwargs)
+
+        with joblib.parallel_backend(backend, n_jobs=kwargs["n_jobs"]):
+            self.best_classifier.fit(self.x_train, self.y_train)
+
+        if isinstance(self.best_classifier.best_estimator_, SVC):
+            params = dict(probability=True)
+            self.best_classifier.best_estimator_.set_params(**params)
 
         self.best_classifier.best_estimator_.fit(self.x_train, self.y_train)
         self.y_pred_proba = self.best_classifier.best_estimator_.predict_proba(self.x_test)

@@ -7,7 +7,7 @@ import sqlalchemy as sa
 
 from sklearn.preprocessing import StandardScaler
 
-from database import connect, table_exists
+# from database import connect, table_exists
 from dataset import Dataset
 from experiment import Experiment
 from model import ResultDB, get_base
@@ -51,8 +51,8 @@ def main(clf, data_aug, input_dir, output, pca, sql):
 
     experiment = Experiment(clf, dataset)
 
-    scaler = StandardScaler()
-    dataset.x = scaler.fit_transform(dataset.x)
+    # scaler = StandardScaler()
+    # dataset.x = scaler.fit_transform(dataset.x)
 
     if np.isnan(dataset.x).any():
         raise ValueError("x contains NaN values")
