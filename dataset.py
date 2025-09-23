@@ -33,6 +33,7 @@ class Dataset:
     def __init__(self, data_aug, input_dir):
         self.data_aug = data_aug
         self.input_dir = input_dir
+        self.x_augmented = None
         if os.path.exists(os.path.join(self.input_dir, "dataset.csv")):
             self.load_csv()
         else:
@@ -111,6 +112,6 @@ class Dataset:
         self.samples = [Sample(row["filename"], get_level_by_name(self.levels, row["specific_epithet"])) for idx, row in df.iterrows()]
 
     def load_data_augmentation(self):
-        if os.path.exists(self.data_aug):
+        if self.data_aug and os.path.exists(self.data_aug):
             features = [np.load(p) for p in pathlib.Path(self.data_aug).rglob("*.npy")]
             self.x_augmented = np.vstack(features)

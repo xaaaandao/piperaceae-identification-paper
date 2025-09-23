@@ -66,13 +66,10 @@ class Fold:
 
     def run(self, backend, classifier, **kwargs):
         self.get_train_data_augmentation()
-
         self.best_classifier = GridSearchCV(classifier, hyper[classifier.__class__.__name__], **kwargs)
 
         with joblib.parallel_backend(backend, n_jobs=kwargs["n_jobs"]):
-            # if self.dataset.x_augmented.shape[0] > 0:
-                # self.dataset.x = np.concatenate((self.dataset.x, self.dataset.x_augmented), axis=0)
-                # print(self.dataset.x.shape)
+
             self.best_classifier.fit(self.dataset.x, self.dataset.y)
 
         if isinstance(self.best_classifier.best_estimator_, SVC):
@@ -95,7 +92,7 @@ class Fold:
         logging.info("Total train: %s" % self.total_train_no_patch)
         logging.info("Total test: %s" % self.total_test_no_patch)
 
-        if self.x_aug.shape[0] > 0:
+        if not self.x_aug and self.x_aug.shape[0] > 0:
             self.x_train = np.concatenate((self.x_train, self.x_aug), axis=0)
             self.y_train = np.concatenate((self.y_train, self.y_train), axis=0)
 
