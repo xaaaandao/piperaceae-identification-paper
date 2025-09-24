@@ -15,29 +15,29 @@ from save import save_csv_transpose
 
 
 hyper = {
-    'DecisionTreeClassifier': {
-        'criterion': ['gini', 'entropy'],
-        'splitter': ['best', 'random'],
-        'max_depth': [10, 100, 1000]
+    "DecisionTreeClassifier": {
+        "criterion": ["gini", "entropy"],
+        "splitter": ["best", "random"],
+        "max_depth": [10, 100, 1000]
     },
-    'KNeighborsClassifier': {
-        'n_neighbors': [2, 4, 6, 8, 10],
-        'weights': ['uniform', 'distance'],
-        'metric': ['euclidean', 'manhattan']
+    "KNeighborsClassifier": {
+        "n_neighbors": [2, 4, 6, 8, 10],
+        "weights": ["uniform", "distance"],
+        "metric": ["euclidean", "manhattan"]
     },
-    'MLPClassifier': {
-        'activation': ['identity', 'logistic', 'tanh', 'relu'],
-        'solver': ['adam', 'sgd'],
-        'learning_rate_init': [0.01, 0.001, 0.0001],
-        'momentum': [0.9, 0.4, 0.1]
+    "MLPClassifier": {
+        "activation": ["identity", "logistic", "tanh", "relu"],
+        "solver": ["adam", "sgd"],
+        "learning_rate_init": [0.01, 0.001, 0.0001],
+        "momentum": [0.9, 0.4, 0.1]
     },
-    'RandomForestClassifier': {
-        'n_estimators': [200, 400, 600],
-        'max_features': ['sqrt', 'log2'],
-        'criterion': ['gini', 'entropy']
+    "RandomForestClassifier": {
+        "n_estimators": [200, 400, 600],
+        "max_features": ["sqrt", "log2"],
+        "criterion": ["gini", "entropy"]
     },
-    'SVC': {
-        'kernel': ['linear', 'poly', 'rbf', 'sigmoid']
+    "SVC": {
+        "kernel": ["linear", "poly", "rbf", "sigmoid"]
     }
 }
 
@@ -57,23 +57,28 @@ class Fold:
         self.total_train = 0
         self.total_test_no_patch = 0
         self.total_train_no_patch = 0
-        self.x_aug = list()
-        self.x_test = list()
-        self.x_train = list()
-        self.y_aug = list()
-        self.y_pred_proba = list()
-        self.y_test = list()
-        self.y_train = list()
+        self.x_aug = np.array([])
+        self.x_test = np.array([])
+        self.x_train = np.array([])
+        self.y_aug = np.array([])
+        self.y_pred_proba = np.array([])
+        self.y_test = np.array([])
+        self.y_train = np.array([])
 
     def run(self, backend, classifier, **kwargs):
         self.x_train, self.y_train = split_dataset(self.idx_train, self.dataset.n_features, self.dataset.patch, self.dataset.x, self.dataset.y)
         self.x_test, self.y_test = split_dataset(self.idx_test, self.dataset.n_features, self.dataset.patch, self.dataset.x, self.dataset.y)
 
+        logging.info("x_train: %s" % str(self.x_train.shape))
+        logging.info("y_train: %s" % str(self.y_train.shape))
+
         self.get_train_data_augmentation()
 
-        if self.x_aug.shape[0] > 0:
+        if self.x_aug is not None and self.x_aug.shape[0] > 0:
             self.x_train = np.concatenate((self.x_train, self.x_aug), axis=0)
             self.y_train = np.concatenate((self.y_train, self.y_aug), axis=0)
+            logging.info("x_train COM data augmentation: %s" % str(self.x_train.shape))
+            logging.info("y_train COM data augmentation: %s" % str(self.y_train.shape))
 
         scaler = StandardScaler()
         self.x_train = scaler.fit_transform(self.x_train)
@@ -86,6 +91,7 @@ class Fold:
         self.total_test_no_patch = self.total_test / self.dataset.patch
         self.total_train_no_patch = self.total_train / self.dataset.patch
 
+        logging.info("Fold: %d" % self.fold)
         logging.info("Train: %s" % self.count_train)
         logging.info("Test: %s" % self.count_test)
         logging.info("Total train: %s" % self.total_train_no_patch)
@@ -215,10 +221,10 @@ class Fold:
                          "count_test": self.count_test[l.label] / self.dataset.patch,
             })
         df = pd.DataFrame(data)
-        df.to_csv(filename, sep=";", quoting=2, index=False)
+        df.to_csv(filename, sep=";", quoting=2, index=False, header=True, encoding="utf-8")
 
     def get_train_data_augmentation(self):
-        if self.dataset.x_augmented.shape[0] > 0:
+        if self.dataset.x_augmented is not None and self.dataset.x_augmented.shape[0] > 0:
             select_files = self.dataset.filenames[self.idx_train]
             features = [self.dataset.x_augmented[self.dataset.x_augmented[:, -1] == sf] for sf in select_files]
             features = np.vstack(features)

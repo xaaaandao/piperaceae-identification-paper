@@ -92,7 +92,7 @@ class Experiment:
     def save_mean_f1_accuracy(self, output):
         filename = os.path.join(output, "means.csv")
         df = pd.DataFrame([mean.to_dict() for mean in self.means])
-        df.to_csv(filename, index=False)
+        df.to_csv(filename, sep=";", quoting=2, index=False, header=True, encoding="utf-8")
         logging.info("saving %s" % filename)
 
     def save_best(self, output):

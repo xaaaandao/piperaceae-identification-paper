@@ -5,9 +5,7 @@ import numpy as np
 import os.path
 import sqlalchemy as sa
 
-from sklearn.preprocessing import StandardScaler
-
-# from database import connect, table_exists
+from database import connect, table_exists
 from dataset import Dataset
 from experiment import Experiment
 from model import ResultDB, get_base
@@ -20,12 +18,26 @@ logging.basicConfig(format="\033[35m [%(asctime)s] (%(levelname)s) {%(filename)s
 
 classifiers = ["DecisionTreeClassifier", "RandomForestClassifier", "KNeighborsClassifier", "MLPClassifier", "SVC"]
 
-def insert_results(engine, experiment, session):
-    q = sa.and_(ResultDB.clf == experiment.classifier.__class__.__name__,
-                ResultDB.input_dir == experiment.input_dir)
-    r = session.query(ResultDB).filter(q)
-    if len(r) == 0:
-        print("No results found for this experiment")
+def insert_results(dataset, experiment, session):
+    f = sa.and_(ResultDB.clf == experiment.classifier.__class__.__name__,
+                ResultDB.data_aug == dataset.data_aug,
+                ResultDB.input_dir == dataset.input_dir,
+                ResultDB.model == dataset.model)
+    q = session.query(ResultDB).filter(f).all()
+    if len(q) == 0:
+        data = [ResultDB(clf=experiment.classifier.__class__.__name__,
+                        data_aug = dataset.data_aug,
+                        input_dir = dataset.input_dir,
+                        model = dataset.model,
+                        mean_f1 = float(m.f1),
+                        std_f1 = float(m.f1_std),
+                        mean_accuracy = float(m.accuracy),
+                        std_accuracy = float(m.accuracy_std),
+                        rule = m.rule)
+               for m in experiment.means]
+        session.add_all(data)
+        session.commit()
+        session.close()
 
 
 @click.command()
@@ -51,9 +63,6 @@ def main(clf, data_aug, input_dir, output, pca, sql):
 
     experiment = Experiment(clf, dataset)
 
-    # scaler = StandardScaler()
-    # dataset.x = scaler.fit_transform(dataset.x)
-
     if np.isnan(dataset.x).any():
         raise ValueError("x contains NaN values")
 
@@ -63,22 +72,22 @@ def main(clf, data_aug, input_dir, output, pca, sql):
 
     experiment.run(output)
 
-    # if sql:
-    #     engine, session = connect()
-    #
-    #     tables = [ResultDB]
-    #     for t in tables:
-    #         if not table_exists(engine, t.__tablename__):
-    #             base = get_base()
-    #             base.metadata.tables[t.__tablename__].create(bind=engine)
-    #             logging.info("create table: %s" % t.__tablename__)
-    #         else:
-    #             logging.info("table %s already exists" % t.__tablename__)
-    #
-    #     insert_results(session, experiment, session)
-    #
-    #     session.close()
-    #     engine.dispose()
+    if sql:
+        engine, session = connect()
+
+        tables = [ResultDB]
+        for t in tables:
+            if not table_exists(engine, t.__tablename__):
+                base = get_base()
+                base.metadata.tables[t.__tablename__].create(bind=engine)
+                logging.info("create table: %s" % t.__tablename__)
+            else:
+                logging.info("table %s already exists" % t.__tablename__)
+
+        insert_results(dataset, experiment, session)
+
+        session.close()
+        engine.dispose()
 
 if __name__ == '__main__':
     main()
