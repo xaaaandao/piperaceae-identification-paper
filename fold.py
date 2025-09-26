@@ -1,4 +1,5 @@
 import collections
+import itertools
 import logging
 import os
 
@@ -10,9 +11,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
 from arrays import split_dataset
-from result import Result
-from save import save_csv_transpose
-
+from result import Result, BestResult
+from save import save_csv_transpose, SaveFold
 
 hyper = {
     "DecisionTreeClassifier": {
@@ -43,9 +43,10 @@ hyper = {
 
 class Fold:
     def __init__(self, dataset, fold, idx_train, idx_test):
-        self.best_f1 = None
-        self.best_accuracy = None
+        # self.best_f1 = None
+        # self.best_accuracy = None
         self.best_classifier = None
+        self.best_result = None
         self.count_train = None
         self.count_test = None
         self.dataset = dataset
@@ -53,6 +54,7 @@ class Fold:
         self.idx_train = idx_train
         self.idx_test = idx_test
         self.results = list()
+        self.s = None
         self.total_test = 0
         self.total_train = 0
         self.total_test_no_patch = 0
@@ -65,14 +67,14 @@ class Fold:
         self.y_test = np.array([])
         self.y_train = np.array([])
 
-    def run(self, backend, classifier, **kwargs):
+    def run(self, backend, classifier, data_augmentations, **kwargs):
         self.x_train, self.y_train = split_dataset(self.idx_train, self.dataset.n_features, self.dataset.patch, self.dataset.x, self.dataset.y)
         self.x_test, self.y_test = split_dataset(self.idx_test, self.dataset.n_features, self.dataset.patch, self.dataset.x, self.dataset.y)
 
         logging.info("x_train: %s" % str(self.x_train.shape))
         logging.info("y_train: %s" % str(self.y_train.shape))
 
-        self.get_train_data_augmentation()
+        self.get_train_data_augmentation(data_augmentations)
 
         if self.x_aug is not None and self.x_aug.shape[0] > 0:
             self.x_train = np.concatenate((self.x_train, self.x_aug), axis=0)
@@ -114,119 +116,23 @@ class Fold:
             n_test, n_labels = self.y_pred_proba.shape
             result.evaluate(n_test, n_labels)
 
-        self.best_f1 = max(self.results, key=lambda x: x.f1)
-        self.best_accuracy = max(self.results, key=lambda x: x.accuracy)
-        logging.info("Best result F1: %s Rule: %s" % (str(self.best_f1.f1), self.best_f1.rule))
-        logging.info("Best result accuracy: %s Rule: %s" % (str(self.best_accuracy.accuracy), self.best_f1.rule))
+        self.best_result = BestResult(self.results)
 
     def save(self, output):
-        self.save_best(output)
-        self.save_count(output)
-        self.save_fold(output)
-        self.save_idx(output)
-        self.save_results(output)
+        self.s = SaveFold(self, output)
 
-    def save_best(self, output):
-        output_dir = os.path.join(output, "best")
-        os.makedirs(output_dir, exist_ok=True)
+    def get_train_data_augmentation(self, data_augmentations):
+        if len(data_augmentations) > 0:
+            data_aug = [d.data for d in data_augmentations]
+            data_aug = np.array(list(itertools.chain(*data_aug)))
+            logging.info("merge data augmentations: %s" % str(data_aug.shape))
 
-        self.save_best_classifier(output_dir)
-        self.save_best_results(output_dir)
+            uniq, idx = np.unique(self.dataset.filenames, return_index=True)
+            # ordenar pelos índices de primeira ocorrência
+            uniq_ordered = uniq[np.argsort(idx)]
+            t = uniq_ordered[self.idx_train]
 
-    def save_best_classifier(self, output):
-        self.save_best_classifier_cv_results(output)
-        self.save_best_classifier_pkl(output)
-
-    def save_best_classifier_pkl(self, output):
-        filename = os.path.join(output, "fold-%d-best_classifier.pkl" % self.fold)
-        logging.info("saving %s" % filename)
-
-        try:
-            with open(filename, "wb") as file:
-                joblib.dump(self.best_classifier, file, compress=3)
-            file.close()
-        except FileExistsError:
-            logging.warning("problems in save model (%s)" % filename)
-
-    def save_best_classifier_cv_results(self, output):
-        filename = os.path.join(output, "fold-%d-best_classifier.csv" % self.fold)
-
-        df = pd.DataFrame(self.best_classifier.cv_results_)
-        df.to_csv(filename, index=False, header=True, sep=";", quoting=2, encoding="utf-8")
-        logging.info("saving %s" % filename)
-
-    def save_best_results(self, output):
-        filename = os.path.join(output, "fold-%d-best_results.csv" % self.fold)
-        data = {
-            "best_f1": [self.best_f1.f1],
-            "best_f1_rule": [self.best_f1.rule],
-            "best_accuracy": [self.best_accuracy.accuracy],
-            "best_accuracy_rule": [self.best_accuracy.rule]
-        }
-        save_csv_transpose(data, filename)
-
-    def save_results(self, output):
-        output_dir = os.path.join(output, "results")
-        os.makedirs(output_dir, exist_ok=True)
-
-        filename = os.path.join(output_dir, "fold-%d-results.csv" % (self.fold))
-        df = pd.DataFrame([result.to_dict() for result in self.results])
-        df.to_csv(filename, sep=";", quoting=2, index=False, header=True)
-        logging.info("saving %s" % filename)
-
-        for result in self.results:
-            output_dir = os.path.join(output, "results", result.rule)
-            os.makedirs(output_dir, exist_ok=True)
-
-            result.save_predictions(self.fold, output_dir)
-            result.save_confusion_matrix(self.fold, output_dir)
-            result.save_classification_report(self.fold, output_dir)
-            result.save_topk(self.fold, output_dir, self.total_test_no_patch)
-            result.save_tp(self.count_test, self.fold, output_dir, self.dataset.patch, self.total_test_no_patch)
-
-    def save_fold(self, output):
-        filename = os.path.join(output, "fold-%d.csv" % self.fold)
-        data = {
-            "total_test": [self.total_test],
-            "total_train": [self.total_train],
-            "total_test_no_patch": [self.total_test_no_patch],
-            "total_train_no_patch": [self.total_train_no_patch],
-        }
-        save_csv_transpose(data, filename)
-
-    def save_idx(self, output):
-        output_dir = os.path.join(output, "idx")
-        os.makedirs(output_dir, exist_ok=True)
-
-        self.save_idx_train(output_dir)
-        self.save_idx_test(output_dir)
-
-    def save_idx_train(self, output: str):
-        filename = os.path.join(output, "fold-%d-idx_train.npy" % self.fold)
-        np.save(filename, self.idx_train)
-        logging.info("saving %s" % filename)
-
-    def save_idx_test(self, output_dir: str):
-        filename = os.path.join(output_dir, "fold-%d-idx_test.npy" % self.fold)
-        np.save(filename, self.idx_test)
-        logging.info("saving %s" % filename)
-
-    def save_count(self, output):
-        filename = os.path.join(output, "fold-%d-count.csv" % self.fold)
-        data = []
-        for l in self.dataset.levels:
-            data.append({"label": l.label,
-                         "specific_epithet": l.specific_epithet,
-                         "count_train": self.count_train[l.label] / self.dataset.patch,
-                         "count_test": self.count_test[l.label] / self.dataset.patch,
-            })
-        df = pd.DataFrame(data)
-        df.to_csv(filename, sep=";", quoting=2, index=False, header=True, encoding="utf-8")
-
-    def get_train_data_augmentation(self):
-        if self.dataset.x_augmented is not None and self.dataset.x_augmented.shape[0] > 0:
-            select_files = self.dataset.filenames[self.idx_train]
-            features = [self.dataset.x_augmented[self.dataset.x_augmented[:, -1] == sf] for sf in select_files]
+            features = data_aug[np.isin(data_aug[:, -1], t)]
             features = np.vstack(features)
             self.x_aug = features[:, :-2]
             self.x_aug = self.x_aug.astype(float)
@@ -234,3 +140,4 @@ class Fold:
             self.y_aug = self.y_aug.astype(float).astype(np.int16)
             logging.info("x_augmented shape: %s" % str(self.x_aug.shape))
             logging.info("y_augmented shape: %s" % str(self.y_aug.shape))
+

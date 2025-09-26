@@ -204,3 +204,40 @@ class Result:
         true_positives = np.diag(self.confusion_matrix)
         for tp, level in zip(true_positives, sorted(self.dataset.levels, key=lambda x: x.label)):
             self.levels.append(LevelTP(level.label, level.specific_epithet, tp))
+
+class BestResult:
+    def __init__(self, results):
+        f1 = max(results, key=lambda x: x.f1)
+        accuracy = max(results, key=lambda x: x.accuracy)
+        self.f1 = f1.f1
+        self.f1_rule = f1.rule
+        self.accuracy = accuracy.accuracy
+        self.accuracy_rule = accuracy.rule
+
+        logging.info("Best result F1: %s Rule: %s" % (str(self.f1), self.f1_rule))
+        logging.info("Best result accuracy: %s Rule: %s" % (str(self.accuracy), self.accuracy_rule))
+
+class BestFold:
+    def __init__(self, folds):
+        f1 = max(folds, key=lambda x: x.best_result.f1)
+        accuracy = max(folds, key=lambda x: x.best_result.accuracy)
+        self.f1 = f1.fold
+        self.accuracy = accuracy.fold
+
+        logging.info("Best fold F1: %s" % self.f1)
+        logging.info("Best fold accuracy: %s" % self.accuracy)
+
+class BestMean:
+    def __init__(self, means):
+        f1 = max(means, key=lambda x: x.f1)
+        accuracy = max(means, key=lambda x: x.accuracy)
+        self.f1 = f1.f1
+        self.f1_std = f1.f1_std
+        self.f1_rule = f1.rule
+        self.accuracy = accuracy.accuracy
+        self.accuracy_std = accuracy.accuracy_std
+        self.accuracy_rule = accuracy.rule
+
+        logging.info("Best MEAN result F1: %s Rule: %s" % (str(self.f1), str(self.f1_rule)))
+        logging.info("Best MEAN result accuracy: %s Rule: %s" % (str(self.accuracy), str(self.accuracy_rule)))
+

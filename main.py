@@ -6,7 +6,7 @@ import os.path
 import sqlalchemy as sa
 
 from database import connect, table_exists
-from dataset import Dataset
+from dataset import Dataset, DataAugmentation
 from experiment import Experiment
 from model import ResultDB, get_base
 
@@ -42,14 +42,15 @@ def insert_results(dataset, experiment, session):
 
 @click.command()
 @click.option("-c", "--clf", type=str, required=True, default="DecisionTreeClassifier")
-@click.option("-d", "--data_aug", required=False)
+@click.option("-d", "--data_aug", multiple=True, required=False)
 @click.option("-i", "--input_dir", required=True)
+@click.option("-m", "--min_data_aug", required=False, default=-1)
 @click.option("-o", "--output", required=False)
 @click.option("-p", "--pca", is_flag=True, default=False)
 @click.option("-s", "--sql", is_flag=True, default=False)
-def main(clf, data_aug, input_dir, output, pca, sql):
-    if output is not None and os.path.exists(output):
-        raise SystemError("output %s already exists" % output)
+def main(clf, data_aug, input_dir, min_data_aug, output, pca, sql):
+    # if output is not None and os.path.exists(output):
+    #     raise SystemError("output %s already exists" % output)
 
     if not os.path.exists(input_dir):
         raise SystemExit("input %s not found" % input_dir)
@@ -57,11 +58,12 @@ def main(clf, data_aug, input_dir, output, pca, sql):
     if clf not in classifiers:
         raise SystemExit("classifier %s not found" % clf)
 
-    dataset = Dataset(data_aug, input_dir)
+    data_augmentations = [DataAugmentation(d, min_data_aug) for d in data_aug]
+    dataset = Dataset(input_dir)
     dataset.print()
     dataset.load_features()
 
-    experiment = Experiment(clf, dataset)
+    experiment = Experiment(clf, data_augmentations, dataset, folds=2)
 
     if np.isnan(dataset.x).any():
         raise ValueError("x contains NaN values")
@@ -71,23 +73,23 @@ def main(clf, data_aug, input_dir, output, pca, sql):
         # xs = apply_pca(config, dataset, model.features, pca, x)
 
     experiment.run(output)
-
-    if sql:
-        engine, session = connect()
-
-        tables = [ResultDB]
-        for t in tables:
-            if not table_exists(engine, t.__tablename__):
-                base = get_base()
-                base.metadata.tables[t.__tablename__].create(bind=engine)
-                logging.info("create table: %s" % t.__tablename__)
-            else:
-                logging.info("table %s already exists" % t.__tablename__)
-
-        insert_results(dataset, experiment, session)
-
-        session.close()
-        engine.dispose()
+    #
+    # if sql:
+    #     engine, session = connect()
+    #
+    #     tables = [ResultDB]
+    #     for t in tables:
+    #         if not table_exists(engine, t.__tablename__):
+    #             base = get_base()
+    #             base.metadata.tables[t.__tablename__].create(bind=engine)
+    #             logging.info("create table: %s" % t.__tablename__)
+    #         else:
+    #             logging.info("table %s already exists" % t.__tablename__)
+    #
+    #     insert_results(dataset, experiment, session)
+    #
+    #     session.close()
+    #     engine.dispose()
 
 if __name__ == '__main__':
     main()
