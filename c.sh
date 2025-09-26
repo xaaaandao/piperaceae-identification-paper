@@ -3,7 +3,7 @@
 python setup.py build_ext --inplace
 
 for dataset in pr; do
-  for augmentation in Affine; do # CLAHE GaussianBlur GridDistortion ISONoise MotionBlur RandomGamma Blur GaussNoise HueSaturationValue MedianBlur OpticalDistortion  RandomRotate90 Transpose; do
+  for augmentation in Affine; do
     for color in RGB; do
       for min in "20"; do
         for size in "512"; do

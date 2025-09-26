@@ -6,15 +6,14 @@ import os
 from typing import Any
 
 import numpy as np
-import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 
 from classifiers import get_classifier
-from dataset import Dataset, DataAugmentation
+from dataset import Dataset
 from fold import Fold
 from mean import Mean
 from result import BestFold, BestMean
-from save import save_csv_transpose, SaveExperiment
+from save import SaveExperiment
 
 
 class Experiment:

@@ -1,13 +1,11 @@
 import logging
-import os
 
 import numpy as np
-import pandas as pd
 from sklearn.metrics import confusion_matrix, multilabel_confusion_matrix, accuracy_score, f1_score, \
     classification_report
 
 from arrays import max_rule, sum_rule, mult_rule, y_true_no_patch
-from level import get_level_by_label, LevelTP
+from level import LevelTP
 from topk import TopK
 
 
@@ -84,122 +82,6 @@ class Result:
             "rule": self.rule
         }
 
-    def save_predictions(self, fold, output):
-        output_dir = os.path.join(output, "predictions")
-        os.makedirs(output_dir, exist_ok=True)
-
-        self.save_y_pred(fold, output_dir)
-        self.save_y_pred_proba(fold, output_dir)
-        self.save_y_score(fold, output_dir)
-
-    def save_y_pred(self, fold, output):
-        filename = os.path.join(output, "fold-%d-y_pred-%s.npy" % (fold, self.rule))
-        np.save(filename, self.y_pred)
-        logging.info("saving %s" % filename)
-
-    def save_y_pred_proba(self, fold, output):
-        filename = os.path.join(output, "fold-%d-y_pred_proba-%s.npy" % (fold, self.rule))
-        np.save(filename, self.y_pred_proba)
-        logging.info("saving %s" % filename)
-
-    def save_y_score(self, fold, output):
-        filename = os.path.join(output, "fold-%d-y_score-%s.npy" % (fold, self.rule))
-        np.save(filename, self.y_score)
-        logging.info("saving %s" % filename)
-
-    def save_confusion_matrix(self, fold, output):
-        output_dir = os.path.join(output, "confusion_matrix")
-        os.makedirs(output_dir, exist_ok=True)
-
-        levels = ["%s+%s" % (l.specific_epithet, l.label) for l in sorted(self.dataset.levels, key=lambda x: x.label)]
-        self.save_confusion_matrix_normalized(fold, levels, output_dir)
-        self.save_confusion_matrix_non_normalized(fold, levels, output_dir)
-        self.save_confusion_matrix_multilabel(fold, output_dir)
-
-    def save_classification_report(self, fold, output):
-        output_dir = os.path.join(output, "classification_report")
-        os.makedirs(output_dir, exist_ok=True)
-
-        filename = os.path.join(output_dir, "fold-%d-classification_report-%s.csv" % (fold, self.rule))
-        df = pd.DataFrame(self.classification_report)
-        df = df.transpose()
-        df.to_csv(filename, sep=";", quoting=2, index=True, header=True, encoding="utf-8")
-        logging.info("saving %s" % filename)
-
-    def save_confusion_matrix_normalized(self, fold, levels, output):
-        filename = os.path.join(output, "fold-%d-confusion_matrix_normalized-%s.csv" % (fold, self.rule))
-
-        df = pd.DataFrame(self.confusion_matrix_normalized, index=levels, columns=levels)
-        df.to_csv(filename, sep=";", quoting=2, index=True, header=True, encoding="utf-8")
-        logging.info("saving %s" % filename)
-
-    def save_confusion_matrix_non_normalized(self, fold, levels, output):
-        filename = os.path.join(output, "fold-%d-confusion_matrix_non_normalized-%s.csv" % (fold, self.rule))
-        df = pd.DataFrame(self.confusion_matrix, index=levels, columns=levels)
-        df.to_csv(filename, sep=";", quoting=2, index=True, header=True, encoding="utf-8")
-        logging.info("saving %s" % filename)
-
-    def save_confusion_matrix_multilabel(self, fold, output):
-        output_dir = os.path.join(output, "multilabel")
-        os.makedirs(output_dir, exist_ok=True)
-
-        results = []
-        for cm in zip(self.confusion_matrix_multilabel, sorted(self.dataset.levels, key=lambda x: x.label)):
-            level = "%s+%s" % (cm[1].specific_epithet, cm[1].label)
-            filename = os.path.join(output_dir, "fold-%d-confusion_matrix_multilabel-%s-%s.csv" % (fold, level, self.rule))
-            labels = ["True", "Negative"]
-            df = pd.DataFrame(cm[0], index=labels, columns=labels)
-            df.to_csv(filename, sep=";", quoting=2, index=True, header=True, encoding="utf-8")
-            logging.info("saving %s" % filename)
-
-            tp, fp, tn, fn = cm[0].ravel()
-
-            results.append({
-                "level": level,
-                "true_positive": tp,
-                "true_negative": tn,
-                "false_positive": fp,
-                "false_negative": fn,
-                "rule": self.rule,
-            })
-
-        df = pd.DataFrame(results)
-        filename = os.path.join(output, "fold-%d-confusion_matrix_multilabel-%s.csv" % (fold, self.rule))
-        df.to_csv(filename, sep=";", quoting=2, index=False, header=True, encoding="utf-8")
-        logging.info("saving %s" % filename)
-
-    def save_topk(self, fold, output, total_test_no_patch):
-        output_dir = os.path.join(output, "topk")
-        os.makedirs(output_dir, exist_ok=True)
-
-        data = {
-            "k": [topk.k for topk in sorted(self.topk, key=lambda x: x.k)],
-            "topk_accuracy_score": [topk.top_k_accuracy_score for topk in sorted(self.topk, key=lambda x: x.k)],
-            "total_test_no_patch": np.repeat(total_test_no_patch, len(self.topk)),
-            "topk_accuracy_score+100": [topk.top_k_accuracy_score / total_test_no_patch for topk in
-                                        sorted(self.topk, key=lambda x: x.k)],
-            "rule": [self.rule] * len(self.topk) # equivalent a np.repeat, but works in List[str]
-        }
-        filename = os.path.join(output_dir, "fold-%d-topk-%s.csv" % (fold, self.rule))
-        df = pd.DataFrame(data, columns=data.keys())
-        df.to_csv(filename, sep=";", quoting=2, index=False, encoding="utf-8")
-        logging.info("saving %s" % filename)
-
-    def save_tp(self, count_test, fold, output, patch, total_test_no_patch):
-        output_dir = os.path.join(output, "true_positive")
-        os.makedirs(output_dir, exist_ok=True)
-
-        data = {
-            "label": [l.label for l in self.levels],
-            "specific_epithet": [l.specific_epithet for l in self.levels],
-            "true_positive": [l.true_positive for l in self.levels],
-            "count_test": [v / patch for v in dict(sorted(count_test.items())).values()],
-        }
-        filename = os.path.join(output_dir, "fold-%d-true_positive-%s.csv" % (fold, self.rule))
-        df = pd.DataFrame(data, columns=data.keys())
-        df.to_csv(filename, sep=";", quoting=2, index=False, encoding="utf-8")
-        logging.info("saving %s" % filename)
-
     def get_true_positive(self):
         true_positives = np.diag(self.confusion_matrix)
         for tp, level in zip(true_positives, sorted(self.dataset.levels, key=lambda x: x.label)):
@@ -221,10 +103,14 @@ class BestFold:
     def __init__(self, folds):
         f1 = max(folds, key=lambda x: x.best_result.f1)
         accuracy = max(folds, key=lambda x: x.best_result.accuracy)
-        self.f1 = f1.fold
-        self.accuracy = accuracy.fold
+        self.f1 = f1.best_result.f1
+        self.f1_fold = f1.fold
+        self.f1_rule = f1.best_result.f1_rule
+        self.accuracy = accuracy.best_result.accuracy
+        self.accuracy_fold = accuracy.fold
+        self.accuracy_rule = accuracy.best_result.accuracy_rule
 
-        logging.info("Best fold F1: %s" % self.f1)
+        logging.info("Best fold F1: %s " % self.f1)
         logging.info("Best fold accuracy: %s" % self.accuracy)
 
 class BestMean:

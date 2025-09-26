@@ -8,8 +8,6 @@ import joblib
 import numpy as np
 import pandas as pd
 
-
-
 class SaveExperiment:
     def __init__(self, experiment, folds, output):
         self.experiment = experiment
@@ -20,6 +18,7 @@ class SaveExperiment:
 
         self.bests()
         self.cv_fold()
+        self.data_augmentation()
         self.infos()
         self.means()
 
@@ -44,14 +43,13 @@ class SaveExperiment:
 
     def best_fold(self, output):
         filename = os.path.join(output, "best_fold.csv")
-        # TODO ta estranho
         data = {
             "best_fold_f1": [self.experiment.best_fold.f1],
-            # "best_fold_f1_rule": [self.experiment.best_fold.rule],
-            # "best_fold_f1_fold": [self.experiment.best_fold],
+            "best_fold_f1_rule": [self.experiment.best_fold.f1_rule],
+            "best_fold_f1_fold": [self.experiment.best_fold.f1_fold],
             "best_fold_accuracy": [self.experiment.best_fold.accuracy],
-            # "best_fold_accuracy_rule": [self.experiment.best_fold.rule],
-            # "best_fold_accuracy_fold": [self.experiment.fold],
+            "best_fold_accuracy_rule": [self.experiment.best_fold.accuracy_rule],
+            "best_fold_accuracy_fold": [self.experiment.best_fold.accuracy_fold],
         }
         save_csv_transpose(data, filename, header=False, index=True)
 
@@ -60,6 +58,15 @@ class SaveExperiment:
             output_dir = os.path.join(self.output, "fold-%d" % f.fold)
             os.makedirs(output_dir, exist_ok=True)
             f.save(output_dir)
+
+    def data_augmentation(self):
+        filename = os.path.join(self.output, "data_augmentation.csv")
+        data = {
+            "input": [d.input_dir for d in self.experiment.data_augmentations],
+            "shape": [str(d.data.shape) for d in self.experiment.data_augmentations],
+        }
+        df = pd.DataFrame(data)
+        save_csv(df, filename, index=False, header=True)
 
     def infos(self):
         filename = os.path.join(self.output, "experiment.csv")
@@ -231,12 +238,126 @@ class SaveFold:
             output_dir = os.path.join(self.output, "results", result.rule)
             os.makedirs(output_dir, exist_ok=True)
 
-            # TODO SaveResult
-            result.save_predictions(self.fold.fold, output_dir)
-            result.save_confusion_matrix(self.fold.fold, output_dir)
-            result.save_classification_report(self.fold.fold, output_dir)
-            result.save_topk(self.fold.fold, output_dir, self.fold.total_test_no_patch)
-            result.save_tp(self.fold.count_test, self.fold.fold, output_dir, self.fold.dataset.patch, self.fold.total_test_no_patch)
+            result.save = SaveResult(self.fold, output_dir, result)
+
+class SaveResult:
+    def __init__(self, fold, output, result):
+        self.fold = fold
+        self.output = output
+        self.result = result
+
+        self.classification_report()
+        self.predictions()
+        self.topk()
+        # self.true_positive()
+
+    def predictions(self):
+        output_dir = os.path.join(self.output, "predictions")
+        os.makedirs(output_dir, exist_ok=True)
+
+        self.y_pred(output_dir)
+        self.y_pred_proba(output_dir)
+        self.y_score(output_dir)
+
+    def y_pred(self, output):
+        filename = os.path.join(output, "fold-%d-y_pred-%s.npy" % (self.fold.fold, self.result.rule))
+        np.save(filename, self.result.y_pred)
+        logging.info("saving %s" % filename)
+
+    def y_pred_proba(self, output):
+        filename = os.path.join(output, "fold-%d-y_pred_proba-%s.npy" % (self.fold.fold, self.result.rule))
+        np.save(filename, self.result.y_pred_proba)
+        logging.info("saving %s" % filename)
+
+    def y_score(self, output):
+        filename = os.path.join(output, "fold-%d-y_score-%s.npy" % (self.fold.fold, self.result.rule))
+        np.save(filename, self.result.y_score)
+        logging.info("saving %s" % filename)
+
+    def classification_report(self):
+        output_dir = os.path.join(self.output, "classification_report")
+        os.makedirs(output_dir, exist_ok=True)
+
+        filename = os.path.join(output_dir, "fold-%d-classification_report-%s.csv" % (self.fold.fold, self.result.rule))
+        df = pd.DataFrame(self.result.classification_report)
+        save_csv_transpose(df, filename, header=True, index=False)
+
+    def confusion_matrix(self):
+        output_dir = os.path.join(self.output, "confusion_matrix")
+        os.makedirs(output_dir, exist_ok=True)
+
+        levels = ["%s+%s" % (l.specific_epithet, l.label) for l in sorted(self.fold.dataset.levels, key=lambda x: x.label)]
+        self.confusion_matrix_normalized(output_dir)
+        self.confusion_matrix_non_normalized(output_dir)
+        self.confusion_matrix_multilabel(output_dir)
+
+    def confusion_matrix_normalized(self, output):
+        filename = os.path.join(output, "fold-%d-confusion_matrix_normalized-%s.csv" % (self.fold.fold, self.result.rule))
+
+        df = pd.DataFrame(self.result.confusion_matrix_normalized, index=self.fold.datase.levels, columns=self.fold.datase.levels)
+        save_csv(df, filename, header=True, index=True)
+
+    def confusion_matrix_non_normalized(self, output):
+        filename = os.path.join(output, "fold-%d-confusion_matrix_non_normalized-%s.csv" % (self.fold.fold, self.result.rule))
+        df = pd.DataFrame(self.confusion_matrix, index=self.fold.dataset.levels, columns=self.fold.dataset.levels)
+        save_csv(df, filename, header=True, index=True)
+
+    def confusion_matrix_multilabel(self, output):
+        output_dir = os.path.join(output, "multilabel")
+        os.makedirs(output_dir, exist_ok=True)
+
+        results = []
+        for cm in zip(self.result.confusion_matrix_multilabel, sorted(self.fold.dataset.levels, key=lambda x: x.label)):
+            level = "%s+%s" % (cm[1].specific_epithet, cm[1].label)
+            filename = os.path.join(output_dir, "fold-%d-confusion_matrix_multilabel-%s-%s.csv" % (self.fold.fold, level, self.fold.rule))
+            labels = ["True", "Negative"]
+            df = pd.DataFrame(cm[0], index=labels, columns=labels)
+            save_csv(df, filename, header=True, index=True)
+
+            tp, fp, tn, fn = cm[0].ravel()
+
+            results.append({
+                "level": level,
+                "true_positive": tp,
+                "true_negative": tn,
+                "false_positive": fp,
+                "false_negative": fn,
+                "rule": self.result.rule,
+            })
+
+        df = pd.DataFrame(results)
+        filename = os.path.join(output, "fold-%d-confusion_matrix_multilabel-%s.csv" % (self.fold.fold, self.result.rule))
+        save_csv(df, filename, header=True, index=False)
+
+    def topk(self):
+        output_dir = os.path.join(self.output, "topk")
+        os.makedirs(output_dir, exist_ok=True)
+
+        data = {
+            "k": [topk.k for topk in sorted(self.result.topk, key=lambda x: x.k)],
+            "topk_accuracy_score": [topk.top_k_accuracy_score for topk in sorted(self.result.topk, key=lambda x: x.k)],
+            "total_test_no_patch": np.repeat(self.fold.total_test_no_patch, len(self.result.topk)),
+            "topk_accuracy_score+100": [topk.top_k_accuracy_score / self.fold.total_test_no_patch for topk in
+                                        sorted(self.result.topk, key=lambda x: x.k)],
+            "rule": [self.result.rule] * len(self.result.topk) # equivalent a np.repeat, but works in List[str]
+        }
+        filename = os.path.join(output_dir, "fold-%d-topk-%s.csv" % (self.fold.fold, self.result.rule))
+        df = pd.DataFrame(data, columns=data.keys())
+        save_csv(df, filename, header=True, index=False)
+
+    def true_positive(self):
+        output_dir = os.path.join(self.output, "true_positive")
+        os.makedirs(output_dir, exist_ok=True)
+
+        data = {
+            "label": [l.label for l in self.fold.dataset.levels],
+            "specific_epithet": [l.specific_epithet for l in self.fold.dataset.levels],
+            "true_positive": [l.true_positive for l in self.fold.dataset.levels],
+            "count_test": [v / self.fold.dataset.patch for v in dict(sorted(self.fold.count_test.items())).values()],
+        }
+        filename = os.path.join(output_dir, "fold-%d-true_positive-%s.csv" % (self.fold.fold, self.rule))
+        df = pd.DataFrame(data, columns=data.keys())
+        save_csv(df, filename, header=True, index=False)
 
 def save_csv(df: pd.DataFrame, filename: str, header=True, index=False):
     df.to_csv(filename, sep=";", quoting=2, index=index, header=header, encoding="utf-8")

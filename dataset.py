@@ -127,7 +127,7 @@ class DataAugmentation(Dataset):
     def filter_data(self):
         if self.min_class > 0:
             min_labels = collections.Counter(s.level.label for s in self.samples)
-            min_labels = [k for k, v in min_labels.items() if v == self.min_class]
+            min_labels = [k for k, v in min_labels.items() if v <= self.min_class]
 
             labels = self.data[:, -2].astype(float).astype(np.int16)
             self.data = self.data.astype(object)

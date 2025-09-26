@@ -4,9 +4,6 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 
-from config import Config
-
-
 def get_classifier(classifier, n_jobs, seed, verbose):
     """
     Retorna uma lista de objetos dos classificadores selecionados.

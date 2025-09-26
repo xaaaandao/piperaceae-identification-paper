@@ -112,6 +112,7 @@ class Fold:
         self.y_pred_proba = self.best_classifier.best_estimator_.predict_proba(self.x_test)
 
         self.results = [Result(self.dataset, rule, self.y_pred_proba, self.y_test) for rule in ["sum", "max", "mult"]]
+
         for result in self.results:
             n_test, n_labels = self.y_pred_proba.shape
             result.evaluate(n_test, n_labels)
@@ -127,12 +128,11 @@ class Fold:
             data_aug = np.array(list(itertools.chain(*data_aug)))
             logging.info("merge data augmentations: %s" % str(data_aug.shape))
 
-            uniq, idx = np.unique(self.dataset.filenames, return_index=True)
-            # ordenar pelos índices de primeira ocorrência
-            uniq_ordered = uniq[np.argsort(idx)]
-            t = uniq_ordered[self.idx_train]
+            filenames, idx = np.unique(self.dataset.filenames, return_index=True)
+            filenames = filenames[np.argsort(idx)]
+            filenames = filenames[self.idx_train]
 
-            features = data_aug[np.isin(data_aug[:, -1], t)]
+            features = data_aug[np.isin(data_aug[:, -1], filenames)]
             features = np.vstack(features)
             self.x_aug = features[:, :-2]
             self.x_aug = self.x_aug.astype(float)
