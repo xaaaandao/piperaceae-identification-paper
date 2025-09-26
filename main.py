@@ -74,22 +74,22 @@ def main(clf, data_aug, input_dir, min_data_aug, output, pca, sql):
 
     experiment.run(output)
     #
-    if sql:
-        engine, session = connect()
-
-        tables = [ResultDB]
-        for t in tables:
-            if not table_exists(engine, t.__tablename__):
-                base = get_base()
-                base.metadata.tables[t.__tablename__].create(bind=engine)
-                logging.info("create table: %s" % t.__tablename__)
-            else:
-                logging.info("table %s already exists" % t.__tablename__)
-
-        insert_results(dataset, experiment, session)
-
-        session.close()
-        engine.dispose()
+    # if sql:
+    #     engine, session = connect()
+    #
+    #     tables = [ResultDB]
+    #     for t in tables:
+    #         if not table_exists(engine, t.__tablename__):
+    #             base = get_base()
+    #             base.metadata.tables[t.__tablename__].create(bind=engine)
+    #             logging.info("create table: %s" % t.__tablename__)
+    #         else:
+    #             logging.info("table %s already exists" % t.__tablename__)
+    #
+    #     insert_results(dataset, experiment, session)
+    #
+    #     session.close()
+    #     engine.dispose()
 
 if __name__ == '__main__':
     main()
