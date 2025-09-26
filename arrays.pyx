@@ -11,9 +11,10 @@ from dataset import Dataset
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def split_dataset(index: np.ndarray, n_features: int, patch: int, np.ndarray[np.float64_t, ndim=2] x,
-                  np.ndarray[np.int16_t, ndim=1] y):
+                  np.ndarray[np.int16_t, ndim=1] y, object filenames):
     cdef np.ndarray[np.float64_t, ndim=2] new_x = np.empty((len(index) * patch, n_features), dtype=np.float64)
     cdef np.ndarray[np.int16_t, ndim=1] new_y = np.empty((len(index) * patch,), dtype=np.int16)
+    cdef object new_filenames = np.empty((len(index)*patch,), dtype=object)
     cdef int k = 0
 
     for ind in index:
@@ -23,9 +24,10 @@ def split_dataset(index: np.ndarray, n_features: int, patch: int, np.ndarray[np.
             for j in range(0, n_features):
                 new_x[k][j] = x[i][j]
             new_y[k] = y[i]
+            new_filenames[k] = filenames[i]
             k += 1
 
-    return new_x, new_y
+    return new_x, new_y, new_filenames
 
 @cython.boundscheck(False)
 @cython.wraparound(False)

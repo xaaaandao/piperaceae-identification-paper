@@ -15,7 +15,7 @@ from sample import Sample
 @dataclasses.dataclass(init=False)
 class Dataset:
     height: int
-    filename: list
+    filenames: list
     input_dir: str
     levels: list
     model: str

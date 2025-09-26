@@ -51,6 +51,7 @@ class Fold:
         self.count_test = None
         self.dataset = dataset
         self.fold = fold
+        self.filenames_train = None
         self.idx_train = idx_train
         self.idx_test = idx_test
         self.results = list()
@@ -68,12 +69,12 @@ class Fold:
         self.y_train = np.array([])
 
     def run(self, backend, classifier, data_augmentations, **kwargs):
-        self.x_train, self.y_train = split_dataset(self.idx_train, self.dataset.n_features, self.dataset.patch, self.dataset.x, self.dataset.y)
-        self.x_test, self.y_test = split_dataset(self.idx_test, self.dataset.n_features, self.dataset.patch, self.dataset.x, self.dataset.y)
+        self.x_train, self.y_train, self.filenames_train = split_dataset(self.idx_train, self.dataset.n_features, self.dataset.patch, self.dataset.x, self.dataset.y, self.dataset.filenames)
+        self.x_test, self.y_test, _ = split_dataset(self.idx_test, self.dataset.n_features, self.dataset.patch, self.dataset.x, self.dataset.y, self.dataset.filenames)
 
         logging.info("x_train: %s" % str(self.x_train.shape))
         logging.info("y_train: %s" % str(self.y_train.shape))
-
+        #
         self.get_train_data_augmentation(data_augmentations)
 
         if self.x_aug is not None and self.x_aug.shape[0] > 0:
@@ -128,11 +129,7 @@ class Fold:
             data_aug = np.array(list(itertools.chain(*data_aug)))
             logging.info("merge data augmentations: %s" % str(data_aug.shape))
 
-            filenames, idx = np.unique(self.dataset.filenames, return_index=True)
-            filenames = filenames[np.argsort(idx)]
-            filenames = filenames[self.idx_train]
-
-            features = data_aug[np.isin(data_aug[:, -1], filenames)]
+            features = data_aug[np.isin(data_aug[:, -1], self.filenames_train)]
             features = np.vstack(features)
             self.x_aug = features[:, :-2]
             self.x_aug = self.x_aug.astype(float)
@@ -140,4 +137,3 @@ class Fold:
             self.y_aug = self.y_aug.astype(float).astype(np.int16)
             logging.info("x_augmented shape: %s" % str(self.x_aug.shape))
             logging.info("y_augmented shape: %s" % str(self.y_aug.shape))
-

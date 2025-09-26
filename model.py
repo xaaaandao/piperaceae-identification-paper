@@ -15,6 +15,7 @@ class ResultDB(Base):
     input_dir = sa.Column(sa.String)
     model = sa.Column(sa.String)
     mean_f1 = sa.Column(sa.Float)
+    min_data_aug = sa.Column(sa.Float)
     std_f1 = sa.Column(sa.Float)
     mean_accuracy = sa.Column(sa.Float)
     std_accuracy = sa.Column(sa.Float)
