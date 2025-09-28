@@ -129,6 +129,9 @@ class Fold:
             data_aug = np.array(list(itertools.chain(*data_aug)))
             logging.info("merge data augmentations: %s" % str(data_aug.shape))
 
+            if "cut-mix" in self.dataset.input_dir:
+                self.filenames_train = []
+
             features = data_aug[np.isin(data_aug[:, -1], self.filenames_train)]
             features = np.vstack(features)
             self.x_aug = features[:, :-2]

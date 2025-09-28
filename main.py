@@ -35,6 +35,17 @@ def insert_results(experiment, min_data_aug, session):
     session.close()
 
 
+def create_table(engine):
+    tables = [ResultDB]
+    for t in tables:
+        if not table_exists(engine, t.__tablename__):
+            base = get_base()
+            base.metadata.tables[t.__tablename__].create(bind=engine)
+            logging.info("create table: %s" % t.__tablename__)
+        else:
+            logging.info("table %s already exists" % t.__tablename__)
+
+
 @click.command()
 @click.option("-c", "--clf", type=str, required=True, default="DecisionTreeClassifier")
 @click.option("-d", "--data_aug", multiple=True, required=False)
@@ -71,19 +82,12 @@ def main(clf, data_aug, input_dir, min_data_aug, output, pca, sql):
     if sql:
         engine, session = connect()
 
-        tables = [ResultDB]
-        for t in tables:
-            if not table_exists(engine, t.__tablename__):
-                base = get_base()
-                base.metadata.tables[t.__tablename__].create(bind=engine)
-                logging.info("create table: %s" % t.__tablename__)
-            else:
-                logging.info("table %s already exists" % t.__tablename__)
-
+        create_table(engine)
         insert_results(experiment, min_data_aug, session)
 
         session.close()
         engine.dispose()
+
 
 if __name__ == '__main__':
     main()
