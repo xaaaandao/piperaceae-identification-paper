@@ -6,8 +6,6 @@ import numpy as np
 cimport cython
 cimport numpy as np
 
-from dataset import Dataset
-
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def split_dataset(index: np.ndarray, n_features: int, patch: int, np.ndarray[np.float64_t, ndim=2] x,

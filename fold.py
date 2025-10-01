@@ -1,18 +1,14 @@
 import collections
-import itertools
 import logging
-import os
 
 import joblib
 import numpy as np
-import pandas as pd
 from sklearn.model_selection import GridSearchCV
-from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
 from arrays import split_dataset
-from result import Result, BestResult
-from save import save_csv_transpose, SaveFold
+from dataset import Dataset
+from result import Result, Predict
 
 hyper = {
     "DecisionTreeClassifier": {
@@ -41,102 +37,58 @@ hyper = {
     }
 }
 
+class IndexTrainTest:
+    def __init__(self, idx):
+        self.idx_train = idx[0]
+        self.idx_test = idx[1]
+
+
+class Data:
+    def __init__(self, x, y, filenames, patch):
+        self.x = x
+        self.y = y
+        self.filenames = filenames
+        logging.info("x.shape: %s y.shape: %s" % (self.x.shape, self.y.shape))
+
+        self.count = collections.Counter(self.y)
+        logging.info("count: %s" % self.count)
+
+        self.patch = patch
+        self.total = np.sum(list(self.count.values()))
+        self.total_no_patch = self.total // self.patch
+        logging.info("patch: %d total: %d total no_patch: %s" % (self.patch, self.total, self.total_no_patch))
+
+
 class Fold:
-    def __init__(self, dataset, fold, idx_train, idx_test):
-        # self.best_f1 = None
-        # self.best_accuracy = None
+    def __init__(self, dataset: Dataset, fold, idx):
         self.best_classifier = None
-        self.best_result = None
-        self.count_train = None
-        self.count_test = None
         self.dataset = dataset
         self.fold = fold
-        self.filenames_train = None
-        self.idx_train = idx_train
-        self.idx_test = idx_test
-        self.results = list()
-        self.s = None
-        self.total_test = 0
-        self.total_train = 0
-        self.total_test_no_patch = 0
-        self.total_train_no_patch = 0
-        self.x_aug = np.array([])
-        self.x_test = np.array([])
-        self.x_train = np.array([])
-        self.y_aug = np.array([])
-        self.y_pred_proba = np.array([])
-        self.y_test = np.array([])
-        self.y_train = np.array([])
+        self.idx = IndexTrainTest(idx)
+        self.results = list
+        self.rules = ["sum", "max", "mult"]
+        self.y_pred_proba = []
 
-    def run(self, backend, classifier, data_augmentations, **kwargs):
-        self.x_train, self.y_train, self.filenames_train = split_dataset(self.idx_train, self.dataset.n_features, self.dataset.patch, self.dataset.x, self.dataset.y, self.dataset.filenames)
-        self.x_test, self.y_test, _ = split_dataset(self.idx_test, self.dataset.n_features, self.dataset.patch, self.dataset.x, self.dataset.y, self.dataset.filenames)
+    def run(self, backend, classifier, **kwargs):
+        logging.info("fold: %d clf: %s" % (self.fold, classifier.__class__.__name__))
+        x_train, y_train, filenames_train = split_dataset(self.idx.idx_train, self.dataset.qtd_features, self.dataset.patch, self.dataset.x, self.dataset.y, self.dataset.filenames)
+        x_test, y_test, filenames_test = split_dataset(self.idx.idx_test, self.dataset.qtd_features, self.dataset.patch, self.dataset.x, self.dataset.y, self.dataset.filenames)
 
-        logging.info("x_train: %s" % str(self.x_train.shape))
-        logging.info("y_train: %s" % str(self.y_train.shape))
-        #
-        self.get_train_data_augmentation(data_augmentations)
-
-        if self.x_aug is not None and self.x_aug.shape[0] > 0:
-            self.x_train = np.concatenate((self.x_train, self.x_aug), axis=0)
-            self.y_train = np.concatenate((self.y_train, self.y_aug), axis=0)
-            logging.info("x_train COM data augmentation: %s" % str(self.x_train.shape))
-            logging.info("y_train COM data augmentation: %s" % str(self.y_train.shape))
-
-        scaler = StandardScaler()
-        self.x_train = scaler.fit_transform(self.x_train)
-        self.x_test = scaler.fit_transform(self.x_test)
-
-        self.count_train = collections.Counter(self.y_train)
-        self.count_test = collections.Counter(self.y_test)
-        self.total_test = np.sum(list(self.count_test.values()))
-        self.total_train = np.sum(list(self.count_train.values()))
-        self.total_test_no_patch = self.total_test / self.dataset.patch
-        self.total_train_no_patch = self.total_train / self.dataset.patch
-
-        logging.info("Fold: %d" % self.fold)
-        logging.info("Train: %s" % self.count_train)
-        logging.info("Test: %s" % self.count_test)
-        logging.info("Total train: %s" % self.total_train_no_patch)
-        logging.info("Total test: %s" % self.total_test_no_patch)
+        train = Data(x_train, y_train, filenames_train, self.dataset.patch)
+        test = Data(x_test, y_test, filenames_test, self.dataset.patch)
 
         self.best_classifier = GridSearchCV(classifier, hyper[classifier.__class__.__name__], **kwargs)
 
         with joblib.parallel_backend(backend, n_jobs=kwargs["n_jobs"]):
-            self.best_classifier.fit(self.x_train, self.y_train)
+            self.best_classifier.fit(train.x, train.y)
 
         if isinstance(self.best_classifier.best_estimator_, SVC):
             params = dict(probability=True)
             self.best_classifier.best_estimator_.set_params(**params)
 
-        self.best_classifier.best_estimator_.fit(self.x_train, self.y_train)
-        self.y_pred_proba = self.best_classifier.best_estimator_.predict_proba(self.x_test)
+        self.best_classifier.best_estimator_.fit(train.x, train.y)
+        y_pred_proba = self.best_classifier.best_estimator_.predict_proba(test.x)
 
-        self.results = [Result(self.dataset, rule, self.y_pred_proba, self.y_test) for rule in ["sum", "max", "mult"]]
-
-        for result in self.results:
-            n_test, n_labels = self.y_pred_proba.shape
-            result.evaluate(n_test, n_labels)
-
-        self.best_result = BestResult(self.results)
-
-    def save(self, output):
-        self.s = SaveFold(self, output)
-
-    def get_train_data_augmentation(self, data_augmentations):
-        if len(data_augmentations) > 0:
-            data_aug = [d.data for d in data_augmentations]
-            data_aug = np.array(list(itertools.chain(*data_aug)))
-            logging.info("merge data augmentations: %s" % str(data_aug.shape))
-
-            if "cut-mix" in self.dataset.input_dir:
-                self.filenames_train = []
-
-            features = data_aug[np.isin(data_aug[:, -1], self.filenames_train)]
-            features = np.vstack(features)
-            self.x_aug = features[:, :-2]
-            self.x_aug = self.x_aug.astype(float)
-            self.y_aug = features[:, -2]
-            self.y_aug = self.y_aug.astype(float).astype(np.int16)
-            logging.info("x_augmented shape: %s" % str(self.x_aug.shape))
-            logging.info("y_augmented shape: %s" % str(self.y_aug.shape))
+        predicts = [Predict(self.dataset.patch, r, y_pred_proba, test.y) for r in self.rules]
+        self.results = [Result(self.dataset.levels, p) for p in predicts]
+        # self.best_result = BestResult(self.results)

@@ -1,12 +1,11 @@
-import os
 from unittest import TestCase
 
 import numpy as np
 import pandas as pd
 
-from dataset import Dataset
-from fold import Fold
-from mean import Mean
+from v1.dataset import Dataset
+from v1.fold import Fold
+from v1.mean import Mean
 
 
 class TestMean(TestCase):

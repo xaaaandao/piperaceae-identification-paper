@@ -4,7 +4,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from dataset import DataAugmentation
+from v1.dataset import DataAugmentation
 
 
 class TestDataAugmentation(TestCase):
