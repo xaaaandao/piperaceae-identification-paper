@@ -64,7 +64,7 @@ class Result:
     #     :return: list, lista com todas os valores de top k.
     #     """
     #     return [TopK(k, levels=self.dataset.levels, y_score=self.y_score, y_true=self.y_true) for k in range(3, self.dataset.n_labels)]
-    #
+
     def get_classification_report(self):
         """
         Gera o classification report do experimento.
