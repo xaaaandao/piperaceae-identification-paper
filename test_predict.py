@@ -4,7 +4,7 @@ import unittest
 
 import numpy as np
 
-from arrays import max_rule
+from arrays import max_rule, sum_rule, mult_rule
 
 
 class TestPredict(unittest.TestCase):
@@ -25,12 +25,26 @@ class TestPredict(unittest.TestCase):
     def set_mmc(self):
         self.mmc = abs(self.folds * self.patch) // math.gcd(self.folds, self.patch)
 
-    def test_y_pred_proba(self):
+    def test_max_predict(self):
         self.y_test, self.y_score = max_rule(self.qtd_test, self.max_labels, self.patch, self.y_pred_proba)
-        print(self.y_test, self.patch, self.qtd_test)
-        print(self.y_score[:self.y_test[0]])
-        pass
+        for y in self.y_test:
+            for s in self.y_score:
+                print(s, np.max(s), s[y - 1], y)
+                self.assertEqual(s[y - 1], np.max(s))
 
+    def test_sum_predict(self):
+        self.y_test, self.y_score = sum_rule(self.qtd_test, self.max_labels, self.patch, self.y_pred_proba)
+        for y in self.y_test:
+            for s in self.y_score:
+                print(s, np.max(s), s[y - 1], y)
+                self.assertEqual(s[y - 1], np.max(s))
+
+    def test_mult_predict(self):
+        self.y_test, self.y_score = mult_rule(self.qtd_test, self.max_labels, self.patch, self.y_pred_proba)
+        for y in self.y_test:
+            for s in self.y_score:
+                print(s, np.max(s), s[y - 1], y)
+                self.assertEqual(s[y - 1], np.max(s))
 
 if __name__ == '__main__':
     unittest.main()
