@@ -12,23 +12,11 @@ class Level:
         self.fp = 0
         self.fn = 0
 
-# class Features:
-#     def __init__(self, data):
-#         self.data = data
-#         self.x = np.array([])
-#         self.y = np.array([])
-#         self.split()
-#         self.set_type()
-#
-#     def split(self):
-#         self.x = self.data[:, :-2]
-#         self.y = self.data[:, -2]
-#
-#     def set_type(self):
-#         self.x = self.x.astype(float)
-#         self.y = self.y.astype(float).astype(np.int16)
-#         logging.info("x.shape: %s" % str(self.x.shape))
-#         logging.info("y.shape: %s" % str(self.y.shape))
+    def update(self, tp, tn, fp, fn):
+        self.tp = tp
+        self.tn = tn
+        self.fp = fp
+        self.fn = fn
 
 
 @dataclasses.dataclass

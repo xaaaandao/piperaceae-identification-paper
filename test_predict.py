@@ -1,44 +1,48 @@
 import math
+import os
 import random
 import unittest
 
 import numpy as np
 
-from arrays import max_rule, sum_rule, mult_rule
+from dataset import Dataset
+from result import Predict
+from test_datasetbase import TestDatasetBase
 
 
-class TestPredict(unittest.TestCase):
-    max_labels = np.random.randint(2, 10)
-    folds, patch = random.sample(range(2, 11), 2)
-
+class TestPredict(TestDatasetBase):
     def setUp(self):
-        self.create_fake_values()
+        os.makedirs(self.dir_tmp, exist_ok=True)
+        self.create_fake_dataset()
+        self.dataset = Dataset(self.dir_tmp)
+        self.y_pred_proba = self.dataset.x
+        self.y_test = np.random.randint(1, self.max_labels+1, size=(self.qtd_samples,))
 
-    def create_fake_values(self):
-        self.set_mmc()
-        self.qtd_samples_label = {i: random.randint(self.folds, 50) * self.mmc for i in range(1, self.max_labels + 1)}
-        self.qtd_test = random.randint(self.folds, 10) * self.mmc
-        self.y_pred_proba = np.random.rand(self.qtd_test, self.max_labels)
+    def tearDown(self):
+        for f in self.files:
+            os.remove(os.path.join(self.dir_tmp, f))
+        os.removedirs(self.dir_tmp)
 
-    def set_mmc(self):
-        self.mmc = abs(self.folds * self.patch) // math.gcd(self.folds, self.patch)
+    def test_predict_sum(self):
+        self.predict = Predict(self.patch, "sum", self.y_pred_proba, self.y_test)
+        pred_test = np.argmax(self.y_pred_proba[0:self.patch].sum(axis=0)) + 1
+        self.assertEqual(pred_test, self.predict.y_pred[0])
+        self.assertEqual(self.predict.y_true.shape[0], self.dataset.qtd_samples_no_patch)
 
-    def test_max_predict(self):
-        self.y_test, self.y_score = max_rule(self.qtd_test, self.max_labels, self.patch, self.y_pred_proba)
-        for yt, ys in zip(self.y_test, self.y_score):
-            print(yt, np.argmax(ys), ys)
-            self.assertEqual(yt - 1, np.argmax(ys))
+    def test_predict_mult(self):
+        self.predict = Predict(self.patch, "mult", self.y_pred_proba, self.y_test)
+        group = self.y_pred_proba[0:self.patch]
+        pred_test = np.argmax(group.prod(axis=0)) + 1
+        self.assertEqual(pred_test, self.predict.y_pred[0])
+        self.assertEqual(self.predict.y_true.shape[0], self.dataset.qtd_samples_no_patch)
 
-    def test_sum_predict(self):
-        self.y_test, self.y_score = sum_rule(self.qtd_test, self.max_labels, self.patch, self.y_pred_proba)
-        for yt, ys in zip(self.y_test, self.y_score):
-            self.assertEqual(yt - 1, np.argmax(ys))
-
-
-    def test_mult_predict(self):
-        self.y_test, self.y_score = mult_rule(self.qtd_test, self.max_labels, self.patch, self.y_pred_proba)
-        for yt, ys in zip(self.y_test, self.y_score):
-            self.assertEqual(yt - 1, np.argmax(ys))
+    def test_predict_max(self):
+        self.predict = Predict(self.patch, "max", self.y_pred_proba, self.y_test)
+        group = self.y_pred_proba[0:self.patch]
+        max_idx = np.argmax(group)
+        row_in_group, col = np.unravel_index(max_idx, group.shape)
+        self.assertEqual(col + 1, self.predict.y_pred[0])
+        self.assertEqual(self.predict.y_true.shape[0], self.dataset.qtd_samples_no_patch)
 
 
 if __name__ == '__main__':

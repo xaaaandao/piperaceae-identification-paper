@@ -23,7 +23,7 @@ logging.basicConfig(format="\033[35m [%(asctime)s] (%(levelname)s) {%(filename)s
 # @click.option("-s", "--sql", is_flag=True, default=False)
 def main(clf, input_dir, output_dir):
     dataset = Dataset(input_dir)
-    experiment = Experiment(clf, dataset)
+    experiment = Experiment(clf, dataset, folds=2)
     experiment.run()
 
 

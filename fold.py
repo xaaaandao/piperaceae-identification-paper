@@ -6,9 +6,8 @@ import numpy as np
 from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC
 
-from arrays import split_dataset
 from dataset import Dataset
-from result import Result, Predict
+from result import Result, Predict, BestResult
 
 hyper = {
     "DecisionTreeClassifier": {
@@ -62,6 +61,7 @@ class Data:
 class Fold:
     def __init__(self, dataset: Dataset, fold, idx):
         self.best_classifier = None
+        self.best_result = None
         self.dataset = dataset
         self.fold = fold
         self.idx = IndexTrainTest(idx)
@@ -69,10 +69,20 @@ class Fold:
         self.rules = ["sum", "max", "mult"]
         self.y_pred_proba = []
 
+    def split_fold(self, idxs):
+        rows_to_get = []
+        for idx in idxs:
+            start_row = idx * self.dataset.patch
+            end_row = start_row + self.dataset.patch
+            rows_to_get.extend(range(start_row, end_row))
+
+        return self.dataset.x[rows_to_get], self.dataset.y[rows_to_get], self.dataset.filenames[rows_to_get]
+
+
     def run(self, backend, classifier, **kwargs):
         logging.info("fold: %d clf: %s" % (self.fold, classifier.__class__.__name__))
-        x_train, y_train, filenames_train = split_dataset(self.idx.idx_train, self.dataset.qtd_features, self.dataset.patch, self.dataset.x, self.dataset.y, self.dataset.filenames)
-        x_test, y_test, filenames_test = split_dataset(self.idx.idx_test, self.dataset.qtd_features, self.dataset.patch, self.dataset.x, self.dataset.y, self.dataset.filenames)
+        x_train, y_train, filenames_train = self.split_fold(self.idx.idx_train)
+        x_test, y_test, filenames_test = self.split_fold(self.idx.idx_test)
 
         train = Data(x_train, y_train, filenames_train, self.dataset.patch)
         test = Data(x_test, y_test, filenames_test, self.dataset.patch)
@@ -91,4 +101,5 @@ class Fold:
 
         predicts = [Predict(self.dataset.patch, r, y_pred_proba, test.y) for r in self.rules]
         self.results = [Result(self.dataset.levels, p) for p in predicts]
-        # self.best_result = BestResult(self.results)
+        self.best_result = BestResult(self.results)
+
