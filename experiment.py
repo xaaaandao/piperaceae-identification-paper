@@ -1,12 +1,15 @@
 import itertools
 import logging
+import os
 from typing import Any
 
 import numpy as np
 from sklearn.model_selection import StratifiedKFold
 
-from result import Mean
-from v1.classifier import get_classifier
+from best import BestMean, BestFold
+from mean import Mean
+from save import save_csv_transpose
+from classifier import get_classifier
 from dataset import Dataset
 from fold import Fold
 
@@ -22,17 +25,16 @@ class Experiment:
 
         self.backend = backend
         self.best_fold = None
-        # self.best_mean = None
+        self.best_mean = None
         self.cv_metric = cv_metric
         self.dataset = dataset
         # self.data_augmentations = data_augmentations
         self.folds = folds
         self.indexes = list
-        # self.means = None
+        self.means = list
         self.metrics = metrics
         self.n_jobs = n_jobs
         self.rules = ["sum", "max", "mult"]
-        # self.save = None
         self.seed = seed
         self.verbose = verbose
         self.classifier = get_classifier(classifier, self.n_jobs, self.seed, self.verbose)
@@ -41,50 +43,56 @@ class Experiment:
         x = np.random.rand(self.dataset.qtd_samples_no_patch, self.dataset.qtd_features)
         y = [np.repeat(k, int(v / self.dataset.patch)) for k, v in self.dataset.qtd_samples_label.items()]
         y = np.array(list(itertools.chain(*y)))
+
         logging.info("StratifiedKFold x.shape: %s" % str(x.shape))
         logging.info("StratifiedKFold y.shape: %s" % str(y.shape))
+
         kf = StratifiedKFold(n_splits=self.folds, shuffle=True, random_state=self.seed)
         self.indexes = list(kf.split(x, y))
 
-    def run(self):
+    def run(self, output):
         self.get_indexs()
         folds = [Fold(self.dataset, fold, idx) for fold, idx in enumerate(self.indexes, start=1)]
 
         kwargs = {"cv": self.folds, "scoring": self.cv_metric, "n_jobs": self.n_jobs, "verbose": self.verbose}
 
         for fold in folds:
-            fold.run(self.backend, self.classifier, **kwargs)
+            fold.run(self.backend, self.classifier, output, **kwargs)
 
         self.best_fold = BestFold(folds)
-        #
-        self.means = [Mean(folds, rule) for rule in self.rules]
-        # self.best_mean = BestMean(self.means)
-        #
-        # self.save = SaveExperiment(self, folds, output)
+        self.means = [Mean(folds, self.dataset.levels, output, self.dataset.patch, rule) for rule in self.rules]
+        self.best_mean = BestMean(self.means)
 
-class BestFold:
-    def __init__(self, folds):
-        self.f1 = max(folds, key=lambda x: x.best_result.f1.f1)
-        self.accuracy = max(folds, key=lambda x: x.best_result.accuracy.accuracy)
-        self.level_fold, self.level_result, self.level = max(
-            ((fold, result, level)
-             for fold in folds
-             for result in fold.results
-             for level in result.levels),
-            key=lambda pair: pair[2].tp
-        )
-        self.top_fold, self.top_result, self.top = max(
-            ((fold, result, top)
-             for fold in folds
-             for result in fold.results
-             for top in result.top
-             if top.k == 3),
-            key=lambda pair: pair[2].top_k_accuracy_score
-        )
-        self.print()
+        self.save(output)
 
-    def print(self):
-        logging.info("fold: %d best f1: %f rule: %s" % (self.f1.fold, self.f1.best_result.f1.f1, self.f1.best_result.f1.rule))
-        logging.info("fold: %d best accuracy: %f rule: %s" % (self.accuracy.fold, self.accuracy.best_result.accuracy.accuracy, self.accuracy.best_result.accuracy.rule))
-        logging.info("fold: %d name: %s tp: %d rule: %s" % (self.level_fold.fold, self.level.name, self.level.tp, self.level_result.rule))
-        logging.info("fold: %d k: %d top: %d rule: %s" % (self.top_fold.fold, self.top.k, self.top.top_k_accuracy_score, self.top_result.rule))
+    def save(self, output):
+        self.save_best(output)
+        self.save_info(output)
+
+    def save_best(self, output):
+        output_dir = os.path.join(output, "best")
+        os.makedirs(output_dir, exist_ok=True)
+
+        self.best_fold.save(output_dir)
+        self.best_mean.save(output_dir)
+
+    def save_info(self, output):
+        data = self.to_dict()
+        filename = os.path.join(output, "experiment.csv")
+        save_csv_transpose(data, filename, header=False, index=True)
+
+    def to_dict(self):
+        return {
+            "clf": [self.classifier.__class__.__name__],
+            "folds": [self.folds],
+            "metric": [self.metrics],
+            "model": [self.dataset.model],
+            "n_jobs": [self.n_jobs],
+            "patch": [self.dataset.patch],
+            "qtd_features": [self.dataset.qtd_features],
+            "qtd_samples": [self.dataset.qtd_samples],
+            "qtd_samples_no_patch": [self.dataset.qtd_samples_no_patch],
+            "seed": [self.seed],
+            "scoring": [self.seed],
+            "verbose": [self.verbose],
+        }

@@ -22,13 +22,16 @@ class Level:
 @dataclasses.dataclass
 class Sample:
     filename: str
-    # features: Features
     level: Level
 
     def __post_init__(self):
-        # if self.features is None:
-        #     raise ValueError("features is empty")
 
         if self.level is None:
             raise ValueError("level is empty")
 
+
+def get_level_by_name(levels, specific_epithet):
+    for l in levels:
+        if l.specific_epithet==specific_epithet:
+            return l
+    return None

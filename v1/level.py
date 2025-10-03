@@ -28,11 +28,7 @@ class LevelTP(Level):
         super().__init__(label, specific_epithet)
         self.true_positive = tp
 
-def get_level_by_name(levels, specific_epithet):
-    for l in levels:
-        if l.specific_epithet==specific_epithet.replace("+", " "):
-            return l
-    return None
+
 
 def get_level_by_label(label, levels):
     for l in levels:

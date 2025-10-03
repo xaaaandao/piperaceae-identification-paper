@@ -6,7 +6,7 @@ import unittest
 import numpy as np
 
 from dataset import Dataset
-from result import Predict
+from predict import Predict
 from test_datasetbase import TestDatasetBase
 
 

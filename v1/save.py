@@ -292,10 +292,7 @@ class SaveResult:
         self.confusion_matrix_multilabel(output_dir)
 
     def confusion_matrix_normalized(self, output):
-        filename = os.path.join(output, "fold-%d-confusion_matrix_normalized-%s.csv" % (self.fold.fold, self.result.rule))
 
-        df = pd.DataFrame(self.result.confusion_matrix_normalized, index=self.fold.datase.levels, columns=self.fold.datase.levels)
-        save_csv(df, filename, header=True, index=True)
 
     def confusion_matrix_non_normalized(self, output):
         filename = os.path.join(output, "fold-%d-confusion_matrix_non_normalized-%s.csv" % (self.fold.fold, self.result.rule))
