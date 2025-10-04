@@ -19,11 +19,6 @@ class TestDataAugmentation(TestDatasetBase):
         os.makedirs(self.dir_tmp, exist_ok=True)
         self.create_fake_dataset()
         self.dataset = Dataset(self.dir_tmp)
-        self.data_augmentations = [DataAugmentation(self.dir_tmp)]
-        self.create_fold()
-        self.experiment = Experiment(self.clf, self.dataset, self.data_augmentations, self.dir_tmp, cv=self.folds)
-        self.experiment.get_indexs()
-        self.folds = [Fold(self.dataset, f, self.experiment.indexes) for f in range(self.folds)]
 
     def tearDown(self):
         for f in self.files:
@@ -40,7 +35,15 @@ class TestDataAugmentation(TestDatasetBase):
         self.create_idxs()
         self.fold = Fold(self.dataset, self.patch, self.idxs)
 
-    def test_merge_data_augmentation(self):
+    def create_one_data_augmentation(self, min_data_augmentation=-1):
+        self.data_augmentations = [DataAugmentation(self.dir_tmp, min_data_augmentation)]
+        self.create_fold()
+        self.experiment = Experiment(self.clf, self.dataset, self.data_augmentations, self.dir_tmp, cv=self.folds)
+        self.experiment.get_indexs()
+        self.folds = [Fold(self.dataset, f, self.experiment.indexes) for f in range(self.folds)]
+
+    def test_merge_one_data_augmentation(self):
+        self.create_one_data_augmentation()
         for f in self.folds:
             x_train, y_train, filenames_train = f.split_fold(f.idx.idx_train[0])
             f.train = Data(x_train, y_train, filenames_train, self.dataset.patch)
@@ -56,7 +59,13 @@ class TestDataAugmentation(TestDatasetBase):
             f.merge_data_augmentation()
             self.assertEqual(train_x_shape + f.x_aug.shape[0], f.train.x.shape[0])
 
+    def test_merge_min_data_augmentation(self):
+        minimum_samples = np.min(list(collections.Counter(s.level.label for s in self.dataset.samples).values()))
+        minimum_label = [k for k, v in collections.Counter(s.level.label for s in self.dataset.samples).items() if v <= minimum_samples+1]
 
+        self.create_one_data_augmentation(min_data_augmentation=minimum_samples+1)
+        labels_filtered = self.data_augmentations[0].data[:, -2]
+        self.assertTrue(len(np.setdiff1d(labels_filtered, minimum_label)) == 0)
 
 
 

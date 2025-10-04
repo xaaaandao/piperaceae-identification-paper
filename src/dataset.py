@@ -116,3 +116,17 @@ class DataAugmentation(Dataset):
         super().__init__(input_dir)
         self.input_dir = input_dir
         self.min_data_aug = min_data_aug
+        self.filter_data()
+
+    def filter_data(self):
+        if self.min_data_aug > 0:
+            min_labels = collections.Counter(s.level.label for s in self.samples)
+            min_labels = [k for k, v in min_labels.items() if v <= self.min_data_aug]
+
+            labels = self.data[:, -2].astype(float).astype(np.int16)
+            self.data = self.data.astype(object)
+            self.data[:, -2] = labels
+
+            self.data = self.data[np.isin(labels, min_labels)]
+
+            logging.info("x_augmented FILTERED: %s" % str(self.data.shape))
