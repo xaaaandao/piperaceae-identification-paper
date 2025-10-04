@@ -38,7 +38,7 @@ def main(clf, data_aug, input_dir, min_data_aug, output_dir, sql):
     dataset = Dataset(input_dir)
     data_augmentations = [DataAugmentation(d, min_data_aug) for d in data_aug]
 
-    experiment = Experiment(clf, dataset, data_augmentations, cv=2)
+    experiment = Experiment(clf, dataset, data_augmentations)
 
     experiment.run()
 
