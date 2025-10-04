@@ -1,57 +1,68 @@
-# from unittest import TestCase
-#
-# import os
-# import numpy as np
-# import pandas as pd
-#
-# from v1.dataset import DataAugmentation
-#
-#
-# class TestDataAugmentation(TestCase):
-#
-#     def setUp(self):
-#         self.create_fake_array()
-#         self.create_fake_df_samples()
-#         super().setUp()
-#
-#     def tearDown(self):
-#         if os.path.exists("test.npy"):
-#             os.remove("test.npy")
-#         if os.path.exists("samples.csv"):
-#             os.remove("samples.csv")
-#         super().tearDown()
-#
-#     def create_fake_array(self):
-#         self.fake_data_augmentation = np.array([
-#             [1, 2, 3, 4, 1, "arquivo_a"],
-#             [1, 2, 3, 4, 1, "arquivo_a"],
-#             [1, 2, 3, 4, 1, "arquivo_a"],
-#             [1, 2, 3, 4, 1, "arquivo_b"],
-#             [1, 2, 3, 4, 1, "arquivo_b"],
-#             [1, 2, 3, 4, 1, "arquivo_b"],
-#             [1, 2, 3, 4, 2, "arquivo_c"],
-#             [1, 2, 3, 4, 2, "arquivo_c"],
-#             [1, 2, 3, 4, 2, "arquivo_c"],
-#             [1, 2, 3, 4, 3, "arquivo_d"],
-#             [1, 2, 3, 4, 3, "arquivo_d"],
-#             [1, 2, 3, 4, 3, "arquivo_d"]
-#         ])
-#         np.save("test.npy", self.fake_data_augmentation)
-#
-#     def create_fake_df_samples(self):
-#         data = {
-#             "fold": [1, 1, 2, 3],
-#             "filename": ["arquivo_a", "arquivo_b", "arquivo_c", "arquivo_d"],
-#             "specific_epithet": ["especie_a", "especie_b", "arquivo_c", "arquivo_d"],
-#         }
-#         df = pd.DataFrame(data)
-#         df.to_csv("samples.csv", sep=";", quoting=2, index=False, header=True, encoding="utf-8")
-#
-#     def test_load_samples(self):
-#         self.data_augmentation = DataAugmentation("..")
-#         self.assertEqual(len(self.data_augmentation.samples), self.fake_data_augmentation.shape[0])
-#
-#     def test_filter_data(self):
-#         self.data_augmentation = DataAugmentation("..", 2)
-#         labels = self.data_augmentation.data[:, -2]
-#         self.assertTrue(all(l == 1 for l in labels))
+import collections
+from unittest import TestCase
+
+import os
+import numpy as np
+import numpy.testing as npt
+import pandas as pd
+
+from dataset import Dataset, DataAugmentation
+from experiment import Experiment
+from fold import Fold, Data
+from test_datasetbase import TestDatasetBase
+
+
+class TestDataAugmentation(TestDatasetBase):
+    clf = "DecisionTreeClassifier"
+
+    def setUp(self):
+        os.makedirs(self.dir_tmp, exist_ok=True)
+        self.create_fake_dataset()
+        self.dataset = Dataset(self.dir_tmp)
+        self.data_augmentations = [DataAugmentation(self.dir_tmp)]
+        self.create_fold()
+        self.experiment = Experiment(self.clf, self.dataset, self.data_augmentations, self.dir_tmp, cv=self.folds)
+        self.experiment.get_indexs()
+        self.folds = [Fold(self.dataset, f, self.experiment.indexes) for f in range(self.folds)]
+
+    def tearDown(self):
+        for f in self.files:
+            os.remove(os.path.join(self.dir_tmp, f))
+        os.removedirs(self.dir_tmp)
+
+    def create_idxs(self):
+        idxs = np.arange(0, self.dataset.qtd_samples_no_patch)
+        self.idx_train = idxs[0: len(idxs) // 2]
+        self.idx_test = idxs[len(idxs) // 2:]
+        self.idxs = list((self.idx_train, self.idx_test))
+
+    def create_fold(self):
+        self.create_idxs()
+        self.fold = Fold(self.dataset, self.patch, self.idxs)
+
+    def test_merge_data_augmentation(self):
+        for f in self.folds:
+            x_train, y_train, filenames_train = f.split_fold(f.idx.idx_train[0])
+            f.train = Data(x_train, y_train, filenames_train, self.dataset.patch)
+
+            train_x_shape = f.train.x.shape[0]
+
+            f.find_train_data_augmentation(self.data_augmentations)
+            diff = np.setdiff1d(f.filenames_aug, f.train.filenames)
+            diff2 = np.setdiff1d(f.train.filenames, f.filenames_aug)
+            self.assertTrue(len(diff) == 0)
+            self.assertTrue(len(diff2) == 0)
+
+            f.merge_data_augmentation()
+            self.assertEqual(train_x_shape + f.x_aug.shape[0], f.train.x.shape[0])
+
+
+
+
+
+
+
+
+
+
+

@@ -1,4 +1,6 @@
 import collections
+import dataclasses
+import itertools
 import logging
 
 import joblib
@@ -43,15 +45,12 @@ class IndexTrainTest:
         self.idx_train = idx[0]
         self.idx_test = idx[1]
 
-
 class Data:
-    total: int
-    total_no_patch: int
-
-    def __init__(self, x, y, filenames, patch):
-        self.x = x
-        self.y = y
-        self.filenames = filenames
+    def __init__(self, x: np.ndarray, y: np.ndarray,
+                 filenames: list[str], patch: int):
+        self.x: np.ndarray = x
+        self.y: np.ndarray = y
+        self.filenames: list[str] = filenames
         logging.info("x.shape: %s y.shape: %s" % (self.x.shape, self.y.shape))
 
         self.count = collections.Counter(self.y)
@@ -74,8 +73,8 @@ class Fold:
         self.idx = IndexTrainTest(idx)
         self.results = list
         self.rules = ["sum", "max", "mult"]
-        self.test = Data
-        self.train = Data
+        self.test: Data = None
+        self.train: Data = None
         self.y_pred_proba = []
 
     def split_fold(self, idxs):
@@ -87,12 +86,26 @@ class Fold:
 
         return self.dataset.x[rows_to_get], self.dataset.y[rows_to_get], self.dataset.filenames[rows_to_get]
 
-    def run(self, backend, classifier, **kwargs):
+    def run(self, backend, classifier, data_augmentations, **kwargs):
         x_train, y_train, filenames_train = self.split_fold(self.idx.idx_train)
         x_test, y_test, filenames_test = self.split_fold(self.idx.idx_test)
 
         self.train = Data(x_train, y_train, filenames_train, self.dataset.patch)
         self.test = Data(x_test, y_test, filenames_test, self.dataset.patch)
+
+        if len(data_augmentations) > 0:
+            train_x_shape = self.train.x.shape
+            self.find_train_data_augmentation(data_augmentations)
+            self.merge_data_augmentation()
+
+            logging.info("x_train COM data augmentation: %s" % str(self.train.x.shape))
+            logging.info("y_train COM data augmentation: %s" % str(self.train.y.shape))
+
+            if train_x_shape[0] + self.x_aug.shape[0] != self.train.x.shape[0]:
+                raise SystemExit("shape not match")
+
+            if len(np.setdiff1d(self.train.filenames, self.filenames_aug)) == 0 and len(np.setdiff1d(self.filenames_aug, self.train.filenames)):
+                raise SystemExit("filenames not match")
 
         self.best_classifier = GridSearchCV(classifier, hyper[classifier.__class__.__name__], **kwargs)
 
@@ -109,6 +122,30 @@ class Fold:
         self.predicts = [Predict(self.dataset.patch, r, y_pred_proba, self.test.y) for r in self.rules]
         self.results = [Result(self.dataset.levels, p) for p in self.predicts]
         self.best_result = BestResult(self.results)
+
+    def find_train_data_augmentation(self, data_augmentations):
+        data_aug = [d.data for d in data_augmentations]
+        data_aug = np.array(list(itertools.chain(*data_aug)))
+        logging.info("data augmentation shape: %s" % str(data_aug.shape))
+
+        mask = np.isin(data_aug[:, -1], self.train.filenames)
+        data_aug = data_aug[mask]
+
+        self.x_aug = data_aug[:, :-2]
+        self.x_aug = self.x_aug.astype(float)
+
+        self.y_aug = data_aug[:, -2]
+        self.y_aug = self.y_aug.astype(float).astype(np.int16)
+
+        self.filenames_aug = data_aug[:, -1]
+
+        logging.info("x_augmented shape: %s" % str(self.x_aug.shape))
+        logging.info("y_augmented shape: %s" % str(self.y_aug.shape))
+
+    def merge_data_augmentation(self):
+        self.train.x = np.concatenate((self.train.x, self.x_aug), axis=0)
+        self.train.y = np.concatenate((self.train.y, self.y_aug), axis=0)
+
 
     def to_dict_data_count_level(self):
         return {

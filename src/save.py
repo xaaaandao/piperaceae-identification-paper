@@ -5,6 +5,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
+
 class SaveExperiment:
     def __init__(self, experiment, output):
         self.experiment = experiment
@@ -16,6 +17,7 @@ class SaveExperiment:
         self.save_best()
         self.save_info()
         self.save_folds()
+        self.save_mean()
 
     def save_best(self):
         output = os.path.join(self.output, "best")
@@ -44,6 +46,10 @@ class SaveExperiment:
         data = self.experiment.to_dict()
         filename = os.path.join(self.output, "experiment.csv")
         save_csv_transpose(data, filename, header=False, index=True)
+
+    def save_mean(self):
+        for mean in self.experiment.means:
+            SaveMean(self.experiment.folds, mean, self.output, self.experiment.dataset.patch)
 
 class SaveFold:
     def __init__(self, fold, output):
@@ -247,6 +253,49 @@ class SaveConfusionMatrix:
         filename = os.path.join(output, "fold-%d-confusion_matrix_non_normalized-%s.csv" % (fold, rule))
         df = pd.DataFrame(self.confusion_matrix.non_normalized, index=levels, columns=levels)
         save_csv(df, filename, header=True, index=True)
+
+class SaveMean:
+    def __init__(self, folds, mean, output, patch):
+        self.folds = folds
+        self.mean = mean
+        self.output = os.path.join(output, "means")
+        os.makedirs(self.output, exist_ok=True)
+        self.patch = patch
+
+        self.save()
+
+    def save(self):
+        self.output = os.path.join(self.output, self.mean.rule)
+        os.makedirs(self.output, exist_ok=True)
+
+        self.save_f1_accuracy()
+        self.save_top()
+        self.save_tp()
+
+    def save_f1_accuracy(self):
+        data = self.mean.to_dict_metrics()
+        filename = os.path.join(self.output, "means-%s.csv" % self.mean.rule)
+        df = pd.DataFrame(data)
+        save_csv(df, filename)
+
+    def save_top(self):
+        output = os.path.join(self.output, "top")
+        os.makedirs(output, exist_ok=True)
+
+        data = self.mean.to_dict_top(self.folds, self.patch)
+        filename = os.path.join(output, "means_top-%s.csv" % self.mean.rule)
+        df = pd.DataFrame(data)
+        save_csv(df, filename)
+
+    def save_tp(self):
+        output = os.path.join(self.output, "tp")
+        os.makedirs(output, exist_ok=True)
+
+        data = self.mean.to_dict_levels(self.folds, self.patch)
+        filename = os.path.join(output, "means_tp-%s.csv" % self.mean.rule)
+        df = pd.DataFrame(data)
+        save_csv(df, filename)
+
 
 def save_csv(df, filename, header=True, index=False):
     df.to_csv(filename, sep=";", quoting=2, index=index, header=header, encoding="utf-8")

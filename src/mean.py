@@ -38,7 +38,7 @@ class MeanAccuracy:
 
 
 class Mean:
-    def __init__(self, folds, levels, patch, rule):
+    def __init__(self, folds, levels, rule):
         self.rule = rule
         self.accuracy = None
         self.f1 = None
@@ -46,9 +46,9 @@ class Mean:
         self.levels : list = []
         self.get_accuracy(folds)
         self.get_f1(folds)
-        self.get_mean_test_label(folds, levels, patch)
-        self.get_mean_test(folds, patch)
-        self.get_top(folds)
+        #
+        #
+        self.get_top(folds, levels)
         self.get_tp(folds, levels)
         # self.save(output, patch)
 
@@ -64,7 +64,7 @@ class Mean:
         self.accuracy = MeanAccuracy(mean, std)
         logging.info("mean accuracy: %f std: %f rule: %s" % (self.accuracy.mean, self.accuracy.std, self.rule))
 
-    def get_top(self, folds):
+    def get_top(self, folds, levels):
         tops = np.array([
             [[top.top_k_accuracy_score for top in sorted(result.tops, key= lambda x: x.k)]
              for result in fold.results if result.rule == self.rule]
@@ -72,7 +72,7 @@ class Mean:
         ])
         mean_tops = np.mean(tops, axis=(0, 1))
         std_tops = np.std(tops, axis=(0, 1))
-        for mean, std, k in zip(mean_tops, std_tops, range(3, len(mean_tops) + 1)):
+        for mean, std, k in zip(mean_tops, std_tops, range(3, len(levels) + 1)):
             self.tops.append(MeanTop(k, mean, std))
 
     def get_tp(self, folds, levels):
@@ -86,35 +86,16 @@ class Mean:
         for mean, std, level in zip(mean_level, std_level, sorted(levels, key= lambda x: x.label)):
             self.levels.append(MeanLevelTP(level.label, level.name, mean, std))
 
-    # def save(self, output, patch):
-    #     output_dir = os.path.join(output, "means", self.rule)
-    #     os.makedirs(output_dir, exist_ok=True)
-    #
-    #     self.save_f1_accuracy(output_dir)
-    #     self.save_top(output_dir, patch)
-    #     self.save_tp(output_dir)
-    #
-    # def save_tp(self, output):
-    #     output_dir = os.path.join(output, "tp")
-    #     os.makedirs(output_dir, exist_ok=True)
-    #
-    #     data = self.to_dict_levels()
-    #     filename = os.path.join(output_dir, "means_tp-%s.csv" % self.rule)
-    #     df = pd.DataFrame(data)
-    #     save_csv(df, filename)
-    #
-    # def save_f1_accuracy(self, output):
-    #     data = {
-    #         "mean": [self.f1.mean, self.accuracy.mean],
-    #         "metric" : ["f1", "accuracy"],
-    #         "std": [self.f1.std, self.accuracy.std],
-    #         "rule" : [self.rule, self.rule]
-    #     }
-    #     filename = os.path.join(output, "means-%s.csv" % self.rule)
-    #     df = pd.DataFrame(data)
-    #     save_csv(df, filename)
+    def to_dict_metrics(self):
+        return {
+            "mean": [self.f1.mean, self.accuracy.mean],
+            "metric": ["f1", "accuracy"],
+            "std": [self.f1.std, self.accuracy.std],
+            "rule": [self.rule, self.rule]
+        }
 
-    def to_dict_levels(self):
+    def to_dict_levels(self, folds, patch):
+        self.get_mean_test_label(folds, patch)
         return {
             "label": [l.label for l in sorted(self.levels, key=lambda x: x.label)],
             "name": [l.name for l in sorted(self.levels, key=lambda x: x.label)],
@@ -123,16 +104,8 @@ class Mean:
             "mean_test": [self.mean_test_label[l.label] for l in sorted(self.levels, key=lambda x: x.label)],
         }
 
-    # def save_top(self, output, patch):
-    #     output_dir = os.path.join(output, "top")
-    #     os.makedirs(output_dir, exist_ok=True)
-    #
-    #     data = self.to_dict_top()
-    #     filename = os.path.join(output_dir, "means_top-%s.csv" % self.rule)
-    #     df = pd.DataFrame(data)
-    #     save_csv(df, filename)
-
-    def to_dict_top(self):
+    def to_dict_top(self, folds, patch):
+        self.get_mean_test(folds, patch)
         return {
             "k": [t.k for t in sorted(self.tops, key=lambda x: x.k)],
             "mean": [t.mean for t in sorted(self.tops, key=lambda x: x.k)],
@@ -146,7 +119,7 @@ class Mean:
         self.mean_test = np.mean(count_test) // patch
 
 
-    def get_mean_test_label(self, folds, levels, patch):
+    def get_mean_test_label(self, folds, patch):
         count_test = [dict(f.test.count) for f in folds]
         soma = collections.Counter()
         count = collections.Counter()

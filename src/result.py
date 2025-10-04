@@ -50,9 +50,8 @@ class Result:
         :param y_true: np.ndarray com as classes verdadeiras.
         :return: list, lista com todas os valores de top k.
         """
-        level = max(self.levels, key=lambda x: x.label)
         self.tops = [TopK(k, levels=self.levels, y_score=self.predict.y_score, y_true=self.predict.y_true) for k in
-                range(3, level.label)]
+            range(3, len(self.levels))]
 
 
     def get_classification_report(self):

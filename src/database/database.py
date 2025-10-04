@@ -4,7 +4,7 @@ import os
 import sqlalchemy as sa
 import sqlalchemy.orm
 
-from model import get_base, ResultDB
+from database.model import ResultDB, get_base
 
 
 def connect(echo=True, user=os.environ["DB_USER"], password=os.environ["DB_PASSWORD"], host="127.0.0.1", port="5432", database="herbario"):

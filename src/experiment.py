@@ -16,6 +16,7 @@ from fold import Fold
 
 class Experiment:
     def __init__(self, classifier: Any, dataset: Dataset,
+                 data_augmentations: list,
                  backend: str = "loky",
                  cv_metric: str = "f1_weighted", cv: int = 5,
                  metrics: list[str] = None, n_jobs: int = -1,
@@ -28,7 +29,7 @@ class Experiment:
         self.best_mean = None
         self.cv_metric = cv_metric
         self.dataset = dataset
-        # self.data_augmentations = data_augmentations
+        self.data_augmentations = data_augmentations
         self.cv = cv
         self.indexes = list
         self.means = list
@@ -57,10 +58,10 @@ class Experiment:
         kwargs = {"cv": self.cv, "scoring": self.cv_metric, "n_jobs": self.n_jobs, "verbose": self.verbose}
 
         for fold in self.folds:
-            fold.run(self.backend, self.classifier, **kwargs)
+            fold.run(self.backend, self.classifier, self.data_augmentations,**kwargs)
 
         self.best_fold = BestFold(self.folds)
-        self.means = [Mean(self.folds, self.dataset.levels, self.dataset.patch, rule) for rule in self.rules]
+        self.means = [Mean(self.folds, self.dataset.levels, rule) for rule in self.rules]
         self.best_mean = BestMean(self.means)
 
 
@@ -68,6 +69,7 @@ class Experiment:
         return {
             "clf": [self.classifier.__class__.__name__],
             "cv": [self.cv],
+            "input_dir": [self.dataset.input_dir],
             "metric": [self.metrics],
             "model": [self.dataset.model],
             "n_jobs": [self.n_jobs],

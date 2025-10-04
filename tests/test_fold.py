@@ -24,7 +24,7 @@ class TestFold(TestDatasetBase):
         self.create_fake_dataset()
         self.dataset = Dataset(self.dir_tmp)
         self.create_fold()
-        self.experiment = Experiment(self.clf, self.dataset, self.dir_tmp, cv=self.folds)
+        self.experiment = Experiment(self.clf, self.dataset, [], self.dir_tmp, cv=self.folds)
         self.experiment.get_indexs()
         self.folds = [Fold(self.dataset, f, self.experiment.indexes) for f in range(self.folds)]
 

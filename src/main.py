@@ -4,7 +4,7 @@ import os
 
 import click
 
-from dataset import Dataset
+from dataset import Dataset, DataAugmentation
 from experiment import Experiment
 from save import save
 
@@ -18,13 +18,13 @@ classifiers = ["DecisionTreeClassifier", "RandomForestClassifier", "KNeighborsCl
 
 @click.command()
 @click.option("-c", "--clf", type=str, required=True, default="DecisionTreeClassifier")
-# @click.option("-d", "--data_aug", multiple=True, required=False)
+@click.option("-d", "--data_aug", multiple=True, required=False)
 @click.option("-i", "--input_dir", required=True)
-# @click.option("-m", "--min_data_aug", required=False, default=-1)
+@click.option("-m", "--min_data_aug", required=False, default=-1)
 @click.option("-o", "--output_dir", required=False, default="./output")
 # @click.option("-p", "--pca", is_flag=True, default=False)
-# @click.option("-s", "--sql", is_flag=True, default=False)
-def main(clf, input_dir, output_dir):
+@click.option("-s", "--sql", is_flag=True, default=False)
+def main(clf, data_aug, input_dir, min_data_aug, output_dir, sql):
     # if output is not None and os.path.exists(output):
     #     raise SystemError("output %s already exists" % output)
 
@@ -35,8 +35,9 @@ def main(clf, input_dir, output_dir):
         raise SystemExit("classifier %s not found" % clf)
 
     dataset = Dataset(input_dir)
+    data_augmentations = [DataAugmentation(d, min_data_aug) for d in data_aug]
 
-    experiment = Experiment(clf, dataset, cv=2)
+    experiment = Experiment(clf, dataset, data_augmentations, cv=2)
 
     experiment.run()
 

@@ -81,6 +81,7 @@ class Dataset:
             raise FileNotFoundError("No features found in %s" % self.input_dir)
 
         self.data = np.vstack(data)
+
         self.split_features_label()
 
     def load_samples(self, df):
@@ -110,3 +111,8 @@ class Dataset:
         logging.info("x.shape: %s" % str(self.x.shape))
         logging.info("y.shape: %s" % str(self.y.shape))
 
+class DataAugmentation(Dataset):
+    def __init__(self, input_dir, min_data_aug=-1):
+        super().__init__(input_dir)
+        self.input_dir = input_dir
+        self.min_data_aug = min_data_aug
