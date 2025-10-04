@@ -25,7 +25,7 @@ class TestResult(TestDatasetBase):
         os.makedirs(self.dir_tmp, exist_ok=True)
         self.create_fake_dataset()
         self.dataset = Dataset(self.dir_tmp)
-        self.experiment = Experiment(self.clf, self.dataset, cv=self.folds)
+        self.experiment = Experiment(self.clf, self.dataset, [], cv=self.folds)
         self.experiment.get_indexs()
         self.folds = [Fold(self.dataset, f, self.experiment.indexes) for f in range(self.folds)]
         self.create_predicts()
