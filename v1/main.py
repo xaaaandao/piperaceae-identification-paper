@@ -4,7 +4,7 @@ import logging
 import numpy as np
 import os.path
 
-from database import connect
+from src.database.database import connect
 from dataset import Dataset, DataAugmentation
 from experiment import Experiment
 

@@ -8,7 +8,7 @@ from sklearn.model_selection import StratifiedKFold
 
 from best import BestMean, BestFold
 from mean import Mean
-from save import save_csv_transpose
+# from save import save_csv_transpose
 from classifier import get_classifier
 from dataset import Dataset
 from fold import Fold
@@ -17,7 +17,7 @@ from fold import Fold
 class Experiment:
     def __init__(self, classifier: Any, dataset: Dataset,
                  backend: str = "loky",
-                 cv_metric: str = "f1_weighted", folds: int = 5,
+                 cv_metric: str = "f1_weighted", cv: int = 5,
                  metrics: list[str] = None, n_jobs: int = -1,
                  seed: int = 1234, verbose: int = 42):
         if metrics is None:
@@ -29,7 +29,7 @@ class Experiment:
         self.cv_metric = cv_metric
         self.dataset = dataset
         # self.data_augmentations = data_augmentations
-        self.folds = folds
+        self.cv = cv
         self.indexes = list
         self.means = list
         self.metrics = metrics
@@ -47,44 +47,27 @@ class Experiment:
         logging.info("StratifiedKFold x.shape: %s" % str(x.shape))
         logging.info("StratifiedKFold y.shape: %s" % str(y.shape))
 
-        kf = StratifiedKFold(n_splits=self.folds, shuffle=True, random_state=self.seed)
+        kf = StratifiedKFold(n_splits=self.cv, shuffle=True, random_state=self.seed)
         self.indexes = list(kf.split(x, y))
 
-    def run(self, output):
+    def run(self):
         self.get_indexs()
-        folds = [Fold(self.dataset, fold, idx) for fold, idx in enumerate(self.indexes, start=1)]
+        self.folds = [Fold(self.dataset, fold, idx) for fold, idx in enumerate(self.indexes, start=1)]
 
-        kwargs = {"cv": self.folds, "scoring": self.cv_metric, "n_jobs": self.n_jobs, "verbose": self.verbose}
+        kwargs = {"cv": self.cv, "scoring": self.cv_metric, "n_jobs": self.n_jobs, "verbose": self.verbose}
 
-        for fold in folds:
-            fold.run(self.backend, self.classifier, output, **kwargs)
+        for fold in self.folds:
+            fold.run(self.backend, self.classifier, **kwargs)
 
-        self.best_fold = BestFold(folds)
-        self.means = [Mean(folds, self.dataset.levels, output, self.dataset.patch, rule) for rule in self.rules]
+        self.best_fold = BestFold(self.folds)
+        self.means = [Mean(self.folds, self.dataset.levels, self.dataset.patch, rule) for rule in self.rules]
         self.best_mean = BestMean(self.means)
 
-        self.save(output)
-
-    def save(self, output):
-        self.save_best(output)
-        self.save_info(output)
-
-    def save_best(self, output):
-        output_dir = os.path.join(output, "best")
-        os.makedirs(output_dir, exist_ok=True)
-
-        self.best_fold.save(output_dir)
-        self.best_mean.save(output_dir)
-
-    def save_info(self, output):
-        data = self.to_dict()
-        filename = os.path.join(output, "experiment.csv")
-        save_csv_transpose(data, filename, header=False, index=True)
 
     def to_dict(self):
         return {
             "clf": [self.classifier.__class__.__name__],
-            "folds": [self.folds],
+            "cv": [self.cv],
             "metric": [self.metrics],
             "model": [self.dataset.model],
             "n_jobs": [self.n_jobs],

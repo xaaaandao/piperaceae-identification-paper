@@ -86,28 +86,3 @@ class Predict:
             labels.append(group[0])
 
         self.y_true = np.array(labels)
-
-
-    def save(self, fold, output):
-        output_dir = os.path.join(output, self.rule, "predictions")
-        os.makedirs(output_dir, exist_ok=True)
-        self.save_y_pred(fold, output_dir)
-        self.save_y_pred_proba(fold, output_dir)
-        self.save_y_score(fold, output_dir)
-        self.save_y_true(fold, output_dir)
-
-    def save_y_pred(self, fold, output):
-        filename = os.path.join(output, "fold-%d-y_pred-%s.npy" % (fold, self.rule))
-        np.save(filename, self.y_pred)
-
-    def save_y_pred_proba(self, fold, output):
-        filename = os.path.join(output, "fold-%d-y_pred_proba-%s.npy" % (fold, self.rule))
-        np.save(filename, self.y_pred_proba)
-
-    def save_y_score(self, fold, output):
-        filename = os.path.join(output, "fold-%d-y_score-%s.npy" % (fold, self.rule))
-        np.save(filename, self.y_score)
-
-    def save_y_true(self, fold, output):
-        filename = os.path.join(output, "fold-%d-y_true-%s.npy" % (fold, self.rule))
-        np.save(filename, self.y_true)

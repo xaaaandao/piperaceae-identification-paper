@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from numpy import floating
 
-from save import save_csv
+# from save import save_csv
 
 
 @dataclasses.dataclass
@@ -38,7 +38,7 @@ class MeanAccuracy:
 
 
 class Mean:
-    def __init__(self, folds, levels, output, patch, rule):
+    def __init__(self, folds, levels, patch, rule):
         self.rule = rule
         self.accuracy = None
         self.f1 = None
@@ -50,7 +50,7 @@ class Mean:
         self.get_mean_test(folds, patch)
         self.get_top(folds)
         self.get_tp(folds, levels)
-        self.save(output, patch)
+        # self.save(output, patch)
 
     def get_f1(self, folds):
         mean = np.mean([r.f1 for fold in folds for r in fold.results if r.rule == self.rule])
@@ -86,33 +86,33 @@ class Mean:
         for mean, std, level in zip(mean_level, std_level, sorted(levels, key= lambda x: x.label)):
             self.levels.append(MeanLevelTP(level.label, level.name, mean, std))
 
-    def save(self, output, patch):
-        output_dir = os.path.join(output, "means", self.rule)
-        os.makedirs(output_dir, exist_ok=True)
-
-        self.save_f1_accuracy(output_dir)
-        self.save_top(output_dir, patch)
-        self.save_tp(output_dir)
-
-    def save_tp(self, output):
-        output_dir = os.path.join(output, "tp")
-        os.makedirs(output_dir, exist_ok=True)
-
-        data = self.to_dict_levels()
-        filename = os.path.join(output_dir, "means_tp-%s.csv" % self.rule)
-        df = pd.DataFrame(data)
-        save_csv(df, filename)
-
-    def save_f1_accuracy(self, output):
-        data = {
-            "mean": [self.f1.mean, self.accuracy.mean],
-            "metric" : ["f1", "accuracy"],
-            "std": [self.f1.std, self.accuracy.std],
-            "rule" : [self.rule, self.rule]
-        }
-        filename = os.path.join(output, "means-%s.csv" % self.rule)
-        df = pd.DataFrame(data)
-        save_csv(df, filename)
+    # def save(self, output, patch):
+    #     output_dir = os.path.join(output, "means", self.rule)
+    #     os.makedirs(output_dir, exist_ok=True)
+    #
+    #     self.save_f1_accuracy(output_dir)
+    #     self.save_top(output_dir, patch)
+    #     self.save_tp(output_dir)
+    #
+    # def save_tp(self, output):
+    #     output_dir = os.path.join(output, "tp")
+    #     os.makedirs(output_dir, exist_ok=True)
+    #
+    #     data = self.to_dict_levels()
+    #     filename = os.path.join(output_dir, "means_tp-%s.csv" % self.rule)
+    #     df = pd.DataFrame(data)
+    #     save_csv(df, filename)
+    #
+    # def save_f1_accuracy(self, output):
+    #     data = {
+    #         "mean": [self.f1.mean, self.accuracy.mean],
+    #         "metric" : ["f1", "accuracy"],
+    #         "std": [self.f1.std, self.accuracy.std],
+    #         "rule" : [self.rule, self.rule]
+    #     }
+    #     filename = os.path.join(output, "means-%s.csv" % self.rule)
+    #     df = pd.DataFrame(data)
+    #     save_csv(df, filename)
 
     def to_dict_levels(self):
         return {
@@ -123,14 +123,14 @@ class Mean:
             "mean_test": [self.mean_test_label[l.label] for l in sorted(self.levels, key=lambda x: x.label)],
         }
 
-    def save_top(self, output, patch):
-        output_dir = os.path.join(output, "top")
-        os.makedirs(output_dir, exist_ok=True)
-
-        data = self.to_dict_top()
-        filename = os.path.join(output_dir, "means_top-%s.csv" % self.rule)
-        df = pd.DataFrame(data)
-        save_csv(df, filename)
+    # def save_top(self, output, patch):
+    #     output_dir = os.path.join(output, "top")
+    #     os.makedirs(output_dir, exist_ok=True)
+    #
+    #     data = self.to_dict_top()
+    #     filename = os.path.join(output_dir, "means_top-%s.csv" % self.rule)
+    #     df = pd.DataFrame(data)
+    #     save_csv(df, filename)
 
     def to_dict_top(self):
         return {
