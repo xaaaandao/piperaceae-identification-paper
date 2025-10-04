@@ -4,6 +4,7 @@ import os
 
 import click
 
+from database.database import connect, create_table, insert_results
 from dataset import Dataset, DataAugmentation
 from experiment import Experiment
 from save import save
@@ -42,14 +43,14 @@ def main(clf, data_aug, input_dir, min_data_aug, output_dir, sql):
     experiment.run()
 
     save(experiment, output_dir)
-    # if sql:
-    #     engine, session = connect()
-    #
-    #     create_table(engine)
-    #     insert_results(experiment, min_data_aug, session)
-    #
-    #     session.close()
-    #     engine.dispose()
+    if sql:
+        engine, session = connect()
+
+        create_table(engine)
+        insert_results(experiment, min_data_aug, session)
+
+        session.close()
+        engine.dispose()
 
 
 if __name__ == '__main__':

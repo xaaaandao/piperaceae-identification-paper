@@ -31,10 +31,10 @@ def insert_results(experiment, min_data_aug, session):
                      input_dir=experiment.dataset.input_dir,
                      model=experiment.dataset.model,
                      min_data_aug = int(min_data_aug),
-                     mean_f1=float(m.f1),
-                     std_f1=float(m.f1_std),
-                     mean_accuracy=float(m.accuracy),
-                     std_accuracy=float(m.accuracy_std),
+                     mean_f1=float(m.f1.mean),
+                     std_f1=float(m.f1.std),
+                     mean_accuracy=float(m.accuracy.mean),
+                     std_accuracy=float(m.accuracy.std),
                      rule=m.rule)
             for m in experiment.means]
     session.add_all(data)

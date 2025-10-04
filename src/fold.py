@@ -75,6 +75,8 @@ class Fold:
         self.rules = ["sum", "max", "mult"]
         self.test: Data = None
         self.train: Data = None
+        self.x_aug = []
+        self.y_aug = []
         self.y_pred_proba = []
 
     def split_fold(self, idxs):
@@ -96,7 +98,7 @@ class Fold:
         if len(data_augmentations) > 0:
             train_x_shape = self.train.x.shape
             self.find_train_data_augmentation(data_augmentations)
-            self.merge_data_augmentation()
+            self.merge_train_data_augmentation()
 
             logging.info("x_train COM data augmentation: %s" % str(self.train.x.shape))
             logging.info("y_train COM data augmentation: %s" % str(self.train.y.shape))
@@ -124,12 +126,21 @@ class Fold:
         self.best_result = BestResult(self.results)
 
     def find_train_data_augmentation(self, data_augmentations):
-        data_aug = [d.data for d in data_augmentations]
-        data_aug = np.array(list(itertools.chain(*data_aug)))
-        logging.info("data augmentation shape: %s" % str(data_aug.shape))
+        datas = []
+        for d in data_augmentations:
+            data_aug = d.data
 
-        mask = np.isin(data_aug[:, -1], self.train.filenames)
-        data_aug = data_aug[mask]
+            if "cut-mix" in d.input_dir:
+                filenames = ["+".join(c) for c in itertools.combinations(self.train.filenames, 2)]
+            else:
+                filenames = self.train.filenames
+
+            logging.info("data augmentation (%s) shape: %s" % (d.input_dir, str(data_aug.shape)))
+            mask = np.isin(data_aug[:, -1], filenames)
+            datas.append(data_aug[mask])
+
+        data_aug = np.vstack(datas)
+        logging.info("SELECTED data_aug shape: %s" % str(data_aug.shape))
 
         self.x_aug = data_aug[:, :-2]
         self.x_aug = self.x_aug.astype(float)
@@ -142,12 +153,21 @@ class Fold:
         logging.info("x_augmented shape: %s" % str(self.x_aug.shape))
         logging.info("y_augmented shape: %s" % str(self.y_aug.shape))
 
-    def merge_data_augmentation(self):
+    def merge_train_data_augmentation(self):
         self.train.x = np.concatenate((self.train.x, self.x_aug), axis=0)
         self.train.y = np.concatenate((self.train.y, self.y_aug), axis=0)
 
 
     def to_dict_data_count_level(self):
+        if self.x_aug is not None and len(self.x_aug) > 0:
+            count = collections.Counter(self.y_aug)
+            # TODO pega o patch do data_aug
+            return {
+                "levels": [l.name for l in sorted(self.dataset.levels, key=lambda x: x.label)],
+                "count_train": self.train.to_level_count(self.dataset.levels),
+                "after_count_train": [count[l.label] // self.dataset.patch for l in sorted(self.dataset.levels, key=lambda x:x.label)],
+                "count_test": self.test.to_level_count(self.dataset.levels)
+            }
         return {
             "levels": [l.name for l in sorted(self.dataset.levels, key=lambda x: x.label)],
             "count_train": self.train.to_level_count(self.dataset.levels),

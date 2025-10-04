@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="DA-DT" type="PythonConfigurationType" factoryName="Python">
+  <configuration default="false" name="DA-CUTMIX" type="PythonConfigurationType" factoryName="Python">
     <module name="piperaceae-identification-paper" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
@@ -15,7 +15,7 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/main.py" />
-    <option name="PARAMETERS" value="-i &quot;/mnt/eec07521-c36a-4d2b-9047-0110e7749eae/Nextcloud/Dropbox import/datasets/2025/uem/original/features/pr_dataset+20/features/RGB/512/vgg16&quot; -d &quot;/mnt/eec07521-c36a-4d2b-9047-0110e7749eae/Nextcloud/Dropbox import/datasets/2025/uem/data-augmentation/features/pr_dataset+20+data-augmentation/Affine/features/RGB/512/vgg16&quot; -c DecisionTreeClassifier -o &quot;/mnt/eec07521-c36a-4d2b-9047-0110e7749eae/Nextcloud/Dropbox import/datasets/2025/uem/resultados/pr_dataset+20+Affine+RGB+512+vgg16+DecisionTreeClassifier&quot; -s" />
+    <option name="PARAMETERS" value="-i &quot;/mnt/eec07521-c36a-4d2b-9047-0110e7749eae/Nextcloud/Dropbox import/datasets/2025/uem/original/features/pr_dataset+20/features/RGB/512/vgg16&quot; -d &quot;/mnt/eec07521-c36a-4d2b-9047-0110e7749eae/Nextcloud/Dropbox import/datasets/2025/uem/data-augmentation/features/pr_dataset+20+data-augmentation/cut-mix-vertical/features/RGB/512/vgg16&quot; -c DecisionTreeClassifier -o &quot;/mnt/eec07521-c36a-4d2b-9047-0110e7749eae/Nextcloud/Dropbox import/datasets/2025/uem/resultados/pr_dataset+20+cut-mix-vertical+RGB+512+vgg16+DecisionTreeClassifier&quot; -s" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="false" />
