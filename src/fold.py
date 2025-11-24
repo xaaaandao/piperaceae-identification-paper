@@ -5,6 +5,7 @@ import logging
 
 import joblib
 import numpy as np
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC
 
@@ -108,6 +109,10 @@ class Fold:
 
             if len(np.setdiff1d(self.train.filenames, self.filenames_aug)) == 0 and len(np.setdiff1d(self.filenames_aug, self.train.filenames)):
                 raise SystemExit("filenames not match")
+            
+        scaler = StandardScaler()
+        self.train.x = scaler.fit_transform(self.train.x)
+        self.test.x = scaler.fit_transform(self.test.x)
 
         self.best_classifier = GridSearchCV(classifier, hyper[classifier.__class__.__name__], **kwargs)
 
